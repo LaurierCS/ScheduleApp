@@ -1,0 +1,16 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/LaurierCS/ScheduleApp/wiki
+    about: "Check out the documentation for project details and guidelines."
+    
+issue_templates:
+  - name: 🖥️ Frontend Feature
+    description: "Use this template to create a new frontend-related feature request."
+    labels: ["frontend", "enhancement"]
+    file: frontend_feature.md
+
+  - name: 🔧 Backend API Task
+    description: "Use this template to define a backend API endpoint task."
+    labels: ["backend", "api"]
+    file: backend_task.md
