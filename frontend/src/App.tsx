@@ -4,6 +4,8 @@ import Home from '@/components/Home'
 import Navbar from '@/components/Navbar'
 
 function App() {
+  const count: number = "not a number";
+  
   return (
     <div className="min-h-screen dark bg-background text-foreground">
       <Router>
