@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -25,13 +25,13 @@ const StatusDashboard = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   // add a log message
-  const addLog = (message: string) => {
+  const addLog = useCallback((message: string) => {
     const timestamp = new Date().toLocaleTimeString()
     setLogs(prev => [`[${timestamp}] ${message}`, ...prev])
-  }
+  }, [])
 
   // update a specific status check
-  const updateStatus = (name: string, status: 'success' | 'error' | 'pending', message: string, details?: string) => {
+  const updateStatus = useCallback((name: string, status: 'success' | 'error' | 'pending', message: string, details?: string) => {
     setStatusChecks(prev => 
       prev.map(check => 
         check.name === name 
@@ -42,10 +42,10 @@ const StatusDashboard = () => {
     
     // add to logs
     addLog(`${name}: ${status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳'} ${message}`)
-  }
+  }, [addLog])
 
   // check frontend status (tailwind, react)
-  const checkFrontend = () => {
+  const checkFrontend = useCallback(() => {
     // check if tailwind is working by testing a tailwind class
     const testElement = document.createElement('div')
     testElement.className = 'hidden'
@@ -63,10 +63,10 @@ const StatusDashboard = () => {
     
     // react is working if we can see this component
     updateStatus('frontend', 'success', 'react frontend is properly configured')
-  }
+  }, [updateStatus])
 
   // check backend status
-  const checkBackend = async (): Promise<'success' | 'error'> => {
+  const checkBackend = useCallback(async (): Promise<'success' | 'error'> => {
     try {
       const response = await fetch('http://localhost:5000')
       
@@ -78,14 +78,15 @@ const StatusDashboard = () => {
         updateStatus('backend', 'error', `backend check failed: ${response.status}`)
         return 'error'
       }
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       updateStatus('backend', 'error', 'could not connect to backend server')
       return 'error'
     }
-  }
+  }, [updateStatus])
 
   // check mongodb status through backend
-  const checkMongoDB = async () => {
+  const checkMongoDB = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:5000/api/status/db')
       
@@ -95,11 +96,11 @@ const StatusDashboard = () => {
       } else {
         updateStatus('mongodb', 'error', `database check failed: ${response.status}`)
       }
-    } catch (error) {
-      console.error('MongoDB check error:', error)
+    } catch (_error) {
+      console.error('MongoDB check error:', _error)
       updateStatus('mongodb', 'error', 'could not check database connection')
     }
-  }
+  }, [updateStatus])
 
   // run all checks on mount
   useEffect(() => {
@@ -125,7 +126,7 @@ const StatusDashboard = () => {
     
     // call the function
     runInitialChecks()
-  }, []) // empty dependency array means this runs once on mount
+  }, [addLog, checkFrontend, checkBackend, checkMongoDB]) // add all dependencies
   
   // separate function for the refresh button
   const runChecks = async () => {
