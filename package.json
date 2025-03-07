@@ -1,0 +1,16 @@
+{
+  "name": "schedule-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "frontend": "cd frontend && pnpm dev",
+    "backend": "cd backend && pnpm dev",
+    "dev": "concurrently \"pnpm run frontend\" \"pnpm run backend\"",
+    "frontend:build": "cd frontend && pnpm build",
+    "backend:build": "cd backend && pnpm build",
+    "build": "pnpm run frontend:build && pnpm run backend:build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
