@@ -1,0 +1,75 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install backend dependencies
+        run: cd backend && pnpm install
+
+      - name: TypeScript check
+        run: cd backend && pnpm exec tsc --noEmit
+
+      - name: Build
+        run: cd backend && pnpm build
+        
+      - name: Check MongoDB connection
+        run: |
+          cd backend
+          echo "PORT=5000" > .env.test
+          echo "MONGODB_URI=mongodb://localhost:27017/test" >> .env.test
+          echo "JWT_SECRET=test_secret" >> .env.test
+          echo "JWT_EXPIRES_IN=1h" >> .env.test
+          echo "NODE_ENV=test" >> .env.test
+          
+          # Create a simple test script
+          echo 'const mongoose = require("mongoose"); async function testConnection() { try { await mongoose.connect("mongodb://localhost:27017/test"); console.log("MongoDB connection successful"); process.exit(0); } catch (err) { console.error("MongoDB connection error:", err); process.exit(1); } } testConnection();' > mongo-test.js
+          
+          node mongo-test.js
