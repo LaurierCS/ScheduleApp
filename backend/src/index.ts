@@ -15,9 +15,24 @@ const port = process.env.PORT || 5000;
 // connect to mongodb
 connectDB();
 
-// cors configuration - allow any localhost port during development
+// cors configiuration
+const isProduction = process.env.NODE_ENV === 'production';
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'http://127.0.0.1:5175'],
+  // in development, allow all localhost and 127.0.0.1 requests
+  // in production, this would be replaced with specific allowed origins
+  origin: isProduction 
+    ? process.env.ALLOWED_ORIGINS?.split(',') || [] 
+    : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+      
+      // allow all localhost and 127.0.0.1 requests in development
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return callback(null, true);
+      }
+      
+      callback(new Error('Not allowed by CORS'));
+    },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -49,5 +64,5 @@ app.use(errorHandler);
 // start server
 app.listen(port, () => {
   console.log(`server running on port ${port} (http://localhost:${port})`);
-  console.log(`CORS enabled for: ${corsOptions.origin.join(', ')}`);
+  console.log(`CORS enabled for: ${isProduction ? process.env.ALLOWED_ORIGINS || 'specific origins' : 'all localhost origins'}`);
 }); 

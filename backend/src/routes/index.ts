@@ -8,6 +8,20 @@ import statusRoutes from './statusRoutes';
 
 const router = Router();
 
+// api root route - returns general api info
+router.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'api is running',
+    version: '1.0.0',
+    endpoints: {
+      '/health': 'basic health check',
+      '/test': 'test endpoint',
+      '/status': 'system status check',
+      '/status/db': 'database connection status'
+    }
+  });
+});
+
 // health check route
 router.get('/health', (req, res) => {
   console.log('health check endpoint hit');
