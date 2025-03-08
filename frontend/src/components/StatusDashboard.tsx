@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle, XCircle, Clock, Terminal } from "lucide-react"
-import { apiFetch, API_BASE_URL } from '@/utils/api'
+import { apiFetch } from '@/utils/api'
 
 // types for our status checks
 interface StatusCheck {
