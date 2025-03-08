@@ -159,12 +159,6 @@ You can change these in:
 
 </details>
 
-<hr>
-
-<div align="center">
-  <p>Made with ❤️ using the MERN stack</p>
-</div>
-
 <details>
 <summary><b>🔌 Port Configuration</b></summary>
 
@@ -199,3 +193,9 @@ If you encounter port conflicts (error: `EADDRINUSE: address already in use`):
 - Solution: change the port in the appropriate `.env` file and restart the server
 
 </details>
+
+<hr>
+
+<div align="center">
+  <p>Made with ❤️ using the MERN stack</p>
+</div>
