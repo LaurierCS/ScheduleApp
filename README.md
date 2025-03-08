@@ -164,3 +164,54 @@ You can change these in:
 <div align="center">
   <p>Made with ❤️ using the MERN stack</p>
 </div>
+
+## Port Configuration
+
+This application uses configurable ports for both frontend and backend:
+
+### Backend
+- Configured through the `backend/.env` file
+- Default port: `3000`
+- To change: update `PORT=3000` to your preferred port
+
+### Frontend
+- Configured through the `frontend/.env` file
+- Default port: `5173` (Vite default)
+- To change: update `VITE_PORT=5173` to your preferred port
+- Backend URL: update `VITE_BACKEND_URL=http://localhost:3000` to match your backend port
+
+## Setup Instructions
+
+1. Clone the repository
+2. Copy example env files:
+   ```
+   cp frontend/.env.example frontend/.env
+   cp backend/.env.example backend/.env
+   ```
+3. Customize ports in the .env files if needed
+4. Install dependencies:
+   ```
+   cd frontend && npm install
+   cd backend && npm install
+   ```
+5. Start the servers:
+   ```
+   # backend
+   cd backend
+   npm run dev
+   
+   # frontend
+   cd frontend
+   npm run dev
+   ```
+
+## Port Conflicts
+
+If you encounter port conflicts (error: `EADDRINUSE: address already in use`):
+
+1. Change the port in the appropriate `.env` file
+2. Restart the server
+
+Common causes of port conflicts:
+- Another application is using the same port
+- On Mac: AirPlay may use port 5000 by default

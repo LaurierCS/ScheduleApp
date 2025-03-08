@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle, XCircle, Clock, Terminal } from "lucide-react"
+import { apiFetch, API_BASE_URL } from '@/utils/api'
 
 // types for our status checks
 interface StatusCheck {
@@ -68,11 +69,11 @@ const StatusDashboard = () => {
   // check backend status
   const checkBackend = useCallback(async (): Promise<'success' | 'error'> => {
     try {
-      const response = await fetch('http://localhost:5000')
+      const response = await apiFetch('')
       
       if (response.ok) {
         const data = await response.json()
-        updateStatus('backend', 'success', 'connected to backend server', `Server response: ${data.message}`)
+        updateStatus('backend', 'success', 'connected to backend server', `server response: ${data.message}`)
         return 'success'
       } else {
         updateStatus('backend', 'error', `backend check failed: ${response.status}`)
@@ -88,16 +89,16 @@ const StatusDashboard = () => {
   // check mongodb status through backend
   const checkMongoDB = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/status/db')
+      const response = await apiFetch('/status/db')
       
       if (response.ok) {
         const data = await response.json()
-        updateStatus('mongodb', 'success', 'connected to mongodb', `Database: ${data.dbName}`)
+        updateStatus('mongodb', 'success', 'connected to mongodb', `database: ${data.dbName}`)
       } else {
         updateStatus('mongodb', 'error', `database check failed: ${response.status}`)
       }
-    } catch (_error) {
-      console.error('MongoDB check error:', _error)
+    } catch (error) {
+      console.error('mongodb check error:', error)
       updateStatus('mongodb', 'error', 'could not check database connection')
     }
   }, [updateStatus])

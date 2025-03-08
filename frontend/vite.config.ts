@@ -12,4 +12,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // get port from .env file or default to 5173
+  server: {
+    port: parseInt(process.env.VITE_PORT || '5173'),
+  },
 })
