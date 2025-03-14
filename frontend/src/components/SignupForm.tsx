@@ -30,7 +30,7 @@ export default function SignupForm() {
 	}, [password]);
 
 	return (
-		<div className="flex flex-col bg-black">
+		<div className="flex flex-col">
 			<div className="flex flex-1">
 				<div className="w-full p-4 md:p-8 lg:p-8 flex flex-col">
 					<div className="max-w-md w-full mx-auto">
@@ -193,7 +193,7 @@ export default function SignupForm() {
 
 							<div className="text-center text-sm">
 								Already have an account?{" "}
-								<Link to="/login" className="font-medium">
+								<Link to="/signin" className="font-medium">
 									Log in
 								</Link>
 							</div>
