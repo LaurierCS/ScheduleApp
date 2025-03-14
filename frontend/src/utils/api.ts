@@ -1,7 +1,7 @@
 // api configuration utilities
 
 // get backend url from environment variables or use default
-export const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+export const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8123';
 export const API_PREFIX = import.meta.env.VITE_API_PREFIX || '/api';
 
 // build complete api url
