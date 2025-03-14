@@ -8,8 +8,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export default function SignupForm() {
+	const [email, setEmail] = useState("");
+	const [username, setUsername] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [password, setPassword] = useState("");
+	const [showErrors, setShowErrors] = useState(false);
 	const [passwordRequirements, setPasswordRequirements] = useState({
 		minLength: false,
 		hasUppercase: false,
@@ -18,7 +21,7 @@ export default function SignupForm() {
 		hasNumber: false,
 	});
 
-	// Check password requirements whenever the password changes
+	// Check password requirements whenever the password changes 
 	useEffect(() => {
 		setPasswordRequirements({
 			minLength: password.length >= 8,
@@ -29,19 +32,43 @@ export default function SignupForm() {
 		});
 	}, [password]);
 
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+
+		// Check if all password requirements are met
+		const allRequirementsMet = Object.values(passwordRequirements).every(
+			(req) => req === true
+		);
+
+		if (allRequirementsMet) {
+			console.log("Values entered: ", email, username, password);
+			// Proceed with form submission
+		} else {
+			// Show errors for unmet requirements
+			setShowErrors(true);
+			// Focus on password field
+			document.getElementById("password")?.focus();
+		}
+	};
+
 	return (
-		<div className="flex flex-col">
-			<div className="flex flex-1">
-				<div className="w-full p-4 md:p-8 lg:p-8 flex flex-col">
+		<div className="flex flex-col items-center justify-center">
+			<div className="flex flex-1 items-center justify-center w-full mt-20">
+				<div className="w-full p-4 md:p-8 lg:p-8 flex flex-col items-center justify-center">
 					<div className="max-w-md w-full mx-auto">
 						<h3 className="text-2xl font-medium mb-8">Sign Up</h3>
 
-						<form className="space-y-6">
+						<form className="space-y-6" onSubmit={handleSubmit}>
 							<div className="space-y-2">
 								<label htmlFor="email" className="block text-sm font-medium">
 									Email
 								</label>
-								<Input id="email" type="email" className="w-full rounded-md" />
+								<Input
+									id="email"
+									type="email"
+									className="w-full rounded-md"
+									onChange={(e) => setEmail(e.target.value)}
+								/>
 							</div>
 
 							<div className="space-y-2">
@@ -52,6 +79,7 @@ export default function SignupForm() {
 									id="username"
 									type="text"
 									className="w-full rounded-md"
+									onChange={(e) => setUsername(e.target.value)}
 								/>
 							</div>
 
@@ -79,7 +107,13 @@ export default function SignupForm() {
 									type={showPassword ? "text" : "password"}
 									className="w-full rounded-md"
 									value={password}
-									onChange={(e) => setPassword(e.target.value)}
+									onChange={(e) => {
+										setPassword(e.target.value);
+										if (showErrors) {
+											// Continue showing errors as user types
+											setShowErrors(true);
+										}
+									}}
 								/>
 							</div>
 
@@ -90,11 +124,17 @@ export default function SignupForm() {
 											className={`h-1.5 w-1.5 rounded-full ${
 												passwordRequirements.minLength
 													? "bg-green-500"
+													: showErrors
+													? "bg-red-500"
 													: "bg-gray-400"
 											}`}></span>
 										<span
 											className={
-												passwordRequirements.minLength ? "text-green-500" : ""
+												passwordRequirements.minLength
+													? "text-green-500"
+													: showErrors && !passwordRequirements.minLength
+													? "text-red-500"
+													: ""
 											}>
 											Use 8 or more characters
 										</span>
@@ -104,15 +144,19 @@ export default function SignupForm() {
 											className={`h-1.5 w-1.5 rounded-full ${
 												passwordRequirements.hasUppercase
 													? "bg-green-500"
+													: showErrors
+													? "bg-red-500"
 													: "bg-gray-400"
 											}`}></span>
 										<span
 											className={
 												passwordRequirements.hasUppercase
 													? "text-green-500"
+													: showErrors && !passwordRequirements.hasUppercase
+													? "text-red-500"
 													: ""
 											}>
-											One Uppercase character
+											One uppercase character
 										</span>
 									</li>
 									<li className="flex items-center gap-1">
@@ -120,12 +164,16 @@ export default function SignupForm() {
 											className={`h-1.5 w-1.5 rounded-full ${
 												passwordRequirements.hasLowercase
 													? "bg-green-500"
+													: showErrors
+													? "bg-red-500"
 													: "bg-gray-400"
 											}`}></span>
 										<span
 											className={
 												passwordRequirements.hasLowercase
 													? "text-green-500"
+													: showErrors && !passwordRequirements.hasLowercase
+													? "text-red-500"
 													: ""
 											}>
 											One lowercase character
@@ -136,11 +184,17 @@ export default function SignupForm() {
 											className={`h-1.5 w-1.5 rounded-full ${
 												passwordRequirements.hasSpecial
 													? "bg-green-500"
+													: showErrors
+													? "bg-red-500"
 													: "bg-gray-400"
 											}`}></span>
 										<span
 											className={
-												passwordRequirements.hasSpecial ? "text-green-500" : ""
+												passwordRequirements.hasSpecial
+													? "text-green-500"
+													: showErrors && !passwordRequirements.hasSpecial
+													? "text-red-500"
+													: ""
 											}>
 											One special character
 										</span>
@@ -150,11 +204,17 @@ export default function SignupForm() {
 											className={`h-1.5 w-1.5 rounded-full ${
 												passwordRequirements.hasNumber
 													? "bg-green-500"
+													: showErrors
+													? "bg-red-500"
 													: "bg-gray-400"
 											}`}></span>
 										<span
 											className={
-												passwordRequirements.hasNumber ? "text-green-500" : ""
+												passwordRequirements.hasNumber
+													? "text-green-500"
+													: showErrors && !passwordRequirements.hasNumber
+													? "text-red-500"
+													: ""
 											}>
 											One number
 										</span>
@@ -163,10 +223,7 @@ export default function SignupForm() {
 							</div>
 
 							<div className="flex items-start gap-2">
-								<Checkbox
-									id="marketing"
-									className="mt-2 px-3"
-								/>
+								<Checkbox id="marketing" className="mt-2 px-3" />
 								<label htmlFor="marketing" className="text-sm">
 									I want to receive emails about the product, feature updates,
 									events, and marketing promotions.
@@ -187,7 +244,9 @@ export default function SignupForm() {
 								</p>
 							</div>
 
-							<Button className="w-full rounded-full hover:bg-opacity-90">
+							<Button
+								type="submit"
+								className="w-full rounded-full hover:bg-opacity-90">
 								Create an account
 							</Button>
 
