@@ -1,38 +1,49 @@
-import mongoose from 'mongoose';
-import { IUser } from './User';
+import mongoose from "mongoose";
 
-// team interface
+// Team interface
 export interface ITeam extends mongoose.Document {
-  name: string;
-  admin: mongoose.Types.ObjectId | IUser;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
+	name: string;
+	description?: string;
+	adminId: mongoose.Types.ObjectId;
+	logo?: string;
+	active: boolean;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-// team schema
+// Team schema
 const teamSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'team name is required'],
-      trim: true,
-    },
-    admin: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'team admin is required'],
-    },
-    description: {
-      type: String,
-      required: false,
-    },
-  },
-  {
-    timestamps: true,
-  }
+	{
+		name: {
+			type: String,
+			required: [true, "Team name is required"],
+			trim: true,
+			index: true,
+		},
+		description: {
+			type: String,
+			trim: true,
+		},
+		adminId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: [true, "Team admin is required"],
+			index: true,
+		},
+		logo: {
+			type: String,
+		},
+		active: {
+			type: Boolean,
+			default: true,
+		},
+	},
+	{
+		timestamps: true,
+	}
 );
 
-const Team = mongoose.model<ITeam>('Team', teamSchema);
 
-export default Team; 
+const Team = mongoose.model<ITeam>("Team", teamSchema);
+
+export default Team;
