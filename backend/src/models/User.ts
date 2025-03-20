@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 // user roles
 export enum UserRole {
   ADMIN = 'admin',
+  INTERVIEWER = 'interviewer',
+  CANDIDATE = 'candidate'
 }
 
 // user interface
@@ -13,6 +15,8 @@ export interface IUser extends mongoose.Document {
   name: string;
   teamName: string;
   role: UserRole;
+  groupAssignments?: string[];
+  availability?: mongoose.Types.ObjectId[];
   comparePassword(enteredPassword: string): Promise<boolean>;
 }
 
@@ -44,6 +48,16 @@ const userSchema = new mongoose.Schema(
       enum: Object.values(UserRole),
       default: UserRole.ADMIN,
     },
+    groupAssignments: [{
+      type: String,
+      required: function (this: { role: UserRole }) {
+        return this.role !== UserRole.ADMIN;
+      },
+    }],
+    availability: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Availability',
+    }],
   },
   {
     timestamps: true,
