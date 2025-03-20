@@ -5,7 +5,8 @@ import { Router } from 'express';
 
 // importing status routes
 import statusRoutes from './statusRoutes';
-
+// importing emailEvents route
+import emailEvents from './emailEvents';
 const router = Router();
 
 // api root route - returns general api info
@@ -111,5 +112,6 @@ router.get('/test', (req, res) => {
 
 // mounting status routes
 router.use('/status', statusRoutes);
-
+//email event route
+router.use('/email-events', emailEvents);
 export default router; 
