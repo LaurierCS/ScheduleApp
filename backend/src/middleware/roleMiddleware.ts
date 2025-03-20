@@ -9,13 +9,17 @@ interface AuthRequest extends Request {
 // role permission checker
 const authorize = (roles: UserRole[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
+    if (!req.user) { //user exists
       return res.status(401).json({ message: 'Unauthorized' });
     }
     
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role)) { //role not in roles
       return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
     }
+    //more permissions below
+
+
+
     
     next();
   };

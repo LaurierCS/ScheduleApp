@@ -9,12 +9,12 @@ const migrateUsers = async () => {
     await mongoose.connect(process.env.MONGODB_URI!);
     console.log('Connected to database');
     
-    // Update users without a role, setting default role as 'candidate'
+    // update users without a role, setting default role as candidate
     const result = await User.updateMany(
       { role: { $exists: false } },
       { $set: { role: UserRole.CANDIDATE } }
     );
-
+    
     console.log(`Migration completed. Updated ${result.modifiedCount} users.`);
   } catch (error) {
     console.error('Migration failed:', error);
