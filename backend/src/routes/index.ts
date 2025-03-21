@@ -5,7 +5,8 @@ import { Router } from 'express';
 
 // importing status routes
 import statusRoutes from './statusRoutes';
-
+// import user routes
+import userRoutes from './userRoutes';
 const router = Router();
 
 // api root route - returns general api info
@@ -111,5 +112,6 @@ router.get('/test', (req, res) => {
 
 // mounting status routes
 router.use('/status', statusRoutes);
-
+// mounting user routes
+router.use('/users', userRoutes);
 export default router; 
