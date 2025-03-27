@@ -14,7 +14,7 @@ github_token = os.environ.get("GH_TOKEN")
 # discord webhook url from environment variables
 discord_webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
 # repository in format "owner/repo"
-repository = os.environ.get("GITHUB_REPOSITORY")
+repository = os.environ.get("GH_REPOSITORY")
 # number of days of inactivity before notification (default: 7)
 inactivity_threshold_days = int(os.environ.get("INACTIVITY_THRESHOLD_DAYS", 7))
 # number of days without assigned issues threshold (default: 3)
