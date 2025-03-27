@@ -25,7 +25,7 @@ jobs:
           pip install requests python-dotenv
       
       - name: run activity tracker
-        run: python .github/scripts/inactivity_tracker.py
+        run: python .github/scripts/activity_tracker.py
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
