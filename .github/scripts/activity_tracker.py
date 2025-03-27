@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # github api token from environment variables
-github_token = os.environ.get("GITHUB_TOKEN")
+github_token = os.environ.get("GH_TOKEN")
 
 # discord webhook url from environment variables
 discord_webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
