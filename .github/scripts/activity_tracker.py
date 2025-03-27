@@ -24,7 +24,7 @@ active_devs_list = os.environ.get("ACTIVE_DEVS", "")
 
 # check for required environment variables
 if not github_token:
-    print("Error: GITHUB_TOKEN not set")
+    print("Error: GH_TOKEN not set")
     sys.exit(1)
 if not discord_webhook_url:
     print("Error: DISCORD_WEBHOOK_URL not set")

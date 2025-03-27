@@ -27,9 +27,9 @@ jobs:
       - name: run activity tracker
         run: python .github/scripts/activity_tracker.py
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_REPOSITORY: ${{ secrets.GH_REPOSITORY }}
+          GH_REPOSITORY: ${{ secrets.GH_REPOSITORY }}
           INACTIVITY_THRESHOLD_DAYS: ${{ secrets.INACTIVITY_THRESHOLD_DAYS }}
           NO_ISSUES_THRESHOLD_DAYS: ${{ secrets.NO_ISSUES_THRESHOLD_DAYS }}
           ACTIVE_DEVS: ${{ secrets.ACTIVE_DEVS }} 
