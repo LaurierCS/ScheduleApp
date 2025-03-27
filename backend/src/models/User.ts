@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import { UserRole } from './UserRole'
-// user roles
-
 
 // user interface
 export interface IUser extends mongoose.Document {
