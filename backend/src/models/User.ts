@@ -1,12 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
-
+import { UserRole } from './UserRole'
 // user roles
-export enum UserRole {
-  ADMIN = 'admin',
-  INTERVIEWER = 'interviewer',
-  CANDIDATE = 'candidate'
-}
+
 
 // user interface
 export interface IUser extends mongoose.Document {

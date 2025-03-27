@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserRole, IUser } from '../models/User';
-
+import { UserRole } from '../models/UserRole';
 interface AuthRequest extends Request {
     user?: {
       role: UserRole;
@@ -16,10 +15,6 @@ const authorize = (roles: UserRole[]) => {
     if (!roles.includes(req.user.role)) { //role not in roles
       return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
     }
-    //more permissions below
-
-
-
     
     next();
   };
