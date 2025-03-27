@@ -25,13 +25,11 @@ jobs:
           pip install requests python-dotenv
       
       - name: run activity tracker
-        run: python .github/scripts/activity_tracker.py
+        run: python .github/scripts/inactivity_tracker.py
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          INACTIVITY_THRESHOLD_DAYS: 7
-          NO_ISSUES_THRESHOLD_DAYS: 3
-          # list of active developers to track (comma-separated)
-          # if empty, all contributors will be tracked
-          ACTIVE_DEVS: ${{ vars.ACTIVE_DEVS }} 
+          GITHUB_REPOSITORY: ${{ secrets.GH_REPOSITORY }}
+          INACTIVITY_THRESHOLD_DAYS: ${{ secrets.INACTIVITY_THRESHOLD_DAYS }}
+          NO_ISSUES_THRESHOLD_DAYS: ${{ secrets.NO_ISSUES_THRESHOLD_DAYS }}
+          ACTIVE_DEVS: ${{ secrets.ACTIVE_DEVS }} 
