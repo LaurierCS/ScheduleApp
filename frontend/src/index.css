@@ -13,13 +13,13 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #0f0f0f; /* Dark background */
-  color: #f5f5f5; /* Light text */
+  background-color: #ffffff; /* Light background */
+  color: #333333; /* Dark text */
 }
 
-/* override the default light mode with dark mode */
+/* override with light mode */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* shadcn theme styles below - do not modify */
@@ -30,9 +30,9 @@ html, body {
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: rgba(0, 0, 0, 0.87);
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -42,11 +42,11 @@ html, body {
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #6366f1;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #4f46e5;
 }
 
 body {
@@ -70,12 +70,12 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #f9f9f9;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #6366f1;
 }
 button:focus,
 button:focus-visible {
@@ -122,32 +122,6 @@ button:focus-visible {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-  }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
 }
 
