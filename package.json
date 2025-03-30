@@ -11,6 +11,12 @@
     "build": "pnpm run frontend:build && pnpm run backend:build"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^8.2.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
-} 
+}
