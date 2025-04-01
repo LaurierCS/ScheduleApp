@@ -6,7 +6,7 @@ import { Router } from 'express';
 // importing status routes
 import statusRoutes from './statusRoutes';
 import authRoutes from './authRoutes';
-import availabiltyRoutes from './availabilityRoutes';
+import availabilityRoutes from './availabilityRoutes';
 import groupRoutes from './groupRoutes';
 import meetingRoutes from './meetingRoutes';
 import teamRoutes from './teamRoutes';
