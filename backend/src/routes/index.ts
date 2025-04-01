@@ -5,6 +5,15 @@ import { Router } from 'express';
 
 // importing status routes
 import statusRoutes from './statusRoutes';
+import authRoutes from './authRoutes';
+import availabiltyRoutes from './availabilityRoutes';
+import groupRoutes from './groupRoutes';
+import meetingRoutes from './meetingRoutes';
+import teamRoutes from './teamRoutes';
+import userRoutes from './userRoutes';
+import interviewerRoutes from './interviewerRoutes';
+import candidateRoutes from './candidateRoutes';
+import scheduleRoutes from './scheduleRoutes';
 
 const router = Router();
 
@@ -111,5 +120,15 @@ router.get('/test', (req, res) => {
 
 // mounting status routes
 router.use('/status', statusRoutes);
+
+router.use('/auth', authRoutes);
+router.use('/availability', availabiltyRoutes);
+router.use('/groups', groupRoutes);
+router.use('/meetings', meetingRoutes);
+router.use('/teams', teamRoutes);
+router.use('/users', userRoutes);
+router.use('/interviewers', interviewerRoutes);
+router.use('/candidates', candidateRoutes);
+router.use('/schedule', scheduleRoutes);
 
 export default router; 
