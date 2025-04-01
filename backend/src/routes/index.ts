@@ -122,7 +122,7 @@ router.get('/test', (req, res) => {
 router.use('/status', statusRoutes);
 
 router.use('/auth', authRoutes);
-router.use('/availability', availabiltyRoutes);
+router.use('/availability', availabilityRoutes);
 router.use('/groups', groupRoutes);
 router.use('/meetings', meetingRoutes);
 router.use('/teams', teamRoutes);
