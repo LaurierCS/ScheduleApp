@@ -2,8 +2,8 @@ name: Developer Activity Tracker
 
 on:
   schedule:
-    # run every 3 days at midnight
-    - cron: '0 0 */3 * *'
+    # run every 3 days at 6pm est
+    - cron: '0 23 */3 * *'
   workflow_dispatch:
     # allows manual triggering
 
