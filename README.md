@@ -70,7 +70,7 @@ The backend already has a `.env` file with default development settings. You can
 
 ```bash
 # backend/.env
-PORT=5000
+PORT=5001
 MONGODB_URI=mongodb://localhost:27017/scheduleapp
 JWT_SECRET=your_jwt_secret_key_change_in_production
 JWT_EXPIRES_IN=7d
