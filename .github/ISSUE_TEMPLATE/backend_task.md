@@ -1,8 +1,8 @@
 ---
-name: "🔧 Backend API Task"
-about: "Use this template to define a backend API endpoint task."
+name: "\U0001F527 Backend API Task"
+about: Use this template to define a backend API endpoint task.
 title: "[BE Task] "
-labels: ["backend", "api"]
+labels: ''
 assignees: ''
 
 ---
@@ -59,4 +59,4 @@ Any extra context, related tasks, or dependencies.
 ### ⚡ Priority Level  
 - [ ] 🔥 High Priority  
 - [ ] ⚡ Medium Priority  
-- [ ] 🐢 Low Priority  
+- [ ] 🐢 Low Priority
