@@ -7,13 +7,6 @@ assignees: ''
 
 ---
 
----
-name: "✨ Feature Request"
-about: Suggest a new feature based on Figma mockups
-title: "[Feature] <Short, clear feature name>"
-labels: feature
----
-
 ## 📌 Feature Overview
 **Feature Name:**  
 <Insert feature name here, e.g. "Login Page">
@@ -26,8 +19,7 @@ labels: feature
 ## 🧩 Components
 - [ ] <Component 1>  
 - [ ] <Component 2>  
-- [ ] <Component 3>  
-(Add as many as needed)
+- [ ] <Component 3> 
 
 ---
 
@@ -35,7 +27,3 @@ labels: feature
 _Attach screenshot(s) or link directly to the Figma frame here._
 
 ---
-
-## 🏷️ Labels
-- `feature`  
-(Feel free to add more labels like `frontend`, `backend`, `UI`, etc.)
