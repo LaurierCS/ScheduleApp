@@ -8,8 +8,6 @@ assignees: ''
 ---
 
 ## 📌 Feature Overview
-**Feature Name:**  
-<Insert feature name here, e.g. "Login Page">
 
 **Description:**  
 <Brief explanation of what this feature does and why it exists>
