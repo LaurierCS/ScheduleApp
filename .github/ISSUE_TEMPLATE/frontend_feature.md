@@ -15,9 +15,10 @@ assignees: ''
 ---
 
 ## 🧩 Components
-- [ ] <Component 1>  
-- [ ] <Component 2>  
-- [ ] <Component 3> 
+- [ ] Text Field: 
+- [ ] Toggle: 
+- [ ] Button: 
+- [ ] Navigation Text Link: 
 
 ---
 
