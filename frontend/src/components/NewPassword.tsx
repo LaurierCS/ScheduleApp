@@ -22,7 +22,7 @@ export default function NewPassword() {
 		hasUppercase: /[A-Z]/.test(newPassword),
 		hasLowercase: /[a-z]/.test(newPassword),
 		hasNumber: /\d/.test(newPassword),
-		hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword),
+		hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword),
 	};
 
 	// Check if passwords match
