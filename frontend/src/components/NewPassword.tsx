@@ -94,7 +94,7 @@ export default function NewPassword() {
 					</div>
 
 					{/* Password requirements */}
-					<div className="space-y-2">
+					<div className="grid grid-cols-2 gap-x-8 gap-y-2">
 						<div className="flex items-center space-x-2">
 							<div className={`w-2 h-2 rounded-full ${passwordValidation.minLength ? 'bg-green-500' : 'bg-gray-300'}`}></div>
 							<span className={`text-sm ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-600'}`}>
@@ -123,6 +123,12 @@ export default function NewPassword() {
 							<div className={`w-2 h-2 rounded-full ${passwordValidation.hasNumber ? 'bg-green-500' : 'bg-gray-300'}`}></div>
 							<span className={`text-sm ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-600'}`}>
 								One number
+							</span>
+						</div>
+						<div className="flex items-center space-x-2">
+							<div className={`w-2 h-2 rounded-full ${passwordsMatch ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+							<span className={`text-sm ${passwordsMatch ? 'text-green-600' : 'text-gray-600'}`}>
+								Passwords match
 							</span>
 						</div>
 					</div>
