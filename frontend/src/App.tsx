@@ -15,7 +15,6 @@ function App() {
 				<Route path="/signup" element={<SignupForm />} />
 				<Route path="/signin" element={<SigninForm />} />
 				<Route path="/2fa" element={<TwoFactorAuth />} />
-				<Route path="/twofactorauth" element={<TwoFactorAuth />} />
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
 		</Router>
