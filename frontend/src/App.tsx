@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
+import Welcome from '@/components/Welcome'
 import SignupForm from "@/components/SignupForm";
 import SigninForm from '@/components/SigninForm';
 
@@ -8,7 +9,7 @@ function App() {
 	return (
 		<Router>
 			<Routes>
-				<Route path="/" element={<Home />} />
+				<Route path="/" element={<Welcome />} />
 				<Route path="/home" element={<Home />} />
 				<Route path="/status" element={<StatusDashboard />} />
 				<Route path="/signup" element={<SignupForm />} />
