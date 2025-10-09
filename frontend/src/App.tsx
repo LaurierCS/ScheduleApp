@@ -3,7 +3,7 @@ import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
 import SignupForm from "@/components/SignupForm";
 import SigninForm from '@/components/SigninForm';
-import JoinATeam from './components/JoinATeam';
+import JoinATeam from '@/components/JoinATeam';
 
 function App() {
 	return (
