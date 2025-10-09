@@ -3,6 +3,7 @@ import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
 import SignupForm from "@/components/SignupForm";
 import SigninForm from '@/components/SigninForm';
+import InterviewerSchedule from '@/components/interviewerSchedule';
 
 function App() {
 	return (
@@ -13,6 +14,7 @@ function App() {
 				<Route path="/status" element={<StatusDashboard />} />
 				<Route path="/signup" element={<SignupForm />} />
 				<Route path="/signin" element={<SigninForm />} />
+				<Route path="/interviewerSchedule" element={<InterviewerSchedule />} />
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
 		</Router>
