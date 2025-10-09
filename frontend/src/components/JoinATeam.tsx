@@ -13,7 +13,7 @@ export default function JoinATeam() {
 
   // Handle email validation
   const validateEmail = (email: string) =>
-    /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(email);
+    /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/.test(email);
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
