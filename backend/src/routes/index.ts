@@ -9,6 +9,7 @@ import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
 import teamRoutes from './teamRoutes';
 import interviewRoutes from './interviewerRoutes';
+import candidateRoutes from './candidateRoutes';
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.get('/', (req, res) => {
       '/users': 'user management endpoints',
       '/teams': 'team management endpoints',
       '/interviewers': 'interviewer management endpoints',
+      '/candidates': 'candidate management endpoints',
     }
   });
 });
@@ -126,5 +128,6 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/teams', teamRoutes);
 router.use('/interviewers', interviewRoutes);
+router.use('/candidates', candidateRoutes);
 
 export default router; 
