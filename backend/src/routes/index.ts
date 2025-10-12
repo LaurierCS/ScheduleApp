@@ -6,6 +6,7 @@ import { Router } from 'express';
 // importing routes
 import statusRoutes from './statusRoutes';
 import authRoutes from './authRoutes';
+import userRoutes from './userRoutes';
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.get('/', (req, res) => {
 
       // API endpoints
       '/auth': 'authentication endpoints',
+      '/users': 'user management endpoints',
     }
   });
 });
@@ -117,5 +119,6 @@ router.get('/test', (req, res) => {
 // mounting routes
 router.use('/status', statusRoutes);
 router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
 
 export default router; 
