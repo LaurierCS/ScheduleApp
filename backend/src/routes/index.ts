@@ -12,6 +12,7 @@ import interviewRoutes from './interviewerRoutes';
 import candidateRoutes from './candidateRoutes';
 import groupRoutes from './groupRoutes';
 import availablilityRoutes from './availabilityRoutes';
+import meetingRoutes from './meetingRoutes';
 
 const router = Router();
 
@@ -35,6 +36,7 @@ router.get('/', (req, res) => {
       '/candidates': 'candidate management endpoints',
       '/groups': 'group management endpoints',
       '/availability': 'availability management endpoints',
+      '/meetings': 'meeting management endpoints',
     }
   });
 });
@@ -135,5 +137,6 @@ router.use('/interviewers', interviewRoutes);
 router.use('/candidates', candidateRoutes);
 router.use('/groups', groupRoutes);
 router.use('/availability', availablilityRoutes);
+router.use('/meetings', meetingRoutes);
 
 export default router; 
