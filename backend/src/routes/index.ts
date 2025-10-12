@@ -10,6 +10,7 @@ import userRoutes from './userRoutes';
 import teamRoutes from './teamRoutes';
 import interviewRoutes from './interviewerRoutes';
 import candidateRoutes from './candidateRoutes';
+import groupRoutes from './groupRoutes';
 
 const router = Router();
 
@@ -31,6 +32,7 @@ router.get('/', (req, res) => {
       '/teams': 'team management endpoints',
       '/interviewers': 'interviewer management endpoints',
       '/candidates': 'candidate management endpoints',
+      '/groups': 'group management endpoints',
     }
   });
 });
@@ -129,5 +131,6 @@ router.use('/users', userRoutes);
 router.use('/teams', teamRoutes);
 router.use('/interviewers', interviewRoutes);
 router.use('/candidates', candidateRoutes);
+router.use('/groups', groupRoutes);
 
 export default router; 
