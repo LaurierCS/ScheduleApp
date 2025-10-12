@@ -7,6 +7,7 @@ import { Router } from 'express';
 import statusRoutes from './statusRoutes';
 import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
+import teamRoutes from './teamRoutes';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.get('/', (req, res) => {
       // API endpoints
       '/auth': 'authentication endpoints',
       '/users': 'user management endpoints',
+      '/teams': 'team management endpoints',
     }
   });
 });
@@ -120,5 +122,6 @@ router.get('/test', (req, res) => {
 router.use('/status', statusRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/teams', teamRoutes);
 
 export default router; 
