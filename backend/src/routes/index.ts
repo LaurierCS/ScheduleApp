@@ -8,6 +8,7 @@ import statusRoutes from './statusRoutes';
 import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
 import teamRoutes from './teamRoutes';
+import interviewRoutes from './interviewerRoutes';
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.get('/', (req, res) => {
       '/auth': 'authentication endpoints',
       '/users': 'user management endpoints',
       '/teams': 'team management endpoints',
+      '/interviewers': 'interviewer management endpoints',
     }
   });
 });
@@ -123,5 +125,6 @@ router.use('/status', statusRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/teams', teamRoutes);
+router.use('/interviewers', interviewRoutes);
 
 export default router; 
