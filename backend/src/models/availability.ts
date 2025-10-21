@@ -10,7 +10,7 @@ export interface IAvailability extends Document {
     end: Date,
 }
 
-const AvailabilitySchema: Schema = new Schema(
+export const AvailabilitySchema: Schema = new Schema(
     {
         start: {
             type: Date,
