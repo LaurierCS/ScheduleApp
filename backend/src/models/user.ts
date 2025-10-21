@@ -1,5 +1,17 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+
+/**
+ * Represents a User of the app
+ * @property name - Full name of the user
+ * @property email - Email of the user
+ * @property password - The hashed password of the user
+ * @property teamId - The id of the Team this user belongs to
+ * @property groupIds - Array of ids representing the Groups this user belongs to
+ * @property lastLogin - The date of this user's last login
+ * @property createdAt - The date this user object was created
+ * @property updatedAt - The date this user object was last updated
+ */
 export interface IUser extends Document {
     name: string;
     email: string;
