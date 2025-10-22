@@ -62,7 +62,8 @@ export const AvailabilitySchema: Schema = new Schema(
             default: []
         },
         dayOfWeek: {
-            type: Object.values(DayOfTheWeek),
+            type: String, 
+            enum: Object.values(DayOfTheWeek),
             required: [true, "A day of the week must be specified"],
         },
         isRecurring: {
