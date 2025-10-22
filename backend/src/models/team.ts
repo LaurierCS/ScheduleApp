@@ -5,9 +5,9 @@ import mongoose, { Document, Schema } from "mongoose";
  * @property name - The name of the team
  * @property description - A description of the team
  * @property adminId - The id of the User who is the admin of the team
- * @property name - The name of the team
- * @property name - The name of the team
- * @property name - The name of the team
+ * @property isActive - Whether the Team is active or not
+ * @property createdAt - the date that the Team was created
+ * @property updatedAt - the date the Team was last updated on
  */
 export interface ITeam extends Document {
     name: string,
@@ -45,5 +45,7 @@ const TeamSchema: Schema = new Schema(
 );
 
 const Team = mongoose.model<ITeam>("Team", TeamSchema);
+
+TeamSchema.index({adminId: 1});
 
 export default Team;

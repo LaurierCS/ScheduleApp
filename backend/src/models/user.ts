@@ -63,7 +63,7 @@ const UserSchema: Schema = new Schema(
             type: [
                 {
                     type: Schema.Types.ObjectId,
-                    ref: ""
+                    ref: "Group"
                 }
             ],
             required: true,
@@ -78,6 +78,10 @@ const UserSchema: Schema = new Schema(
         timestamps: true            // Automatically adds and updates createdAt and updatedAt
     }
 );
+
+UserSchema.index({name: 1, email: 1});
+UserSchema.index({role: 1, teamId: 1});
+
 
 const User = mongoose.model<IUser>("User", UserSchema);
 
