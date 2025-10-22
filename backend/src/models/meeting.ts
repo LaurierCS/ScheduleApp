@@ -93,6 +93,9 @@ const MeetingSchema: Schema = new Schema(
     },
 );
 
+MeetingSchema.index({start: 1, end: 1});
+MeetingSchema.index({status: 1, createdBy: 1});
+
 const Meeting = mongoose.model<IMeeting>("Meeting", MeetingSchema);
 
 export default Meeting;

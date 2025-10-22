@@ -38,10 +38,14 @@ export const TimeSlotSchema: Schema = new Schema(
         startTime: {
             type: Date,
             required: [true, "A start time is required"],
+            index: true,
+
         },
         endTime: {
             type: Date,
             required: [true, "An end time is required"],
+            index: true,
+
         },
     }
 )
@@ -71,6 +75,9 @@ export const AvailabilitySchema: Schema = new Schema(
         timestamps: true,
     },
 );
+
+AvailabilitySchema.index({userId: 1});
+AvailabilitySchema.index({dayOfWeek: 1});
 
 const Availability = mongoose.model<IAvailability>("Availability", AvailabilitySchema);
 
