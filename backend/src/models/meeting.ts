@@ -57,7 +57,7 @@ const MeetingSchema: Schema = new Schema(
         },
         interviewerIds: {
             type: [Schema.Types.ObjectId],
-            ref: "Interviewer",
+            ref: "User",
             required: true,
             validate: {
                 validator: (arr: Schema.Types.ObjectId[]) => arr.length > 0,
@@ -66,7 +66,7 @@ const MeetingSchema: Schema = new Schema(
         },
         candidateId: {
             type: Schema.Types.ObjectId,
-            ref: "Candidate",
+            ref: "User",
             required: true,
         },
         teamId: {
@@ -75,7 +75,8 @@ const MeetingSchema: Schema = new Schema(
             required: true,
         },
         status: {
-            type: Object.values(MeetingStatus),
+            type: String,
+            enum: Object.values(MeetingStatus),
             default: MeetingStatus.SCHEDULED,
         },
         link: {
