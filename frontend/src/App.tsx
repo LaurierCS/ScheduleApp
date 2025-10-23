@@ -4,6 +4,10 @@ import Home from '@/components/Home'
 import SignupForm from "@/components/SignupForm";
 import SigninForm from '@/components/SigninForm';
 import CreateOrJoinTeam from './components/CreateOrJoinTeam';
+import NewPasswordMade from '@/components/NewPasswordMade';
+import TwoFactorAuth from '@/components/TwoFactorAuth'
+import NewPassword from './components/NewPassword';
+import ForgotPassword from '@/components/ForgotPassword';
 
 function App() {
 	return (
@@ -15,6 +19,10 @@ function App() {
 				<Route path="/signup" element={<SignupForm />} />
 				<Route path="/signin" element={<SigninForm />} />
 				<Route path="/create-or-join-team" element={<CreateOrJoinTeam />} />
+				<Route path="/new-password-made" element={<NewPasswordMade />} />
+				<Route path="/2fa" element={<TwoFactorAuth />} />
+				<Route path="/new-password" element={<NewPassword />} />
+				<Route path="/forgot-password" element={<ForgotPassword />} />
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
 		</Router>

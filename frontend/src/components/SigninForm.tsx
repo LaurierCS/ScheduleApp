@@ -79,8 +79,8 @@ export default function SigninForm() {
 										Remember me
 									</label>
                                 </div>
-                                {/* TODO: change url to actual forget password page */}
-								<Link to="#" className="text-sm font-medium">
+                                {/* Link to forgot password page */}
+								<Link to="/forgot-password" className="text-sm font-medium">
 									Forgot password?
 								</Link>
 							</div>
