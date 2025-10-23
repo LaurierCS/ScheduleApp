@@ -3,6 +3,7 @@ import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
 import SignupForm from "@/components/SignupForm";
 import SigninForm from '@/components/SigninForm';
+import CreateOrJoinTeam from './components/CreateOrJoinTeam';
 import NewPasswordMade from '@/components/NewPasswordMade';
 import TwoFactorAuth from '@/components/TwoFactorAuth'
 import NewPassword from './components/NewPassword';
@@ -17,6 +18,7 @@ function App() {
 				<Route path="/status" element={<StatusDashboard />} />
 				<Route path="/signup" element={<SignupForm />} />
 				<Route path="/signin" element={<SigninForm />} />
+				<Route path="/create-or-join-team" element={<CreateOrJoinTeam />} />
 				<Route path="/new-password-made" element={<NewPasswordMade />} />
 				<Route path="/2fa" element={<TwoFactorAuth />} />
 				<Route path="/new-password" element={<NewPassword />} />
