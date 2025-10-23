@@ -1,13 +1,10 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-
-// load environment variables
-dotenv.config();
+import { config } from './env.config';
 
 // connection function
 const connectDB = async (): Promise<void> => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI as string);
+    const conn = await mongoose.connect(config.mongodb.uri);
     console.log(`mongodb connected: ${conn.connection.host}`);
   } catch (error: any) {
     console.error(`error: ${error.message}`);
@@ -15,4 +12,4 @@ const connectDB = async (): Promise<void> => {
   }
 };
 
-export default connectDB; 
+export default connectDB;

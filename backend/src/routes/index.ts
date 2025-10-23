@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import { Router } from 'express';
+import { config } from "../config/env.config";
 
 // importing status routes
 import statusRoutes from './statusRoutes';
@@ -10,7 +10,7 @@ const router = Router();
 
 // api root route - returns general api info
 router.get('/', (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     message: 'api is running',
     version: '1.0.0',
     endpoints: {
@@ -31,7 +31,7 @@ router.get('/health', (req, res) => {
 // mongodb status check
 router.get('/db-status', (req, res) => {
   console.log('mongodb status check endpoint hit');
-  
+
   try {
     const state = mongoose.connection.readyState;
     /*
@@ -40,7 +40,7 @@ router.get('/db-status', (req, res) => {
       2 = connecting
       3 = disconnecting
     */
-    
+
     let status: {
       connected: boolean;
       state: string;
@@ -50,7 +50,7 @@ router.get('/db-status', (req, res) => {
       connected: false,
       state: 'unknown',
     };
-    
+
     switch(state) {
       case 0:
         status.state = 'disconnected';
@@ -72,7 +72,7 @@ router.get('/db-status', (req, res) => {
         status.error = 'Disconnecting from MongoDB';
         break;
     }
-    
+
     res.status(200).json(status);
   } catch (error: any) {
     res.status(500).json({
@@ -84,23 +84,25 @@ router.get('/db-status', (req, res) => {
 
 // env variables check
 router.get('/env-check', (req, res) => {
-  console.log('environment variables check endpoint hit');
-  
-  // required env variables
-  const requiredVars = [
-    'PORT',
-    'MONGODB_URI',
-    'JWT_SECRET',
-    'JWT_EXPIRES_IN'
-  ];
-  
-  const missingVars = requiredVars.filter(varName => !process.env[varName]);
-  
+  // Config is already validated at startup
   res.status(200).json({
-    valid: missingVars.length === 0,
-    missing: missingVars.length > 0 ? missingVars : undefined,
-    total: requiredVars.length,
-    present: requiredVars.length - missingVars.length
+    valid: true,
+    message: "All environment variables are valid",
+    config: {
+      port: config.port,
+      nodeEnv: config.nodeEnv,
+      mongodb: {
+        // finds "//username:password@" and replaces with "//<credentials>@"
+        uri: config.mongodb.uri.replace(/\/\/.*@/, "//<credentials>@"),
+      }, // Hide credentials
+      jwt: { expiresIn: config.jwt.expiresIn },
+      cors: { allowedOrigins: config.cors.allowedOrigins },
+      email: {
+        service: config.email.service,
+        user: config.email.user,
+        pass: "***hidden***",
+      },
+    },
   });
 });
 
@@ -112,4 +114,4 @@ router.get('/test', (req, res) => {
 // mounting status routes
 router.use('/status', statusRoutes);
 
-export default router; 
+export default router;

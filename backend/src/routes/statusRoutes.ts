@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
+import { config } from "../config/env.config";
 
 const router = Router();
 
@@ -8,7 +9,7 @@ router.get('/db', async (req, res) => {
   try {
     // check if mongoose is connected
     if (mongoose.connection.readyState !== 1) {
-      return res.status(500).json({ 
+      return res.status(500).json({
         status: 'error', 
         message: 'database not connected',
         readyState: mongoose.connection.readyState 
@@ -20,7 +21,7 @@ router.get('/db', async (req, res) => {
     if (mongoose.connection.db) {
       dbName = mongoose.connection.db.databaseName;
     }
-    
+
     // respond with success
     return res.status(200).json({
       status: 'success',
@@ -30,7 +31,7 @@ router.get('/db', async (req, res) => {
     });
   } catch (error) {
     console.error('db status check error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       status: 'error', 
       message: 'failed to check database status'
     });
@@ -41,7 +42,7 @@ router.get('/db', async (req, res) => {
 router.get('/', (req, res) => {
   const nodeVersion = process.version;
   const expressVersion = require('express/package.json').version;
-  
+
   return res.status(200).json({
     status: 'success',
     message: 'system is operational',
@@ -49,8 +50,8 @@ router.get('/', (req, res) => {
       node: nodeVersion,
       express: expressVersion,
     },
-    environment: process.env.NODE_ENV || 'development'
+    environment: config.nodeEnv,
   });
 });
 
-export default router; 
+export default router;

@@ -1,38 +1,36 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import connectDB from './config/db';
 import routes from './routes';
 import { notFound, errorHandler } from './middleware/errorMiddleware';
-
-// load environment variables
-dotenv.config();
+import { config, isProduction } from './config/env.config';
 
 // create express app
 const app = express();
-const port = process.env.PORT || 5000;
 
 // connect to mongodb
 connectDB();
 
 // cors configiuration
-const isProduction = process.env.NODE_ENV === 'production';
 const corsOptions = {
   // in development, allow all localhost and 127.0.0.1 requests
   // in production, this would be replaced with specific allowed origins
-  origin: isProduction 
-    ? process.env.ALLOWED_ORIGINS?.split(',') || [] 
-    : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // allow requests with no origin (like mobile apps, curl, postman)
-      if (!origin) return callback(null, true);
-      
-      // allow all localhost and 127.0.0.1 requests in development
+  origin: isProduction()
+    ? config.cors.allowedOrigins
+    : (
+        origin: string | undefined,
+        callback: (err: Error | null, allow?: boolean) => void
+      ) => {
+        // allow requests with no origin (like mobile apps, curl, postman)
+        if (!origin) return callback(null, true);
+
+        // allow all localhost and 127.0.0.1 requests in development
       if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-        return callback(null, true);
-      }
-      
+          return callback(null, true);
+        }
+
       callback(new Error('Not allowed by CORS'));
-    },
+      },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -62,7 +60,16 @@ app.use(notFound);
 app.use(errorHandler);
 
 // start server
-app.listen(port, () => {
-  console.log(`server running on port ${port} (http://localhost:${port})`);
-  console.log(`CORS enabled for: ${isProduction ? process.env.ALLOWED_ORIGINS || 'specific origins' : 'all localhost origins'}`);
-}); 
+app.listen(config.port, () => {
+  console.log(
+    `server running on port ${config.port} (http://localhost:${config.port})`
+  );
+  console.log(`Environment: ${config.nodeEnv}`);
+  console.log(
+    `CORS enabled for: ${
+      isProduction()
+        ? config.cors.allowedOrigins.join(", ") || "specific origins"
+        : "all localhost origins"
+    }`
+  );
+});
