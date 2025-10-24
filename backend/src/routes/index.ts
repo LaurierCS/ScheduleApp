@@ -3,21 +3,42 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { Router } from 'express';
 
-// importing status routes
+// importing routes
 import statusRoutes from './statusRoutes';
+import authRoutes from './authRoutes';
+import userRoutes from './userRoutes';
+import teamRoutes from './teamRoutes';
+import interviewRoutes from './interviewerRoutes';
+import candidateRoutes from './candidateRoutes';
+import groupRoutes from './groupRoutes';
+import availablilityRoutes from './availabilityRoutes';
+import meetingRoutes from './meetingRoutes';
+import scheduleRoutes from './scheduleRoutes';
 
 const router = Router();
 
 // api root route - returns general api info
 router.get('/', (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     message: 'api is running',
     version: '1.0.0',
     endpoints: {
+      // System endpoints
       '/health': 'basic health check',
       '/test': 'test endpoint',
       '/status': 'system status check',
-      '/status/db': 'database connection status'
+      '/status/db': 'database connection status',
+
+      // API endpoints
+      '/auth': 'authentication endpoints',
+      '/users': 'user management endpoints',
+      '/teams': 'team management endpoints',
+      '/interviewers': 'interviewer management endpoints',
+      '/candidates': 'candidate management endpoints',
+      '/groups': 'group management endpoints',
+      '/availability': 'availability management endpoints',
+      '/meetings': 'meeting management endpoints',
+      '/schedules': 'schedule management endpoints'
     }
   });
 });
@@ -31,7 +52,7 @@ router.get('/health', (req, res) => {
 // mongodb status check
 router.get('/db-status', (req, res) => {
   console.log('mongodb status check endpoint hit');
-  
+
   try {
     const state = mongoose.connection.readyState;
     /*
@@ -40,7 +61,7 @@ router.get('/db-status', (req, res) => {
       2 = connecting
       3 = disconnecting
     */
-    
+
     let status: {
       connected: boolean;
       state: string;
@@ -50,8 +71,8 @@ router.get('/db-status', (req, res) => {
       connected: false,
       state: 'unknown',
     };
-    
-    switch(state) {
+
+    switch (state) {
       case 0:
         status.state = 'disconnected';
         status.error = 'Not connected to MongoDB';
@@ -72,7 +93,7 @@ router.get('/db-status', (req, res) => {
         status.error = 'Disconnecting from MongoDB';
         break;
     }
-    
+
     res.status(200).json(status);
   } catch (error: any) {
     res.status(500).json({
@@ -85,7 +106,7 @@ router.get('/db-status', (req, res) => {
 // env variables check
 router.get('/env-check', (req, res) => {
   console.log('environment variables check endpoint hit');
-  
+
   // required env variables
   const requiredVars = [
     'PORT',
@@ -93,9 +114,9 @@ router.get('/env-check', (req, res) => {
     'JWT_SECRET',
     'JWT_EXPIRES_IN'
   ];
-  
+
   const missingVars = requiredVars.filter(varName => !process.env[varName]);
-  
+
   res.status(200).json({
     valid: missingVars.length === 0,
     missing: missingVars.length > 0 ? missingVars : undefined,
@@ -109,7 +130,16 @@ router.get('/test', (req, res) => {
   res.status(200).json({ message: 'test endpoint working' });
 });
 
-// mounting status routes
+// mounting routes
 router.use('/status', statusRoutes);
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/teams', teamRoutes);
+router.use('/interviewers', interviewRoutes);
+router.use('/candidates', candidateRoutes);
+router.use('/groups', groupRoutes);
+router.use('/availability', availablilityRoutes);
+router.use('/meetings', meetingRoutes);
+router.use('/schedules', scheduleRoutes);
 
 export default router; 
