@@ -43,7 +43,7 @@ const UserSchema: Schema = new Schema(
             required: [true, "An email is required."],
             trim: true,
             lowercase: true,
-            match: [/[a-z0-9]+@[a-z]+\.[a-z]{2,3}/, "Invalid email address"]
+            match: [/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i, "Invalid email address"]
         },
         password: {
             type: String,
@@ -56,8 +56,10 @@ const UserSchema: Schema = new Schema(
             ref: "Team",
         },
         role: {
-            type: Object.values(UserRole),
+            type: String,
+            enum: Object.values(UserRole),
             required: false,
+            default: UserRole.CANDIDATE, // Default role for new users
         },
         groupIds: {
             type: [
@@ -73,14 +75,19 @@ const UserSchema: Schema = new Schema(
             type: Date,
             required: false,
         }
-    }, 
+    },
     {
         timestamps: true            // Automatically adds and updates createdAt and updatedAt
     }
 );
 
-UserSchema.index({name: 1, email: 1});
-UserSchema.index({role: 1, teamId: 1});
+// Database indexes for query performance optimization
+// Compound index on name and email - speeds up user search and lookup queries
+UserSchema.index({ name: 1, email: 1 });
+
+// Compound index on role and teamId - critical for RBAC queries
+// Optimizes queries like "get all interviewers in a team" or "find all admins"
+UserSchema.index({ role: 1, teamId: 1 });
 
 
 const User = mongoose.model<IUser>("User", UserSchema);
