@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { ApiResponseUtil } from '../utils/apiResponse';
+import { requireAuth, requireRole, AuthRequest } from '../middleware/authMiddleware';
+import { UserRole } from '../models/user';
 
 const router = Router();
 
@@ -7,8 +9,9 @@ const router = Router();
  * @route   GET /api/groups
  * @desc    Get all groups (with pagination)
  * @access  Private (Admin)
+ * @permissions Only admins can view all groups
  */
-router.get('/', (req, res) => {
+router.get('/', requireAuth, requireRole([UserRole.ADMIN]), (req: AuthRequest, res) => {
     const mockGroups = [
         { id: '1', name: 'Engineering Group', description: 'For engineering candidates' },
         { id: '2', name: 'Marketing Group', description: 'For marketing candidates' },
@@ -28,8 +31,9 @@ router.get('/', (req, res) => {
  * @route   POST /api/groups
  * @desc    Create a new group
  * @access  Private (Admin)
+ * @permissions Only admins can create groups
  */
-router.post('/', (req, res) => {
+router.post('/', requireAuth, requireRole([UserRole.ADMIN]), (req: AuthRequest, res) => {
     ApiResponseUtil.success(res, null, 'Create group route');
 });
 
@@ -37,8 +41,10 @@ router.post('/', (req, res) => {
  * @route   GET /api/groups/:id
  * @desc    Get group by ID
  * @access  Private (Admin and Team Members)
+ * @permissions Admins and group members can view group details
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', requireAuth, (req: AuthRequest, res) => {
+    // Additional logic will verify: req.user.role === ADMIN || user is in group.members
     ApiResponseUtil.success(res, null, `Get group ${req.params.id}`);
 });
 
@@ -46,8 +52,9 @@ router.get('/:id', (req, res) => {
  * @route   PUT /api/groups/:id
  * @desc    Update group by ID
  * @access  Private (Admin)
+ * @permissions Only admins can update groups
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', requireAuth, requireRole([UserRole.ADMIN]), (req: AuthRequest, res) => {
     ApiResponseUtil.success(res, null, `Update group ${req.params.id}`);
 });
 
@@ -55,8 +62,9 @@ router.put('/:id', (req, res) => {
  * @route   DELETE /api/groups/:id
  * @desc    Delete group by ID
  * @access  Private (Admin)
+ * @permissions Only admins can delete groups
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), (req: AuthRequest, res) => {
     ApiResponseUtil.success(res, null, `Delete group ${req.params.id}`);
 });
 
@@ -64,8 +72,10 @@ router.delete('/:id', (req, res) => {
  * @route   GET /api/groups/:id/members
  * @desc    Get all group members
  * @access  Private (Admin and Team Members)
+ * @permissions Admins and group members can view the member list
  */
-router.get('/:id/members', (req, res) => {
+router.get('/:id/members', requireAuth, (req: AuthRequest, res) => {
+    // Additional logic will verify: req.user.role === ADMIN || user is in group.members
     ApiResponseUtil.success(res, [], `Get group ${req.params.id} members`);
 });
 
@@ -73,8 +83,9 @@ router.get('/:id/members', (req, res) => {
  * @route   POST /api/groups/:id/members
  * @desc    Add member to group
  * @access  Private (Admin)
+ * @permissions Only admins can add members to groups
  */
-router.post('/:id/members', (req, res) => {
+router.post('/:id/members', requireAuth, requireRole([UserRole.ADMIN]), (req: AuthRequest, res) => {
     ApiResponseUtil.success(res, null, `Add member to group ${req.params.id}`);
 });
 
@@ -82,8 +93,9 @@ router.post('/:id/members', (req, res) => {
  * @route   DELETE /api/groups/:id/members/:userId
  * @desc    Remove member from group
  * @access  Private (Admin)
+ * @permissions Only admins can remove members from groups
  */
-router.delete('/:id/members/:userId', (req, res) => {
+router.delete('/:id/members/:userId', requireAuth, requireRole([UserRole.ADMIN]), (req: AuthRequest, res) => {
     ApiResponseUtil.success(
         res,
         null,
