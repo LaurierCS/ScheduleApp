@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface AvailabilityData {
@@ -171,6 +173,15 @@ export default function InterviewerAvailability() {
 	return (
 		<div className="min-h-screen bg-gray-100 p-8">
 			<div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+				{/* Back Button */}
+				<Link
+					to="/interviewer-schedule"
+					className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+				>
+					<ArrowLeft size={20} />
+					<span>Back to Dashboard</span>
+				</Link>
+
 				{/* Instructions */}
 				<div className="mb-8 space-y-2">
 					<p className="text-gray-700">
