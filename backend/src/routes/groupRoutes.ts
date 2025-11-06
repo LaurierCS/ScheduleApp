@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { ApiResponseUtil } from '../utils/apiResponse';
+import { authorize, requireTeamAccess } from '../middleware/authMiddleware';
+import { UserRole } from '../models/user';
 
 const router = Router();
 
@@ -8,7 +10,7 @@ const router = Router();
  * @desc    Get all groups (with pagination)
  * @access  Private (Admin)
  */
-router.get('/', (req, res) => {
+router.get('/', authorize(UserRole.ADMIN), (req, res) => {
     const mockGroups = [
         { id: '1', name: 'Engineering Group', description: 'For engineering candidates' },
         { id: '2', name: 'Marketing Group', description: 'For marketing candidates' },
@@ -29,7 +31,7 @@ router.get('/', (req, res) => {
  * @desc    Create a new group
  * @access  Private (Admin)
  */
-router.post('/', (req, res) => {
+router.post('/', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, 'Create group route');
 });
 
@@ -37,8 +39,9 @@ router.post('/', (req, res) => {
  * @route   GET /api/groups/:id
  * @desc    Get group by ID
  * @access  Private (Admin and Team Members)
+ * @note    Group's team association requires database lookup - additional validation in controller
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), (req, res) => {
     ApiResponseUtil.success(res, null, `Get group ${req.params.id}`);
 });
 
@@ -47,7 +50,7 @@ router.get('/:id', (req, res) => {
  * @desc    Update group by ID
  * @access  Private (Admin)
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, `Update group ${req.params.id}`);
 });
 
@@ -56,7 +59,7 @@ router.put('/:id', (req, res) => {
  * @desc    Delete group by ID
  * @access  Private (Admin)
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, `Delete group ${req.params.id}`);
 });
 
@@ -64,8 +67,9 @@ router.delete('/:id', (req, res) => {
  * @route   GET /api/groups/:id/members
  * @desc    Get all group members
  * @access  Private (Admin and Team Members)
+ * @note    Group's team association requires database lookup - additional validation in controller
  */
-router.get('/:id/members', (req, res) => {
+router.get('/:id/members', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), (req, res) => {
     ApiResponseUtil.success(res, [], `Get group ${req.params.id} members`);
 });
 
@@ -74,7 +78,7 @@ router.get('/:id/members', (req, res) => {
  * @desc    Add member to group
  * @access  Private (Admin)
  */
-router.post('/:id/members', (req, res) => {
+router.post('/:id/members', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, `Add member to group ${req.params.id}`);
 });
 
@@ -83,7 +87,7 @@ router.post('/:id/members', (req, res) => {
  * @desc    Remove member from group
  * @access  Private (Admin)
  */
-router.delete('/:id/members/:userId', (req, res) => {
+router.delete('/:id/members/:userId', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(
         res,
         null,

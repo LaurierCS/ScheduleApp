@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { ApiResponseUtil } from '../utils/apiResponse';
+import { authorize, requireTeamAccess } from '../middleware/authMiddleware';
+import { UserRole } from '../models/user';
 
 const router = Router();
 
@@ -8,7 +10,7 @@ const router = Router();
  * @desc    Get all teams
  * @access  Private (Admin)
  */
-router.get('/', (req, res) => {
+router.get('/', authorize(UserRole.ADMIN), (req, res) => {
     // Will be implemented in issue #93 (Team model and CRUD operations)
     ApiResponseUtil.success(res, [], 'Get all teams - will be implemented in issue #93');
 });
@@ -18,7 +20,7 @@ router.get('/', (req, res) => {
  * @desc    Create a new team
  * @access  Private (Admin)
  */
-router.post('/', (req, res) => {
+router.post('/', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, 'Create team route - will be implemented in issue #93');
 });
 
@@ -27,7 +29,7 @@ router.post('/', (req, res) => {
  * @desc    Get team by ID
  * @access  Private (Admin and Team Members)
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), requireTeamAccess(), (req, res) => {
     ApiResponseUtil.success(res, null, `Get team ${req.params.id} - will be implemented in issue #93`);
 });
 
@@ -36,7 +38,7 @@ router.get('/:id', (req, res) => {
  * @desc    Update team by ID
  * @access  Private (Admin and Team Owner)
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', authorize(UserRole.ADMIN), requireTeamAccess(), (req, res) => {
     ApiResponseUtil.success(res, null, `Update team ${req.params.id} - will be implemented in issue #93`);
 });
 
@@ -45,7 +47,7 @@ router.put('/:id', (req, res) => {
  * @desc    Delete team by ID
  * @access  Private (Admin and Team Owner)
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authorize(UserRole.ADMIN), requireTeamAccess(), (req, res) => {
     ApiResponseUtil.success(res, null, `Delete team ${req.params.id} - will be implemented in issue #93`);
 });
 
@@ -54,7 +56,7 @@ router.delete('/:id', (req, res) => {
  * @desc    Get all team members
  * @access  Private (Admin and Team Members)
  */
-router.get('/:id/members', (req, res) => {
+router.get('/:id/members', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), requireTeamAccess(), (req, res) => {
     ApiResponseUtil.success(res, [], `Get team ${req.params.id} members - will be implemented in issue #93`);
 });
 
@@ -63,7 +65,7 @@ router.get('/:id/members', (req, res) => {
  * @desc    Add member to team
  * @access  Private (Admin and Team Owner)
  */
-router.post('/:id/members', (req, res) => {
+router.post('/:id/members', authorize(UserRole.ADMIN), requireTeamAccess(), (req, res) => {
     ApiResponseUtil.success(res, null, `Add member to team ${req.params.id} - will be implemented in issue #93`);
 });
 
@@ -72,7 +74,7 @@ router.post('/:id/members', (req, res) => {
  * @desc    Remove member from team
  * @access  Private (Admin and Team Owner)
  */
-router.delete('/:id/members/:userId', (req, res) => {
+router.delete('/:id/members/:userId', authorize(UserRole.ADMIN), requireTeamAccess(), (req, res) => {
     ApiResponseUtil.success(
         res,
         null,

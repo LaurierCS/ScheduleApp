@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { ApiResponseUtil } from '../utils/apiResponse';
+import { authorize } from '../middleware/authMiddleware';
+import { UserRole } from '../models/user';
 
 const router = Router();
 
@@ -26,18 +28,18 @@ router.post('/login', (req, res) => {
 /**
  * @route   GET /api/auth/me
  * @desc    Get current user profile
- * @access  Private
+ * @access  Private (All authenticated users)
  */
-router.get('/me', (req, res) => {
+router.get('/me', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), (req, res) => {
     ApiResponseUtil.success(res, null, 'Current user route - will be implemented in issue #92');
 });
 
 /**
  * @route   POST /api/auth/logout
  * @desc    Logout a user
- * @access  Private
+ * @access  Private (All authenticated users)
  */
-router.post('/logout', (req, res) => {
+router.post('/logout', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), (req, res) => {
     ApiResponseUtil.success(res, null, 'Logout route - will be implemented in issue #92');
 });
 

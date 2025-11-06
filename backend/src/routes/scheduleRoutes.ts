@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { ApiResponseUtil } from '../utils/apiResponse';
+import { authorize, requireTeamAccess } from '../middleware/authMiddleware';
+import { UserRole } from '../models/user';
 
 const router = Router();
 
@@ -8,7 +10,7 @@ const router = Router();
  * @desc    Auto-generate optimal schedule based on availabilities
  * @access  Private (Admin)
  */
-router.post('/generate', (req, res) => {
+router.post('/generate', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, 'Generate schedule route');
 });
 
@@ -17,7 +19,7 @@ router.post('/generate', (req, res) => {
  * @desc    Get schedule for a team
  * @access  Private (Admin and Team Members)
  */
-router.get('/team/:teamId', (req, res) => {
+router.get('/team/:teamId', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), requireTeamAccess('teamId'), (req, res) => {
     ApiResponseUtil.success(res, [], `Get schedule for team ${req.params.teamId}`);
 });
 
@@ -26,7 +28,7 @@ router.get('/team/:teamId', (req, res) => {
  * @desc    Check for scheduling conflicts
  * @access  Private (Admin)
  */
-router.get('/conflicts', (req, res) => {
+router.get('/conflicts', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, [], 'Get schedule conflicts');
 });
 
@@ -35,7 +37,7 @@ router.get('/conflicts', (req, res) => {
  * @desc    Optimize existing schedule
  * @access  Private (Admin)
  */
-router.post('/optimize', (req, res) => {
+router.post('/optimize', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, 'Optimize schedule route');
 });
 
@@ -44,7 +46,7 @@ router.post('/optimize', (req, res) => {
  * @desc    Publish schedule for a team
  * @access  Private (Admin)
  */
-router.post('/publish/:teamId', (req, res) => {
+router.post('/publish/:teamId', authorize(UserRole.ADMIN), requireTeamAccess('teamId'), (req, res) => {
     ApiResponseUtil.success(res, null, `Publish schedule for team ${req.params.teamId}`);
 });
 

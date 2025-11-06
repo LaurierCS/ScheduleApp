@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { ApiResponseUtil } from '../utils/apiResponse';
+import { authorize, requireOwnership, requireOwnershipOrTeamMember } from '../middleware/authMiddleware';
+import { UserRole } from '../models/user';
 
 const router = Router();
 
@@ -8,7 +10,7 @@ const router = Router();
  * @desc    Get all candidates (with pagination)
  * @access  Private (Admin and Interviewers)
  */
-router.get('/', (req, res) => {
+router.get('/', authorize([UserRole.ADMIN, UserRole.INTERVIEWER]), (req, res) => {
     const mockCandidates = [
         { id: '1', name: 'Candidate 1', position: 'Frontend Developer' },
         { id: '2', name: 'Candidate 2', position: 'Backend Developer' },
@@ -29,7 +31,7 @@ router.get('/', (req, res) => {
  * @desc    Create a new candidate
  * @access  Private (Admin)
  */
-router.post('/', (req, res) => {
+router.post('/', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, 'Create candidate route - will be implemented in issue #94');
 });
 
@@ -38,7 +40,7 @@ router.post('/', (req, res) => {
  * @desc    Get candidate by ID
  * @access  Private (Admin, Interviewer, and Own User)
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), requireOwnershipOrTeamMember('id'), (req, res) => {
     ApiResponseUtil.success(res, null, `Get candidate ${req.params.id} - will be implemented in issue #94`);
 });
 
@@ -47,7 +49,7 @@ router.get('/:id', (req, res) => {
  * @desc    Update candidate by ID
  * @access  Private (Admin and Own User)
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', requireOwnership('id'), (req, res) => {
     ApiResponseUtil.success(res, null, `Update candidate ${req.params.id} - will be implemented in issue #94`);
 });
 
@@ -56,7 +58,7 @@ router.put('/:id', (req, res) => {
  * @desc    Delete candidate by ID
  * @access  Private (Admin)
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, `Delete candidate ${req.params.id} - will be implemented in issue #94`);
 });
 
@@ -65,7 +67,7 @@ router.delete('/:id', (req, res) => {
  * @desc    Get candidate availability
  * @access  Private (Admin, Interviewer, and Own User)
  */
-router.get('/:id/availability', (req, res) => {
+router.get('/:id/availability', authorize([UserRole.ADMIN, UserRole.INTERVIEWER, UserRole.CANDIDATE]), requireOwnershipOrTeamMember('id'), (req, res) => {
     ApiResponseUtil.success(
         res,
         [],

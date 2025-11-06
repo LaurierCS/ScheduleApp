@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { ApiResponseUtil } from '../utils/apiResponse';
+import { authorize, requireOwnership } from '../middleware/authMiddleware';
+import { UserRole } from '../models/user';
 
 const router = Router();
 
@@ -8,7 +10,7 @@ const router = Router();
  * @desc    Get all users (with pagination)
  * @access  Private (Admin)
  */
-router.get('/', (req, res) => {
+router.get('/', authorize(UserRole.ADMIN), (req, res) => {
     // Will be implemented in issue #94 (Enhance User model to support multiple roles)
     // Mock data
     const mockUsers = [
@@ -32,7 +34,7 @@ router.get('/', (req, res) => {
  * @desc    Create a new user (by admin)
  * @access  Private (Admin)
  */
-router.post('/', (req, res) => {
+router.post('/', authorize(UserRole.ADMIN), (req, res) => {
     ApiResponseUtil.success(res, null, 'Create user route - will be implemented in issue #94');
 });
 
@@ -41,7 +43,7 @@ router.post('/', (req, res) => {
  * @desc    Get user by ID
  * @access  Private (Admin and Own User)
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', requireOwnership('id'), (req, res) => {
     ApiResponseUtil.success(res, null, `Get user ${req.params.id} - will be implemented in issue #94`);
 });
 
@@ -50,7 +52,7 @@ router.get('/:id', (req, res) => {
  * @desc    Update user by ID
  * @access  Private (Admin and Own User)
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', requireOwnership('id'), (req, res) => {
     ApiResponseUtil.success(res, null, `Update user ${req.params.id} - will be implemented in issue #94`);
 });
 
@@ -59,7 +61,7 @@ router.put('/:id', (req, res) => {
  * @desc    Delete user by ID
  * @access  Private (Admin and Own User)
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requireOwnership('id'), (req, res) => {
     ApiResponseUtil.success(res, null, `Delete user ${req.params.id} - will be implemented in issue #94`);
 });
 
