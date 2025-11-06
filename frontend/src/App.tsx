@@ -11,6 +11,7 @@ import NewPasswordMade from '@/components/NewPasswordMade';
 import TwoFactorAuth from '@/components/TwoFactorAuth'
 import NewPassword from './components/NewPassword';
 import ForgotPassword from '@/components/ForgotPassword';
+import InterviewerAvailability from './components/InterviewerAvailability';
 
 function App() {
 	return (
@@ -21,7 +22,7 @@ function App() {
 				<Route path="/status" element={<StatusDashboard />} />
 				<Route path="/signup" element={<SignupForm />} />
 				<Route path="/signin" element={<SigninForm />} />
-				<Route path="/interviewerSchedule" element={<InterviewerSchedule />} />
+				<Route path="/interviewer-schedule" element={<InterviewerSchedule />} />
 				<Route path="/joinateam" element={<JoinATeam />} />
 				<Route path="/create-or-join-team" element={<CreateOrJoinTeam />} />
 				<Route path="/new-password-made" element={<NewPasswordMade />} />
@@ -29,6 +30,7 @@ function App() {
 				<Route path="/new-password" element={<NewPassword />} />
 				<Route path="/forgot-password" element={<ForgotPassword />} />
 				<Route path="*" element={<Navigate to="/" replace />} />
+				<Route path="/interviewer-availability" element={<InterviewerAvailability />} />
 			</Routes>
 		</Router>
 	);
