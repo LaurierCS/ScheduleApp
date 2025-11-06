@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CalendarDays, LayoutDashboard, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CalendarDays, LayoutDashboard, User, Plus, Users, Settings } from "lucide-react";
 import CalendarCard from "@/components/ui/CalendarCard";
 
 export default function InterviewerSchedule() {
@@ -41,6 +42,13 @@ export default function InterviewerSchedule() {
 			interviewer: "Interviewer #2", 
 			date: "Monday, Oct 20, 3:30 PM"
 		},
+		      {
+			id: 5,
+			role: "Full Stack Developer",
+			interviewer: "Interviewer #4", 
+			date: "monday, Oct 11, 3:30 PM"
+		},
+
 	];
 
         // TODO: create a system that will schedule interviews and connect it to this list 
@@ -125,13 +133,13 @@ export default function InterviewerSchedule() {
 			<aside className="w-64 bg-white p-6 shadow-md flex flex-col">
 				<div className="mb-10 text-2xl font-bold text-gray-800">LOGO</div>
 				<nav className="space-y-4">
-					<a
-						href="#"
+					<Link
+						to="/interviewer-availability"
 						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
 					>
 						<CalendarDays size={20} />
 						<span>Availability</span>
-					</a>
+					</Link>
 					<a
 						href="#"
 						className="flex items-center space-x-3 p-3 rounded-lg bg-blue-100 text-blue-700 font-semibold"
@@ -139,7 +147,35 @@ export default function InterviewerSchedule() {
 						<LayoutDashboard size={20} />
 						<span>Dashboard</span>
 					</a>
+					<a
+						href="#"
+						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+					>
+						<Users size={20} />
+						<span>Team Availability</span>
+					</a>
+					<a
+						href="#"
+						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+					>
+						<Users size={20} />
+						<span>Candidate Availability</span>
+					</a>
+					<a
+						href="#"
+						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+					>
+						<Settings size={20} />
+						<span>Interview Selection</span>
+					</a>
+
+					{/* Schedule Interviews Button */}
+					<button className="mt-auto flex items-center justify-center space-x-2 bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors">
+						<Plus size={20} className="text-white" />
+						<span>Schedule Interviews</span>
+					</button>
 				</nav>
+
 			</aside>
 
 			{/* Main Content Area */}
