@@ -44,8 +44,10 @@ const TeamSchema: Schema = new Schema(
     }
 );
 
-const Team = mongoose.model<ITeam>("Team", TeamSchema);
+// Index for efficient queries
+TeamSchema.index({ adminId: 1 });
+TeamSchema.index({ name: 1, adminId: 1 }); // Ensure unique team names per admin
 
-TeamSchema.index({adminId: 1});
+const Team = mongoose.model<ITeam>("Team", TeamSchema);
 
 export default Team;
