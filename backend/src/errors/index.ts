@@ -4,6 +4,7 @@
  */
 export { CustomError } from './CustomError';
 export { AuthenticationError } from './AuthenticationError';
+export { AuthorizationError } from './AuthorizationError';
 export { ValidationError } from './ValidationError';
 export { NotFoundError } from './NotFoundError';
 export { ServerError } from './ServerError';
