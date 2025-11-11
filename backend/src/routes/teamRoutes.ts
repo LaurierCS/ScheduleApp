@@ -2,7 +2,7 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import mongoose, { isValidObjectId } from "mongoose";
 import { z } from "zod";
-import { Team, GroupDefinitionSchema } from "../models/Team"; // adjust path if needed
+import { Team, GroupDefinitionSchema } from "../models/team"; // adjust path if needed
 
 const router = Router();
 
