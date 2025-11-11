@@ -168,29 +168,14 @@ router.get(
         }
 
         // Regular users can only view their own team
-@@ -35,66 +174,62 @@ router.get('/', requireAuth, async (req: AuthRequest, res, next) => {
+        if (!userTeamId) {
+            return ApiResponseUtil.success(res, [], 'No team assigned');
+        }
 
         const team = await Team.findById(userTeamId).populate('adminId', 'name email');
         return ApiResponseUtil.success(res, team ? [team] : [], 'Team retrieved successfully');
     })
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * @route   GET /api/teams/:id
@@ -227,11 +212,6 @@ router.get(
     })
 );
 
-
-
-
-
-
 /**
  * @route   PUT /api/teams/:id
  * @desc    Update team details
@@ -253,7 +233,10 @@ router.put(
 
         if (!team) {
             return ApiResponseUtil.error(res, 'Team not found', 404);
-@@ -105,29 +240,34 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res, next) => {
+        }
+
+        const teamAdminId = team.adminId.toString();
+
         // Use PermissionChecker to verify admin access
         PermissionChecker.requireAdminOfTeam(req, teamAdminId);
 
@@ -288,7 +271,10 @@ router.delete(
 
         if (!team) {
             return ApiResponseUtil.error(res, 'Team not found', 404);
-@@ -138,30 +278,36 @@ router.delete('/:id', requireAuth, async (req: AuthRequest, res, next) => {
+        }
+
+        const teamAdminId = team.adminId.toString();
+
         // Use PermissionChecker to verify admin access
         PermissionChecker.requireAdminOfTeam(req, teamAdminId);
 
@@ -325,7 +311,8 @@ router.get(
 
         if (!team) {
             return ApiResponseUtil.error(res, 'Team not found', 404);
-@@ -170,29 +316,31 @@ router.get('/:id/members', requireAuth, async (req: AuthRequest, res, next) => {
+        }
+
         // Use PermissionChecker to verify team access
         PermissionChecker.requireTeamAccess(req, req.params.id);
 
@@ -335,9 +322,6 @@ router.get(
         return ApiResponseUtil.success(res, members, 'Team members retrieved successfully');
     })
 );
-
-
-
 
 /**
  * @route   POST /api/teams/:id/members
@@ -360,7 +344,10 @@ router.post(
 
         if (!team) {
             return ApiResponseUtil.error(res, 'Team not found', 404);
-@@ -203,31 +351,46 @@ router.post('/:id/members', requireAuth, async (req: AuthRequest, res, next) =>
+        }
+
+        const teamAdminId = team.adminId.toString();
+
         // Use PermissionChecker to verify admin access
         PermissionChecker.requireAdminOfTeam(req, teamAdminId);
 
@@ -407,7 +394,10 @@ router.delete(
 
         if (!team) {
             return ApiResponseUtil.error(res, 'Team not found', 404);
-@@ -238,19 +401,316 @@ router.delete('/:id/members/:userId', requireAuth, async (req: AuthRequest, res,
+        }
+
+        const teamAdminId = team.adminId.toString();
+
         // Use PermissionChecker to verify admin access
         PermissionChecker.requireAdminOfTeam(req, teamAdminId);
 
