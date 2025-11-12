@@ -7,13 +7,13 @@ import User, { UserRole, IUser } from '../models/user';
  * This allows us to access req.user in protected routes after authentication
  */
 declare global {
-  namespace Express {
-    // Attach the full user document (IUser) to the Express Request when authenticated.
-    // Keep it optional so handlers remain compatible with Express' Request type.
-    interface Request {
-      user?: IUser;
+    namespace Express {
+        // Attach the full user document (IUser) to the Express Request when authenticated.
+        // Keep it optional so handlers remain compatible with Express' Request type.
+        interface Request {
+            user?: IUser;
+        }
     }
-  }
 }
 
 /**
@@ -22,7 +22,7 @@ declare global {
  * route handlers can assert presence (e.g. `if (!req.user) throw ...`).
  */
 export interface AuthRequest extends Request {
-  user?: IUser;
+    user?: IUser;
 }
 
 /**
@@ -43,46 +43,46 @@ export interface AuthRequest extends Request {
  * @returns 401 if token is missing, invalid, or user not found/inactive
  */
 export const authenticate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
 ) => {
-  try {
-    // Extract token from Authorization header
-    const authHeader = req.headers.authorization;
+    try {
+        // Extract token from Authorization header
+        const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access token required'
-      });
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Access token required'
+            });
+        }
+
+        const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+        // Verify token using JWTUtils
+        const payload: JWTPayload = JWTUtils.verifyAccessToken(token);
+
+        // Check if user still exists and is active. Select full user document (exclude password).
+        const user = await User.findById(payload.userId).select('-password');
+        if (!user || !user.isActive) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not found or inactive'
+            });
+        }
+
+        // Attach full user document to request so downstream code (permissions, handlers)
+        // can access fields like _id, teamId, groupIds, role, etc.
+        req.user = user as IUser;
+
+        next();
+    } catch (error) {
+        return res.status(401).json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Authentication failed'
+        });
     }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    // Verify token using JWTUtils
-    const payload: JWTPayload = JWTUtils.verifyAccessToken(token);
-
-    // Check if user still exists and is active. Select full user document (exclude password).
-    const user = await User.findById(payload.userId).select('-password');
-    if (!user || !user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not found or inactive'
-      });
-    }
-
-    // Attach full user document to request so downstream code (permissions, handlers)
-    // can access fields like _id, teamId, groupIds, role, etc.
-    req.user = user as IUser;
-
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: error instanceof Error ? error.message : 'Authentication failed'
-    });
-  }
 };
 
 /**
@@ -104,29 +104,29 @@ export const authenticate = async (
  * @returns 401 if user not authenticated, 403 if insufficient permissions
  */
 export const authorize = (...roles: Array<UserRole | UserRole[]>) => {
-  // Accept either an array (authorize([A,B])) or varargs (authorize(A,B))
-  const allowed: UserRole[] = ([] as UserRole[]).concat(...roles as any);
+    // Accept either an array (authorize([A,B])) or varargs (authorize(A,B))
+    const allowed: UserRole[] = ([] as UserRole[]).concat(...roles as any);
 
-  return (req: Request, res: Response, next: NextFunction) => {
-    // Ensure user is authenticated first
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required'
-      });
-    }
+    return (req: Request, res: Response, next: NextFunction) => {
+        // Ensure user is authenticated first
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Authentication required'
+            });
+        }
 
-    // Check if user's role is in the allowed roles list (RBAC check)
-    if (!allowed.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: 'Insufficient permissions'
-      });
-    }
+        // Check if user's role is in the allowed roles list (RBAC check)
+        if (!allowed.includes(req.user.role)) {
+            return res.status(403).json({
+                success: false,
+                message: 'Insufficient permissions'
+            });
+        }
 
-    // User has required role, proceed to next middleware/handler
-    next();
-  };
+        // User has required role, proceed to next middleware/handler
+        next();
+    };
 };
 
 /**
@@ -144,29 +144,29 @@ export const authorize = (...roles: Array<UserRole | UserRole[]>) => {
  * });
  */
 export const optionalAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
 ) => {
-  try {
-    const authHeader = req.headers.authorization;
+    try {
+        const authHeader = req.headers.authorization;
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const payload: JWTPayload = JWTUtils.verifyAccessToken(token);
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.substring(7);
+            const payload: JWTPayload = JWTUtils.verifyAccessToken(token);
 
-      // Select full user document (exclude password) so downstream code can use teamId etc.
-      const user = await User.findById(payload.userId).select('-password');
-      if (user && user.isActive) {
-        req.user = user as IUser;
-      }
+            // Select full user document (exclude password) so downstream code can use teamId etc.
+            const user = await User.findById(payload.userId).select('-password');
+            if (user && user.isActive) {
+                req.user = user as IUser;
+            }
+        }
+
+        next();
+    } catch (error) {
+        // Continue without authentication for optional auth
+        next();
     }
-
-    next();
-  } catch (error) {
-    // Continue without authentication for optional auth
-    next();
-  }
 };
 
 // Backwards compatibility: Export old names as aliases to new names
