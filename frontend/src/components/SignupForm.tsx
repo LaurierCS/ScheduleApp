@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { getDashboardPath } from "@/utils/navigation";
 
 
 type FormState = {
@@ -48,6 +50,20 @@ function Bullet({
 }
 
 export default function SignupForm() {
+  // ============================================================================
+  // HOOKS & AUTH
+  // ============================================================================
+  
+  // Get auth functions and state from AuthContext
+  const { register, isLoading, error, clearError } = useAuth();
+  
+  // Navigation hook to redirect after registration
+  const navigate = useNavigate();
+  
+  // ============================================================================
+  // FORM STATE
+  // ============================================================================
+  
   const [showPw, setShowPw] = useState(false);
   const [form, setForm] = useState<FormState>({
     firstName: "",
@@ -55,25 +71,66 @@ export default function SignupForm() {
     email: "",
     password: "",
   });
-  const [marketingOptIn, setMarketingOptIn] = useState<boolean>(false); // ← checkbox state
+  const [marketingOptIn, setMarketingOptIn] = useState<boolean>(false);
+  
+  // Local validation error
+  const [validationError, setValidationError] = useState("");
 
+  // ============================================================================
+  // PASSWORD VALIDATION
+  // ============================================================================
+  
   const checks = usePasswordChecks(form.password);
   const allPwOk = checks.len && checks.upper && checks.lower && checks.digit && checks.special;
 
   const canSubmit =
     form.firstName.trim() && form.lastName.trim() && emailOk(form.email) && allPwOk;
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+  
   const onChange =
     (key: keyof FormState) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canSubmit) return;
-    // you can use marketingOptIn here as well
-    alert(`Account created (demo). Marketing: ${marketingOptIn ? "yes" : "no"}`);
-	
+    
+    // Clear any previous errors
+    clearError();
+    setValidationError("");
+    
+    // Check if form is valid
+    if (!canSubmit) {
+      setValidationError("Please fill in all required fields correctly");
+      return;
+    }
+    
+    try {
+      // Combine first and last name for backend
+      const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`;
+      
+      // Call the register function from AuthContext
+      // It returns the user data directly so we can navigate immediately
+      const newUser = await register(fullName, form.email, form.password);
+      
+      // Registration was successful! Navigate based on user role
+      const dashboardPath = getDashboardPath(newUser.role);
+      
+      console.log(`✅ Registration successful!`);
+      console.log(`   User: ${newUser.name}`);
+      console.log(`   Role: ${newUser.role}`);
+      console.log(`   Redirecting to: ${dashboardPath}`);
+      
+      navigate(dashboardPath);
+      
+    } catch (err) {
+      // Error is already stored in AuthContext
+      // It will be displayed in the UI automatically
+      console.error("❌ Registration failed:", err);
+    }
   };
 
   return (
@@ -91,6 +148,13 @@ export default function SignupForm() {
           </div>
 
           <h1 className="text-4xl font-semibold tracking-tight mb-8">Sign Up</h1>
+
+          {/* Error Messages */}
+          {(error || validationError) && (
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md text-sm mb-6">
+              {validationError || error}
+            </div>
+          )}
 
           <form onSubmit={onSubmit} className="space-y-6">
             {/* First Name */}
@@ -203,24 +267,19 @@ export default function SignupForm() {
               <a href="#" className="underline text-black">Privacy Policy</a>.
             </p>
 
-            {/* Your button style + bottom spacing */}
+            {/* Submit Button */}
             <div className="pt-2 pb-16">
-              {canSubmit ? (
-  <Link
-    to="/signin"
-    className="mx-auto flex w-64 items-center justify-center rounded-full px-6 py-4 text-base font-semibold text-white bg-black hover:opacity-90"
-  >
-    Create an account
-  </Link>
-) : (
-  <button
-    type="submit"
-    disabled
-    className="mx-auto flex w-64 items-center justify-center rounded-full px-6 py-4 text-base font-semibold text-white bg-neutral-400 cursor-not-allowed"
-  >
-    Create an account
-  </button>
-)}
+              <button
+                type="submit"
+                disabled={!canSubmit || isLoading}
+                className={`mx-auto flex w-64 items-center justify-center rounded-full px-6 py-4 text-base font-semibold text-white ${
+                  canSubmit && !isLoading
+                    ? "bg-black hover:opacity-90 cursor-pointer"
+                    : "bg-neutral-400 cursor-not-allowed"
+                }`}
+              >
+                {isLoading ? "Creating account..." : "Create an account"}
+              </button>
 
               <p className="mt-4 text-center text-sm">
                 Already have an account?{" "}
