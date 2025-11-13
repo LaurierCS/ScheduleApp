@@ -1,22 +1,76 @@
 "use client";
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { getDashboardPath } from "@/utils/navigation";
 
 export default function SigninForm() {
+	// ============================================================================
+	// HOOKS & STATE
+	// ============================================================================
+	
+	// Get auth functions and state from AuthContext
+	const { login, isLoading, error, clearError } = useAuth();
+	
+	// Navigation hook to redirect after login
+	const navigate = useNavigate();
+	
+	// Form state
 	const [email, setEmail] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
 	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
 	const [rememberMe, setRememberMe] = useState(false);
+	
+	// Local validation errors
+	const [validationError, setValidationError] = useState("");
 
-	const handleSubmit = (e: React.FormEvent) => {
+	// ============================================================================
+	// FORM SUBMISSION
+	// ============================================================================
+	
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log("Values entered: ", email, password, rememberMe);
-		// Proceed with form submission
+		
+		// Clear any previous errors
+		clearError();
+		setValidationError("");
+		
+		// Basic validation
+		if (!email || !password) {
+			setValidationError("Please fill in all fields");
+			return;
+		}
+		
+		if (!email.includes("@")) {
+			setValidationError("Please enter a valid email");
+			return;
+		}
+		
+		try {
+			// Call the login function from AuthContext
+			// It returns the user data directly so we can navigate immediately
+			const loggedInUser = await login(email, password);
+			
+			// Login was successful! Navigate based on user role
+			const dashboardPath = getDashboardPath(loggedInUser.role);
+			
+			console.log(`✅ Login successful!`);
+			console.log(`   User: ${loggedInUser.name}`);
+			console.log(`   Role: ${loggedInUser.role}`);
+			console.log(`   Redirecting to: ${dashboardPath}`);
+			
+			navigate(dashboardPath);
+			
+		} catch (err) {
+			// Error is already stored in AuthContext
+			// It will be displayed in the UI automatically
+			console.error("❌ Login failed:", err);
+		}
 	};
 
 	return (
@@ -25,6 +79,13 @@ export default function SigninForm() {
 				<div className="w-full p-4 md:p-8 lg:p-8 flex flex-col items-center justify-center">
 					<div className="max-w-md w-full mx-auto">
 						<h3 className="text-2xl font-medium mb-8">Sign In</h3>
+
+						{/* Error Messages */}
+						{(error || validationError) && (
+							<div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md text-sm">
+								{validationError || error}
+							</div>
+						)}
 
 						<form className="space-y-6" onSubmit={handleSubmit}>
 							<div className="space-y-2">
@@ -87,8 +148,9 @@ export default function SigninForm() {
 
 							<Button
 								type="submit"
-                                className="w-full rounded-full hover:bg-opacity-90">
-								Sign in
+								disabled={isLoading}
+                                className="w-full rounded-full hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+								{isLoading ? "Signing in..." : "Sign in"}
 							</Button>
 
 							<div className="text-center text-sm">
