@@ -91,7 +91,7 @@ export interface ErrorResponse {
   success: false;
   message: string;
   error?: string;
-  errors?: any[];
+  errors?: Array<{ field?: string; message: string }>;
 }
 
 // ============================================================================
