@@ -4,6 +4,7 @@ import { requireAuth, requireRole, AuthRequest } from '../middleware/authMiddlew
 import { UserRole } from '../models/user';
 import { PermissionChecker } from '../utils/permissions';
 import User from '../models/user';
+import Availability, { AvailabilityType } from '../models/availability';
 
 const router = Router();
 
@@ -232,13 +233,49 @@ router.get('/:id/availability', requireAuth, async (req: AuthRequest, res, next)
             return ApiResponseUtil.error(res, 'Access denied: you can only view availability of interviewers in your team', 403);
         }
 
-        // TODO: Implement fetching interviewer availability
-        // - Query Availability model for interviewer's availability records
-        // - Return availability data
+        // Parse query parameters for date range filtering
+        const { startTime, endTime, type } = req.query;
+
+        // Build query
+        const query: any = { userId: req.params.id };
+
+        // Add date range filters if provided
+        if (startTime || endTime) {
+            if (!startTime || !endTime) {
+                return ApiResponseUtil.error(res, 'Both startTime and endTime are required for date range filtering', 400);
+            }
+
+            const start = new Date(startTime as string);
+            const end = new Date(endTime as string);
+
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                return ApiResponseUtil.error(res, 'Invalid date format', 400);
+            }
+
+            if (end <= start) {
+                return ApiResponseUtil.error(res, 'endTime must be after startTime', 400);
+            }
+
+            query.$or = [
+                { startTime: { $lt: end }, endTime: { $gt: start } },
+            ];
+        }
+
+        // Add type filter if provided
+        if (type) {
+            if (type !== AvailabilityType.AVAILABLE && type !== AvailabilityType.UNAVAILABLE) {
+                return ApiResponseUtil.error(res, 'Invalid availability type', 400);
+            }
+            query.type = type;
+        }
+
+        // Query availability
+        const availabilities = await Availability.find(query).sort({ startTime: 1 });
+
         ApiResponseUtil.success(
             res,
-            [],
-            `Get interviewer ${req.params.id} availability - to be implemented`
+            availabilities,
+            `Interviewer availability retrieved successfully`
         );
     } catch (error) {
         next(error);
