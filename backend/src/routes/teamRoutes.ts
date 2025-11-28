@@ -8,6 +8,8 @@ import { PermissionChecker } from '../utils/permissions';
 import Team from '../models/team';
 import User from '../models/user';
 import Group from '../models/group';
+import TeamSettings from '../models/teamSettings';
+import Meeting, { MeetingStatus } from '../models/meeting';
 
 const router = Router();
 
@@ -93,6 +95,72 @@ const createGroupSchema = z.object({
  */
 const removeGroupsSchema = z.object({
     groupIds: objectIdArrayPlain.min(1, 'groupIds must include at least one id'),
+});
+
+/**
+ * Schema for time slot validation (HH:mm format)
+ */
+const timeSlotSchema = z.object({
+    startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Time must be in HH:mm format'),
+    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Time must be in HH:mm format'),
+});
+
+/**
+ * Schema for default availability per day
+ */
+const defaultAvailabilitySchema = z.object({
+    enabled: z.boolean().optional(),
+    timeSlots: z.array(timeSlotSchema).optional(),
+});
+
+/**
+ * Schema for email template
+ */
+const emailTemplateSchema = z.object({
+    subject: z.string().optional(),
+    body: z.string().optional(),
+});
+
+/**
+ * Schema for interview duration settings
+ */
+const interviewDurationSchema = z.object({
+    technical: z.number().min(15).max(480).optional(),
+    behavioral: z.number().min(15).max(480).optional(),
+    cultural: z.number().min(15).max(480).optional(),
+    screening: z.number().min(15).max(480).optional(),
+});
+
+/**
+ * Schema for group configuration
+ */
+const groupConfigSchema = z.object({
+    maxGroupSize: z.number().min(1).max(1000).optional(),
+    allowMemberSelfAssign: z.boolean().optional(),
+    requireApprovalForGroupJoin: z.boolean().optional(),
+});
+
+/**
+ * Schema for updating team settings
+ */
+const updateTeamSettingsSchema = z.object({
+    defaultAvailability: z.object({
+        Monday: defaultAvailabilitySchema.optional(),
+        Tuesday: defaultAvailabilitySchema.optional(),
+        Wednesday: defaultAvailabilitySchema.optional(),
+        Thursday: defaultAvailabilitySchema.optional(),
+        Friday: defaultAvailabilitySchema.optional(),
+        Saturday: defaultAvailabilitySchema.optional(),
+        Sunday: defaultAvailabilitySchema.optional(),
+    }).optional(),
+    emailTemplates: z.object({
+        interviewInvitation: emailTemplateSchema.optional(),
+        interviewReminder: emailTemplateSchema.optional(),
+        interviewCancellation: emailTemplateSchema.optional(),
+        teamInvitation: emailTemplateSchema.optional(),
+    }).optional(),
+    interviewDurationDefaults: interviewDurationSchema.optional(),
+    groupConfig: groupConfigSchema.optional(),
 });
 
 /* ------------------------------ Routes ----------------------------------- */
@@ -278,11 +346,44 @@ router.delete(
         // Use PermissionChecker to verify admin access
         PermissionChecker.requireAdminOfTeam(req, teamAdminId);
 
+        // Check for active meetings (scheduled, confirmed, or rescheduled)
+        const activeMeetings = await Meeting.countDocuments({
+            teamId: id,
+            status: {
+                $in: [MeetingStatus.SCHEDULED, MeetingStatus.CONFIRMED, MeetingStatus.RESCHEDULED],
+            },
+        });
+
+        if (activeMeetings > 0) {
+            return ApiResponseUtil.error(
+                res,
+                `Cannot delete team: ${activeMeetings} active meeting(s) scheduled. Please cancel or complete all meetings before deleting the team.`,
+                400
+            );
+        }
+
+        // Check for active members (excluding admin)
+        const activeMembersCount = await User.countDocuments({
+            teamId: id,
+            _id: { $ne: teamAdminId },
+        });
+
+        if (activeMembersCount > 0) {
+            return ApiResponseUtil.error(
+                res,
+                `Cannot delete team: ${activeMembersCount} active member(s) in the team. Please remove all members before deleting the team.`,
+                400
+            );
+        }
+
         // Remove team reference from all users
         await User.updateMany({ teamId: id }, { $unset: { teamId: '' }, role: UserRole.CANDIDATE });
 
         // Delete all groups associated with this team
         await Group.deleteMany({ teamId: id });
+
+        // Delete team settings if exists
+        await TeamSettings.deleteOne({ teamId: id });
 
         // Delete the team
         await Team.findByIdAndDelete(id);
@@ -667,6 +768,161 @@ router.delete(
         await Group.findByIdAndDelete(groupId);
 
         return ApiResponseUtil.success(res, null, 'Group deleted successfully');
+    })
+);
+
+/**
+ * @route   GET /api/teams/:id/settings
+ * @desc    Get team settings
+ * @access  Private (Team Members)
+ * @permissions Team members can view team settings
+ */
+router.get(
+    '/:id/settings',
+    requireAuth,
+    asyncHandler(async (req: AuthRequest, res) => {
+        if (!req.user) {
+            return ApiResponseUtil.error(res, 'Authentication required', 401);
+        }
+
+        const id = objectIdSchema.parse(req.params.id);
+
+        const team = await Team.findById(id);
+
+        if (!team) {
+            return ApiResponseUtil.error(res, 'Team not found', 404);
+        }
+
+        // Use PermissionChecker to verify team access
+        PermissionChecker.requireTeamAccess(req, req.params.id);
+
+        // Get team settings, create default if not exists
+        let settings = await TeamSettings.findOne({ teamId: id });
+
+        if (!settings) {
+            // Create default settings for this team
+            settings = await TeamSettings.create({ teamId: id });
+        }
+
+        return ApiResponseUtil.success(res, settings, 'Team settings retrieved successfully');
+    })
+);
+
+/**
+ * @route   PUT /api/teams/:id/settings
+ * @desc    Update team settings
+ * @access  Private (Team Admin only)
+ * @permissions Only team admin can update team settings
+ */
+router.put(
+    '/:id/settings',
+    requireAuth,
+    asyncHandler(async (req: AuthRequest, res) => {
+        if (!req.user) {
+            return ApiResponseUtil.error(res, 'Authentication required', 401);
+        }
+
+        const id = objectIdSchema.parse(req.params.id);
+        const data = updateTeamSettingsSchema.parse(req.body);
+
+        const team = await Team.findById(id);
+
+        if (!team) {
+            return ApiResponseUtil.error(res, 'Team not found', 404);
+        }
+
+        const teamAdminId = team.adminId.toString();
+
+        // Use PermissionChecker to verify admin access
+        PermissionChecker.requireAdminOfTeam(req, teamAdminId);
+
+        // Get or create team settings
+        let settings = await TeamSettings.findOne({ teamId: id });
+
+        if (!settings) {
+            // Create settings if not exists
+            settings = await TeamSettings.create({
+                teamId: id,
+                ...data,
+            });
+        } else {
+            // Update existing settings by directly modifying the document
+
+            // Update defaultAvailability
+            if (data.defaultAvailability) {
+                Object.keys(data.defaultAvailability).forEach((day) => {
+                    const dayData = (data.defaultAvailability as any)[day];
+                    if (dayData) {
+                        const currentDay = (settings as any).defaultAvailability[day];
+
+                        // Deep merge for each day
+                        if (dayData.enabled !== undefined) {
+                            currentDay.enabled = dayData.enabled;
+                        }
+                        if (dayData.timeSlots !== undefined) {
+                            currentDay.timeSlots = dayData.timeSlots;
+                        }
+                    }
+                });
+            }
+
+            // Update emailTemplates
+            if (data.emailTemplates) {
+                Object.keys(data.emailTemplates).forEach((template) => {
+                    const templateData = (data.emailTemplates as any)[template];
+                    if (templateData) {
+                        const currentTemplate = (settings as any).emailTemplates[template];
+
+                        // Deep merge for each template
+                        if (templateData.subject !== undefined) {
+                            currentTemplate.subject = templateData.subject;
+                        }
+                        if (templateData.body !== undefined) {
+                            currentTemplate.body = templateData.body;
+                        }
+                    }
+                });
+            }
+
+            // Update interviewDurationDefaults
+            if (data.interviewDurationDefaults) {
+                Object.keys(data.interviewDurationDefaults).forEach((key) => {
+                    const value = (data.interviewDurationDefaults as any)[key];
+                    if (value !== undefined) {
+                        (settings as any).interviewDurationDefaults[key] = value;
+                    }
+                });
+            }
+
+            // Update groupConfig
+            if (data.groupConfig) {
+                Object.keys(data.groupConfig).forEach((key) => {
+                    const value = (data.groupConfig as any)[key];
+                    if (value !== undefined) {
+                        (settings as any).groupConfig[key] = value;
+                    }
+                });
+            }
+
+            // Mark nested paths as modified to ensure Mongoose saves them
+            if (data.defaultAvailability) {
+                settings.markModified('defaultAvailability');
+            }
+            if (data.emailTemplates) {
+                settings.markModified('emailTemplates');
+            }
+            if (data.interviewDurationDefaults) {
+                settings.markModified('interviewDurationDefaults');
+            }
+            if (data.groupConfig) {
+                settings.markModified('groupConfig');
+            }
+
+            // Save the document
+            await settings.save();
+        }
+
+        return ApiResponseUtil.success(res, settings, 'Team settings updated successfully');
     })
 );
 
