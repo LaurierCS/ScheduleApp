@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/db';
 import routes from './routes';
 import { notFound, errorHandler } from './middleware/errorMiddleware';
+import { startEmailWorker } from './services/email/queue';
 
 // load environment variables
 dotenv.config();
@@ -14,6 +15,9 @@ const port = process.env.PORT || 5000;
 
 // connect to mongodb
 connectDB();
+
+// start email queue worker
+startEmailWorker();
 
 // cors configiuration
 const isProduction = process.env.NODE_ENV === 'production';
