@@ -4,8 +4,61 @@ import { requireAuth, requireRole, AuthRequest } from '../middleware/authMiddlew
 import { UserRole } from '../models/user';
 import { PermissionChecker } from '../utils/permissions';
 import User from '../models/user';
+import Candidate, { CandidateStatus } from '../models/candidate';
+import { ServerError, ValidationError } from '../errors';
+import  {isValidObjectId, Schema} from 'mongoose';
+import { z } from 'zod';
+import Meeting from '../models/meeting';
+import Availability from '../models/availability';
+
 
 const router = Router();
+
+/**
+ * Zod schema for validating ObjectId strings
+ */
+const objectIdSchema = z
+    .string()
+    .trim()
+    .refine((v: string) => isValidObjectId(v), { message: 'Invalid ObjectId' });
+
+/**
+ * Zod schema for arrays of ObjectIds (plain - for validation requiring minimum)
+ */
+const objectIdArrayPlain = z.array(objectIdSchema);
+
+/**
+ * Zod schema for arrays of ObjectIds (with default empty array)
+ */
+const objectIdArrayDefault = z.array(objectIdSchema).default([]);
+
+
+/* --------------------------- Validation Schemas ---------------------------------- */
+
+/**
+ * Schema for creating a new candidate
+ */
+const createCandidateSchema = z.object({
+    name: z.string().min(1, 'name is required').trim(),
+    email: z.email("Invalid email format"),
+    password: z.string().min(6, 'password must be at least 6 characters'),
+    groupIds: objectIdArrayDefault,
+    resumeUrl: z.string().default(""),
+    year: z.number().optional(),
+    program: z.string().default(""),
+});
+/**
+ * Schema for updating an existing candidate
+ */
+// Change validation type for certain properties while keeping the rest the same but optional
+const updateCandidateSchema = createCandidateSchema
+    .omit({password: true})
+    .partial()
+    .extend({
+        groupIds: objectIdArrayPlain.optional(),
+        resumeUrl: z.string().optional(),
+        program: z.string().optional(),
+    })
 
 /**
  * @route   GET /api/candidates
@@ -25,11 +78,46 @@ router.get('/', requireAuth, requireRole([UserRole.ADMIN, UserRole.INTERVIEWER])
             return ApiResponseUtil.success(res, [], 'No team assigned');
         }
 
-        // Get all candidates in the same team
-        const candidates = await User.find({
-            teamId: userTeamId,
-            role: UserRole.CANDIDATE
-        })
+        const { name, email, status, groupIds } = req.query;
+
+        const filter: any =  {};
+
+        if (name) filter.name = name;
+
+        if (email) {
+
+            // Prevent invalid email formats
+            if (!(typeof email == "string" && /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)))
+                return next(new ValidationError(undefined, "Please enter a valid email"));
+                
+            filter.email = email;
+        } 
+        if (status) {
+
+            // Invalid status provided
+            if (!(typeof status === "string" && Object.values(CandidateStatus).includes(status as CandidateStatus)))
+                return next(new ValidationError(undefined, "Please enter a valid Candidate status"));
+                
+            filter.status = status;
+        };
+        if (groupIds) {
+
+            if (!Array.isArray(groupIds)) 
+                return next(new ValidationError(undefined, "groupIds must be an array"));
+            
+            const isValidIds = groupIds.every(id => typeof id === "string" && isValidObjectId(id));
+            
+            if (!isValidIds)
+                return next(new ValidationError(undefined, "groupIds must be an array of valid Group objectIds"));
+
+
+            filter.groupIds = { $in: groupIds };
+        };
+
+        // Can only GET candidates in the same team
+        filter.teamId = userTeamId;
+
+        const candidates = await Candidate.find(filter)
             .select('-password')
             .lean();
 
@@ -45,14 +133,47 @@ router.get('/', requireAuth, requireRole([UserRole.ADMIN, UserRole.INTERVIEWER])
  * @access  Private (Admin)
  * @permissions Only admins can create candidates
  */
-router.post('/', requireAuth, requireRole([UserRole.ADMIN]), (req: AuthRequest, res) => {
-    // TODO: Implement candidate creation
-    // - Validate request body (name, email, password)
-    // - Set role to CANDIDATE
-    // - Hash password
-    // - Create user with admin's teamId
-    // - Return created candidate (without password)
-    ApiResponseUtil.success(res, null, 'Create candidate route - will be implemented in issue #94');
+router.post('/', requireAuth, requireRole([UserRole.ADMIN]), async (req: AuthRequest, res, next) => {
+    try {
+
+        if (!req.user) {
+            return next(new Error('Authentication required'));
+        }
+
+        const userTeamId = req.user.teamId
+
+        if (!userTeamId) {
+            return ApiResponseUtil.success(res, [], 'No team assigned');
+        }
+
+        const result = createCandidateSchema.safeParse(req.body);
+
+        if (!result.success) {
+            return next(new ValidationError(undefined, z.prettifyError(result.error)));
+        }
+        else {
+            const body = result.data;
+
+            const candidate = await Candidate.create({
+                name: body.name,
+                email: body.email,
+                password: body.password,
+                groupIds: body.groupIds,
+                status: CandidateStatus.PENDING,
+                teamId: userTeamId,
+                resumeUrl: body.resumeUrl,
+                year: body.year,
+                program: body.program
+            });
+
+            // Remove password property from the response
+            const {password, ...candidateObj} = candidate.toObject();
+
+            return ApiResponseUtil.success(res, candidateObj, 'Candidate created successfully', 201);
+        }
+    } catch (err) {
+        return next(new ServerError())
+    }
 });
 
 /**
@@ -112,16 +233,12 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res, next) => {
             return next(new Error('Authentication required'));
         }
 
-        const candidate = await User.findById(req.params.id);
+        const candidate = await Candidate.findById(req.params.id);
 
         if (!candidate) {
             return ApiResponseUtil.error(res, 'Candidate not found', 404);
         }
 
-        // Ensure target user is a candidate
-        if (candidate.role !== UserRole.CANDIDATE) {
-            return ApiResponseUtil.error(res, 'User is not a candidate', 400);
-        }
 
         const currentUserId = (req.user as any)._id.toString();
         const currentUserRole = req.user.role || UserRole.CANDIDATE;
@@ -139,13 +256,32 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res, next) => {
             return ApiResponseUtil.error(res, 'Access denied: you can only modify your own profile', 403);
         }
 
-        // TODO: Implement candidate update
-        // - Validate request body
-        // - Prevent role changes
-        // - Prevent teamId changes
-        // - Update candidate fields (name, email, etc.)
-        // - Return updated candidate (without password)
-        ApiResponseUtil.success(res, null, `Update candidate ${req.params.id} - will be implemented in issue #94`);
+        // Validate request body
+        const result = updateCandidateSchema.safeParse(req.body);
+
+        if (!result.success) {
+            return next(new ValidationError(undefined, z.prettifyError(result.error)));
+        }
+        else {
+            const { name, email, groupIds, resumeUrl, year, program } = result.data;
+
+            // Parse optional update parameters
+            if (name !== undefined) candidate.name = name;
+            if (email !== undefined) candidate.email = email;
+            if (groupIds !== undefined) candidate.groupIds = groupIds.map(id => new Schema.Types.ObjectId(id));
+            if (resumeUrl !== undefined) candidate.resumeUrl = resumeUrl;
+            if (year !== undefined) candidate.year = year;
+            if (program !== undefined) candidate.program = program;
+
+            await candidate.save();
+
+             // Remove password property from the response
+            const {password, ...candidateObj} = candidate.toObject();
+
+            // - Return updated candidate (without password)
+            ApiResponseUtil.success(res, candidateObj, `Update candidate ${req.params.id}`);
+        }
+
     } catch (error) {
         next(error);
     }
@@ -169,11 +305,6 @@ router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), async (req: Au
             return ApiResponseUtil.error(res, 'Candidate not found', 404);
         }
 
-        // Ensure target user is a candidate
-        if (candidate.role !== UserRole.CANDIDATE) {
-            return ApiResponseUtil.error(res, 'User is not a candidate', 400);
-        }
-
         const currentUserTeamId = req.user.teamId?.toString();
         const candidateTeamId = candidate.teamId?.toString();
 
@@ -182,12 +313,19 @@ router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), async (req: Au
             return ApiResponseUtil.error(res, 'Access denied: you can only delete candidates in your team', 403);
         }
 
-        // TODO: Implement candidate deletion
-        // - Check if candidate has associated resources (meetings, availability)
-        // - Either cascade delete or prevent deletion if resources exist
+        // Check if candidate has associated resources (meetings, availability)
+        const meetings = await Meeting.find({candidateId: candidate._id});
+        const availability = await Availability.find({userId: candidate._id})
+        // Prevent deletion if resources exist
+        if (meetings.length > 0 || availability.length > 0) {
+            return next(new Error("Candidate has associated meetings or availabilities defined - preventing deletion."))
+        }
+
         // - Delete candidate from database
+        await Candidate.findByIdAndDelete(candidate._id);
+
         // - Return success response
-        ApiResponseUtil.success(res, null, `Delete candidate ${req.params.id} - will be implemented in issue #94`);
+        ApiResponseUtil.success(res, null, `Candidate ${req.params.id} deleted successfully.`);
     } catch (error) {
         next(error);
     }
@@ -232,13 +370,16 @@ router.get('/:id/availability', requireAuth, async (req: AuthRequest, res, next)
             return ApiResponseUtil.error(res, 'Access denied: you can only view availability of candidates in your team', 403);
         }
 
-        // TODO: Implement fetching candidate availability
-        // - Query Availability model for candidate's availability records
-        // - Return availability data
+
+        // Query Availability model for candidate's availability records
+        const availability = await Availability.find({userId: candidate._id});
+
+
+        // Return availability data
         ApiResponseUtil.success(
             res,
-            [],
-            `Get candidate ${req.params.id} availability - to be implemented`
+            availability,
+            `Availability of candidate ${req.params.id}`
         );
     } catch (error) {
         next(error);
