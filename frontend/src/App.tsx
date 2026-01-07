@@ -2,20 +2,20 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
 import Welcome from '@/components/Welcome'
-import SignupForm from "@/components/SignupForm";
-import SigninForm from '@/components/SigninForm';
-import InterviewerSchedule from '@/components/interviewerSchedule';
-import JoinATeam from '@/components/JoinATeam';
-import CreateOrJoinTeam from './components/CreateOrJoinTeam';
-import NewPasswordMade from '@/components/NewPasswordMade';
-import TwoFactorAuth from '@/components/TwoFactorAuth'
-import NewPassword from './components/NewPassword';
-import ForgotPassword from '@/components/ForgotPassword';
-import InterviewerAvailability from './components/InterviewerAvailability';
-import { AuthProvider } from './contexts/AuthContext';
-import AdminDashboard from './components/dashboards/AdminDashboard';
-import InterviewerDashboard from './components/dashboards/InterviewerDashboard';
-import CandidateDashboard from './components/dashboards/CandidateDashboard';
+import SignupForm from '@/features/auth/components/SignupForm'
+import SigninForm from '@/features/auth/components/SigninForm'
+import InterviewerSchedule from '@/components/interviewerSchedule'
+import JoinATeam from '@/components/JoinATeam'
+import CreateOrJoinTeam from '@/components/CreateOrJoinTeam'
+import NewPasswordMade from '@/features/auth/components/NewPasswordMade'
+import TwoFactorAuth from '@/features/auth/components/TwoFactorAuth'
+import NewPassword from '@/features/auth/components/NewPassword'
+import ForgotPassword from '@/features/auth/components/ForgotPassword'
+import InterviewerAvailability from '@/components/InterviewerAvailability'
+import { AuthProvider } from '@/contexts/AuthContext'
+import AdminDashboard from '@/components/dashboards/AdminDashboard'
+import InterviewerDashboard from '@/components/dashboards/InterviewerDashboard'
+import CandidateDashboard from '@/components/dashboards/CandidateDashboard'
 
 function App() {
 	return (

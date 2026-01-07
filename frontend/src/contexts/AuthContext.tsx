@@ -13,7 +13,7 @@ import {
   getCurrentUser,
   clearTokens,
   hasValidToken,
-} from '../utils/authApi';
+} from '../features/auth/services/authApi';
 
 // ============================================================================
 // TYPESCRIPT INTERFACES
