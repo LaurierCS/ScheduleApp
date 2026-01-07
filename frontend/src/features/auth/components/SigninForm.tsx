@@ -2,29 +2,27 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDashboardPath } from "@/utils/navigation";
+import { useFormValidation } from "../hooks/useFormValidation";
+import { FormInput } from "./ui/FormInput";
+import { FormPasswordInput } from "./ui/FormPasswordInput";
 
 export default function SigninForm() {
 	// ============================================================================
 	// HOOKS & STATE
 	// ============================================================================
 	
-	// Get auth functions and state from AuthContext
 	const { login, isLoading, error, clearError } = useAuth();
-	
-	// Navigation hook to redirect after login
 	const navigate = useNavigate();
 	
 	// Form state
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
 	const [rememberMe, setRememberMe] = useState(false);
 	
-	// Local validation errors
-	const [validationError, setValidationError] = useState("");
+	// Validation from hook
+	const { validationError, clearError: clearValidationError, validateEmail } = useFormValidation();
 
 	// ============================================================================
 	// FORM SUBMISSION
@@ -33,27 +31,19 @@ export default function SigninForm() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		
-		// Clear any previous errors
 		clearError();
-		setValidationError("");
+		clearValidationError();
 		
-		// Basic validation
 		if (!email || !password) {
-			setValidationError("Please fill in all fields");
 			return;
 		}
 		
-		if (!email.includes("@")) {
-			setValidationError("Please enter a valid email");
+		if (!validateEmail(email)) {
 			return;
 		}
 		
 		try {
-			// Call the login function from AuthContext
-			// It returns the user data directly so we can navigate immediately
 			const loggedInUser = await login(email, password);
-			
-			// Login was successful! Navigate based on user role
 			const dashboardPath = getDashboardPath(loggedInUser.role);
 			
 			console.log(`✅ Login successful!`);
@@ -64,8 +54,6 @@ export default function SigninForm() {
 			navigate(dashboardPath);
 			
 		} catch (err) {
-			// Error is already stored in AuthContext
-			// It will be displayed in the UI automatically
 			console.error("❌ Login failed:", err);
 		}
 	};
@@ -84,44 +72,29 @@ export default function SigninForm() {
 					{validationError || error}
 				</div>
 			)}
-			<form className="space-y-5 md:space-y-6 w-full" onSubmit={handleSubmit}>				{/* Email */}
-				<div className="space-y-2 md:space-y-3">
-					<label htmlFor="email" className="block text-sm md:text-base font-medium">
-						Email
-					</label>
-					<input
-						id="email"
-						type="email"
-						className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
-						onChange={(e) => setEmail(e.target.value)}
-						placeholder="Enter your email address"
-					/>
-				</div>
+			<form className="space-y-5 md:space-y-6 w-full" onSubmit={handleSubmit}>
+				{/* Email */}
+				<FormInput
+					id="email"
+					label="Email"
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					placeholder="Enter your email address"
+					required
+				/>
 
-					{/* Password */}
-				<div className="space-y-2 md:space-y-3">
-					<label htmlFor="password" className="block text-sm md:text-base font-medium">
-						Password
-					</label>
-					<div className="relative">
-						<input
-							id="password"
-							type={showPassword ? "text" : "password"}
-							className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 pr-12 border border-black"
-							onChange={(e) => setPassword(e.target.value)}
-							placeholder="Enter your password"
-						/>
-						<button
-							type="button"
-							className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 border-none bg-transparent focus:outline-none"
-							onClick={() => setShowPassword(!showPassword)}
-						>
-							{showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
-						</button>
-					</div>
-				</div>
+				{/* Password */}
+				<FormPasswordInput
+					id="password"
+					label="Password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					placeholder="Enter your password"
+					required
+				/>
 
-					{/* Remember me & Forgot password */}
+				{/* Remember me & Forgot password */}
 				<div className="flex items-center justify-between pt-1 md:pt-2">
 					<div className="flex items-center gap-2">
 						<input
@@ -140,28 +113,28 @@ export default function SigninForm() {
 					</Link>
 				</div>
 
-					{/* Sign In Button */}
-					<button
-						type="submit"
-						disabled={isLoading}
-						className="w-full rounded-full h-11 md:h-12 text-sm md:text-base font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-gray-400"
-						style={{
-							backgroundColor:
-								!isLoading ? "#000" : "#a3a3a3",
-						}}
-					>
-						{isLoading ? "Signing in..." : "Sign in"}
-					</button>
+				{/* Sign In Button */}
+				<button
+					type="submit"
+					disabled={isLoading}
+					className="w-full rounded-full h-11 md:h-12 text-sm md:text-base font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-gray-400"
+					style={{
+						backgroundColor:
+							!isLoading ? "#000" : "#a3a3a3",
+					}}
+				>
+					{isLoading ? "Signing in..." : "Sign in"}
+				</button>
 
-					{/* Sign Up Link */}
-					<p className="text-center text-xs md:text-sm">
-						Don't have an account?{" "}
-						<Link to="/signup" className="font-medium text-primary hover:underline underline">
-							Create an account
-						</Link>
-					</p>
-					</form>
-			</div>
+				{/* Sign Up Link */}
+				<p className="text-center text-xs md:text-sm">
+					Don't have an account?{" "}
+					<Link to="/signup" className="font-medium text-primary hover:underline underline">
+						Create an account
+					</Link>
+				</p>
+				</form>
+		</div>
 		</div>
 	);
 }
