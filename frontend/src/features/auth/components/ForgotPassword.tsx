@@ -1,24 +1,30 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
+import { useFormValidation } from "../hooks/useFormValidation";
+import { FormInput } from "./ui/FormInput";
 
 export default function ForgotPassword() {
 	const [email, setEmail] = useState("");
+	const { validationError, setValidationError, clearError, isEmailValid } = useFormValidation();
 
-	// Handle form submission for password recovery
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+		clearError();
+
+		if (!email) {
+			setValidationError("Please enter your email");
+			return;
+		}
+
+		if (!isEmailValid(email)) {
+			setValidationError("Please enter a valid email");
+			return;
+		}
+
 		console.log("Password recovery requested for email:", email);
 		// TODO: Implement password recovery API call
-		// This will send a 6-digit verification code to the user's email
-	};
-
-	// Validate email format
-	const isValidEmail = (email: string) => {
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailRegex.test(email);
 	};
 
 	return (
@@ -37,22 +43,24 @@ export default function ForgotPassword() {
 					</p>
 				</div>
 
-				<form className="space-y-8 w-full" onSubmit={handleSubmit}>
-					{/* Email text field with validation */}
-					<div className="space-y-3">
-						<label htmlFor="email" className="block text-base font-medium">
-							Email
-						</label>
-						<Input
-							id="email"
-							type="email"
-							className="w-full rounded-md h-12 text-base px-4 border border-black"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							placeholder="Enter your email address"
-							required
-						/>
+				{/* Error message */}
+				{validationError && (
+					<div className="border border-red-500 text-red-700 px-4 py-3 rounded-md text-sm mb-6 w-full">
+						{validationError}
 					</div>
+				)}
+
+				<form className="space-y-8 w-full" onSubmit={handleSubmit}>
+					{/* Email input */}
+					<FormInput
+						id="email"
+						label="Email"
+						type="email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						placeholder="Enter your email address"
+						required
+					/>
 
 					{/* Back to login page */}
 					<div className="flex justify-start">
@@ -65,11 +73,11 @@ export default function ForgotPassword() {
 						</Link>
 					</div>
 
-					{/* Send Code button with validation */}
+					{/* Send Code button */}
 					<Button
 						type="submit"
 						className="w-full rounded-full hover:bg-opacity-90 h-12 text-base"
-						disabled={!email || !isValidEmail(email)}
+						disabled={!email || !isEmailValid(email)}
 					>
 						Send Code
 					</Button>

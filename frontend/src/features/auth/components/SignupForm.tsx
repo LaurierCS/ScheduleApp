@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDashboardPath } from "@/utils/navigation";
-
+import { usePasswordValidation, isPasswordValid } from "../hooks/usePasswordValidation";
+import { useFormValidation } from "../hooks/useFormValidation";
+import { FormInput } from "./ui/FormInput";
+import { FormPasswordInput } from "./ui/FormPasswordInput";
+import { PasswordRequirements } from "./ui/PasswordRequirements";
 
 type FormState = {
   firstName: string;
@@ -14,36 +17,18 @@ type FormState = {
   password: string;
 };
 
-const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-
-const usePasswordChecks = (password: string) =>
-  useMemo(
-    () => ({
-      len: password.length >= 8,
-      upper: /[A-Z]/.test(password),
-      lower: /[a-z]/.test(password),
-      digit: /\d/.test(password),
-      special: /[^\w\s]/.test(password),
-    }),
-    [password]
-  );
-
 export default function SignupForm() {
   // ============================================================================
   // HOOKS & AUTH
   // ============================================================================
   
-  // Get auth functions and state from AuthContext
   const { register, isLoading, error, clearError } = useAuth();
-  
-  // Navigation hook to redirect after registration
   const navigate = useNavigate();
   
   // ============================================================================
   // FORM STATE
   // ============================================================================
   
-  const [showPw, setShowPw] = useState(false);
   const [form, setForm] = useState<FormState>({
     firstName: "",
     lastName: "",
@@ -52,18 +37,20 @@ export default function SignupForm() {
   });
   const [marketingOptIn, setMarketingOptIn] = useState<boolean>(false);
   
-  // Local validation error
-  const [validationError, setValidationError] = useState("");
+  // Validation hooks
+  const passwordChecks = usePasswordValidation(form.password);
+  const { validationError, setValidationError, clearError: clearValidationError, validateEmail } = useFormValidation();
 
   // ============================================================================
-  // PASSWORD VALIDATION
+  // DERIVED STATE
   // ============================================================================
   
-  const checks = usePasswordChecks(form.password);
-  const allPwOk = checks.len && checks.upper && checks.lower && checks.digit && checks.special;
-
+  const isPasswordOk = isPasswordValid(passwordChecks);
   const canSubmit =
-    form.firstName.trim() && form.lastName.trim() && emailOk(form.email) && allPwOk;
+    form.firstName.trim() &&
+    form.lastName.trim() &&
+    validateEmail(form.email) &&
+    isPasswordOk;
 
   // ============================================================================
   // HANDLERS
@@ -77,25 +64,17 @@ export default function SignupForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Clear any previous errors
     clearError();
-    setValidationError("");
+    clearValidationError();
     
-    // Check if form is valid
     if (!canSubmit) {
       setValidationError("Please fill in all required fields correctly");
       return;
     }
     
     try {
-      // Combine first and last name for backend
       const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`;
-      
-      // Call the register function from AuthContext
-      // It returns the user data directly so we can navigate immediately
       const newUser = await register(fullName, form.email, form.password);
-      
-      // Registration was successful! Navigate based on user role
       const dashboardPath = getDashboardPath(newUser.role);
       
       console.log(`✅ Registration successful!`);
@@ -106,8 +85,6 @@ export default function SignupForm() {
       navigate(dashboardPath);
       
     } catch (err) {
-      // Error is already stored in AuthContext
-      // It will be displayed in the UI automatically
       console.error("❌ Registration failed:", err);
     }
   };
@@ -129,154 +106,58 @@ export default function SignupForm() {
 
         <form onSubmit={onSubmit} className="space-y-5 md:space-y-6 w-full">
           {/* First Name */}
-          <div className="space-y-2 md:space-y-3">
-            <label htmlFor="firstName" className="block text-sm md:text-base font-medium">
-              First Name
-            </label>
-            <input
-              id="firstName"
-              type="text"
-              value={form.firstName}
-              onChange={onChange("firstName")}
-              className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
-              autoComplete="given-name"
-              placeholder="Enter your first name"
-            />
-          </div>
+          <FormInput
+            id="firstName"
+            label="First Name"
+            type="text"
+            value={form.firstName}
+            onChange={onChange("firstName")}
+            autoComplete="given-name"
+            placeholder="Enter your first name"
+            required
+          />
 
           {/* Last Name */}
-          <div className="space-y-2 md:space-y-3">
-            <label htmlFor="lastName" className="block text-sm md:text-base font-medium">
-              Last Name
-            </label>
-            <input
-              id="lastName"
-              type="text"
-              value={form.lastName}
-              onChange={onChange("lastName")}
-              className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
-              autoComplete="family-name"
-              placeholder="Enter your last name"
-            />
-          </div>
+          <FormInput
+            id="lastName"
+            label="Last Name"
+            type="text"
+            value={form.lastName}
+            onChange={onChange("lastName")}
+            autoComplete="family-name"
+            placeholder="Enter your last name"
+            required
+          />
 
           {/* Email */}
-          <div className="space-y-2 md:space-y-3">
-            <label htmlFor="email" className="block text-sm md:text-base font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={form.email}
-              onChange={onChange("email")}
-              className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
-              autoComplete="email"
-              placeholder="Enter your email address"
-            />
-            {form.email && !emailOk(form.email) && (
-              <p className="mt-1 text-xs md:text-sm text-red-600">Please enter a valid email.</p>
-            )}
-          </div>
+          <FormInput
+            id="email"
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={onChange("email")}
+            autoComplete="email"
+            placeholder="Enter your email address"
+            error={form.email && !validateEmail(form.email) ? "Please enter a valid email." : ""}
+            required
+          />
 
           {/* Password */}
-          <div className="space-y-2 md:space-y-3">
-            <label htmlFor="password" className="block text-sm md:text-base font-medium">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                id="password"
-                type={showPw ? "text" : "password"}
-                value={form.password}
-                onChange={onChange("password")}
-                className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 pr-12 border border-black"
-                autoComplete="new-password"
-                placeholder="Enter password"
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 border-none bg-transparent focus:outline-none"
-                onClick={() => setShowPw(!showPw)}
-              >
-                {showPw ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
-              </button>
-            </div>
+          <FormPasswordInput
+            id="password"
+            label="Password"
+            value={form.password}
+            onChange={onChange("password")}
+            autoComplete="new-password"
+            placeholder="Enter password"
+            required
+          />
 
-            {/* Password requirements - validation bullets */}
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2 mt-3 md:mt-4">
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    checks.len ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                ></div>
-                <span
-                  className={`text-xs md:text-sm ${
-                    checks.len ? "text-green-600" : "text-gray-600"
-                  }`}
-                >
-                  Use 8 or more characters
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    checks.upper ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                ></div>
-                <span
-                  className={`text-xs md:text-sm ${
-                    checks.upper ? "text-green-600" : "text-gray-600"
-                  }`}
-                >
-                  One Uppercase character
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    checks.lower ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                ></div>
-                <span
-                  className={`text-sm ${
-                    checks.lower ? "text-green-600" : "text-gray-600"
-                  }`}
-                >
-                  One lowercase character
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    checks.special ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                ></div>
-                <span
-                  className={`text-xs md:text-sm ${
-                    checks.special ? "text-green-600" : "text-gray-600"
-                  }`}
-                >
-                  One special character
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    checks.digit ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                ></div>
-                <span
-                  className={`text-xs md:text-sm ${
-                    checks.digit ? "text-green-600" : "text-gray-600"
-                  }`}
-                >
-                  One number
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* Password requirements - validation bullets */}
+          <PasswordRequirements 
+            validation={passwordChecks}
+            responsive={true}
+          />
 
           {/* Marketing opt-in checkbox */}
           <div className="flex items-start gap-2 pt-1 md:pt-2">
