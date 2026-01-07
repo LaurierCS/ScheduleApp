@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDashboardPath } from "@/utils/navigation";
@@ -74,94 +71,96 @@ export default function SigninForm() {
 	};
 
 	return (
-		<div className="flex flex-col items-center justify-center">
-			<div className="flex flex-1 items-center justify-center w-full mt-20">
-				<div className="w-full p-4 md:p-8 lg:p-8 flex flex-col items-center justify-center">
-					<div className="max-w-md w-full mx-auto">
-						<h3 className="text-2xl font-medium mb-8">Sign In</h3>
+		<div className="flex flex-col items-center justify-center min-h-screen">
+			<div className="w-full max-w-lg p-6 md:p-8 flex flex-col items-center justify-center">
+				{/* Main header */}
+				<div className="text-center mb-6 md:mb-8">
+					<h3 className="text-2xl md:text-3xl font-medium">Sign In</h3>
+				</div>
 
-						{/* Error Messages */}
-						{(error || validationError) && (
-							<div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md text-sm">
-								{validationError || error}
-							</div>
-						)}
+				{/* Error Messages */}
+				{(error || validationError) && (
+				<div className="border border-red-500 text-red-700 px-4 py-3 rounded-md text-sm mb-6 w-full">
+					{validationError || error}
+				</div>
+			)}
+			<form className="space-y-5 md:space-y-6 w-full" onSubmit={handleSubmit}>				{/* Email */}
+				<div className="space-y-2 md:space-y-3">
+					<label htmlFor="email" className="block text-sm md:text-base font-medium">
+						Email
+					</label>
+					<input
+						id="email"
+						type="email"
+						className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
+						onChange={(e) => setEmail(e.target.value)}
+						placeholder="Enter your email address"
+					/>
+				</div>
 
-						<form className="space-y-6" onSubmit={handleSubmit}>
-							<div className="space-y-2">
-								<label htmlFor="email" className="block text-sm font-medium">
-									Email
-								</label>
-								<Input
-									id="email"
-									type="email"
-									className="w-full rounded-md"
-									onChange={(e) => setEmail(e.target.value)}
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<div className="flex justify-between items-center">
-									<label
-										htmlFor="password"
-										className="block text-sm font-medium">
-										Password
-									</label>
-									<button
-										type="button"
-										onClick={() => setShowPassword(!showPassword)}
-										className="text-sm flex items-center gap-1">
-										{showPassword ? (
-											<EyeOffIcon size={16} />
-										) : (
-											<EyeIcon size={16} />
-										)}
-										{showPassword ? "Hide" : "Show"}
-									</button>
-								</div>
-								<Input
-									id="password"
-									type={showPassword ? "text" : "password"}
-									className="w-full rounded-md"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-								/>
-							</div>
-
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-2">
-									<Checkbox
-										id="remember-me"
-										checked={rememberMe}
-										onCheckedChange={(checked) => setRememberMe(!!checked)}
-										className="px-3"
-									/>
-									<label htmlFor="remember-me" className="text-sm">
-										Remember me
-									</label>
-                                </div>
-                                {/* Link to forgot password page */}
-								<Link to="/forgot-password" className="text-sm font-medium">
-									Forgot password?
-								</Link>
-							</div>
-
-							<Button
-								type="submit"
-								disabled={isLoading}
-                                className="w-full rounded-full hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
-								{isLoading ? "Signing in..." : "Sign in"}
-							</Button>
-
-							<div className="text-center text-sm">
-								Don't have an account?{" "}
-								<Link to="/signup" className="font-medium">
-									Create an account
-								</Link>
-							</div>
-						</form>
+					{/* Password */}
+				<div className="space-y-2 md:space-y-3">
+					<label htmlFor="password" className="block text-sm md:text-base font-medium">
+						Password
+					</label>
+					<div className="relative">
+						<input
+							id="password"
+							type={showPassword ? "text" : "password"}
+							className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 pr-12 border border-black"
+							onChange={(e) => setPassword(e.target.value)}
+							placeholder="Enter your password"
+						/>
+						<button
+							type="button"
+							className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 border-none bg-transparent focus:outline-none"
+							onClick={() => setShowPassword(!showPassword)}
+						>
+							{showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+						</button>
 					</div>
 				</div>
+
+					{/* Remember me & Forgot password */}
+				<div className="flex items-center justify-between pt-1 md:pt-2">
+					<div className="flex items-center gap-2">
+						<input
+							id="remember-me"
+							type="checkbox"
+							checked={rememberMe}
+							onChange={(e) => setRememberMe(e.target.checked)}
+							className="h-4 w-4 accent-black cursor-pointer"
+						/>
+						<label htmlFor="remember-me" className="text-xs md:text-sm cursor-pointer">
+							Remember me
+						</label>
+					</div>
+					<Link to="/forgot-password" className="text-xs md:text-sm font-medium text-primary hover:underline underline">
+						Forgot password?
+					</Link>
+				</div>
+
+					{/* Sign In Button */}
+					<button
+						type="submit"
+						disabled={isLoading}
+						className="w-full rounded-full h-11 md:h-12 text-sm md:text-base font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-gray-400"
+						style={{
+							backgroundColor:
+								!isLoading ? "#000" : "#a3a3a3",
+						}}
+					>
+						{isLoading ? "Signing in..." : "Sign in"}
+					</button>
+
+					{/* Sign Up Link */}
+					<p className="text-center text-xs md:text-sm">
+						Don't have an account?{" "}
+						<Link to="/signup" className="font-medium text-primary hover:underline underline">
+							Create an account
+						</Link>
+					</p>
+					</form>
 			</div>
 		</div>
 	);
