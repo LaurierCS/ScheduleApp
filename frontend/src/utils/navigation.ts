@@ -2,7 +2,7 @@
  * Navigation utilities for role-based routing
  */
 
-import { UserRole } from './authApi';
+import { UserRole } from '../features/auth/services/authApi';
 
 /**
  * Get the dashboard path for a specific user role

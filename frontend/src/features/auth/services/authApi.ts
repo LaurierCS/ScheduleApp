@@ -3,7 +3,7 @@
  * Handles all authentication-related API calls to the backend
  */
 
-import { getApiUrl } from './api';
+import { getApiUrl } from '../../../utils/api';
 
 // ============================================================================
 // TYPESCRIPT INTERFACES - Define the shape of our data
@@ -151,7 +151,7 @@ const authenticatedFetch = async (
   options: RequestInit = {}
 ): Promise<Response> => {
   const token = getAccessToken();
-  
+
   let headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -193,10 +193,10 @@ export const register = async (data: RegisterRequest): Promise<AuthResponse> => 
   }
 
   const result: AuthResponse = await response.json();
-  
+
   // Store tokens after successful registration
   setTokens(result.data.accessToken, result.data.refreshToken);
-  
+
   return result;
 };
 
@@ -216,10 +216,10 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
   }
 
   const result: AuthResponse = await response.json();
-  
+
   // Store tokens after successful login
   setTokens(result.data.accessToken, result.data.refreshToken);
-  
+
   return result;
 };
 
@@ -248,7 +248,7 @@ export const getCurrentUser = async (): Promise<User> => {
  */
 export const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = getRefreshToken();
-  
+
   if (!refreshToken) {
     throw new Error('No refresh token available');
   }
@@ -265,10 +265,10 @@ export const refreshAccessToken = async (): Promise<string> => {
   }
 
   const result: RefreshResponse = await response.json();
-  
+
   // Update only the access token
   localStorage.setItem(ACCESS_TOKEN_KEY, result.data.accessToken);
-  
+
   return result.data.accessToken;
 };
 
@@ -308,7 +308,7 @@ const authApi = {
   logout,
   getCurrentUser,
   refreshAccessToken,
-  
+
   // Token management
   setTokens,
   getAccessToken,
