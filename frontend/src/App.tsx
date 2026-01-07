@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
-import Welcome from '@/components/Welcome'
+import Landing from './pages/Landing';
 import SignupForm from "@/components/SignupForm";
 import SigninForm from '@/components/SigninForm';
 import InterviewerSchedule from '@/components/interviewerSchedule';
-import JoinATeam from '@/components/JoinATeam';
-import CreateOrJoinTeam from './components/CreateOrJoinTeam';
+import JoinATeam from '@/features/teams/components/JoinATeam';
+import CreateOrJoinTeam from '@/features/teams/components/CreateOrJoinTeam';
 import NewPasswordMade from '@/components/NewPasswordMade';
 import TwoFactorAuth from '@/components/TwoFactorAuth'
 import NewPassword from './components/NewPassword';
@@ -22,7 +22,7 @@ function App() {
 		<AuthProvider>
 			<Router>
 				<Routes>
-					<Route path="/" element={<Welcome />} />
+					   <Route path="/" element={<Landing />} />
 					<Route path="/home" element={<Home />} />
 					<Route path="/status" element={<StatusDashboard />} />
 					<Route path="/signup" element={<SignupForm />} />

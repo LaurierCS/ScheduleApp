@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 
-const Welcome = () => {
+const Landing = () => {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Navigation Bar */}
@@ -157,4 +157,4 @@ const Welcome = () => {
   )
 }
 
-export default Welcome
+export default Landing
