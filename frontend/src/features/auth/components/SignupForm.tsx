@@ -28,27 +28,6 @@ const usePasswordChecks = (password: string) =>
     [password]
   );
 
-function Bullet({
-  ok,
-  first,
-  children,
-}: {
-  ok: boolean;
-  first?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <li
-      className={`inline-flex items-center text-[13px] md:text-sm leading-5 ${
-        ok ? "text-green-600 font-medium" : "text-neutral-700"
-      }`}
-    >
-      {!first && <span aria-hidden className="mx-1.5 md:mx-2 select-none">•</span>}
-      <span className="whitespace-nowrap">{children}</span>
-    </li>
-  );
-}
-
 export default function SignupForm() {
   // ============================================================================
   // HOOKS & AUTH
@@ -134,166 +113,221 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[60%_40%]">
-      {/* Left: centered content */}
-      <section className="bg-white grid place-items-center px-6 sm:px-10 lg:px-16">
-        <div className="w-full max-w-xl md:max-w-[42rem]">
-          {/* Your logo stays */}
-          <div className="mb-10 mt-[5px]">
-            <img
-              src="../src/assets/LCS_Icon_Black_SVG.svg"
-              alt="Logo"
-              className="h-8 w-auto object-contain"
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="w-full max-w-lg p-6 md:p-8 flex flex-col items-center justify-center">
+        {/* Main header */}
+        <div className="text-center mb-6 md:mb-8">
+          <h3 className="text-2xl md:text-3xl font-medium">Sign Up</h3>
+        </div>
+
+        {/* Error Messages */}
+        {(error || validationError) && (
+          <div className="border border-red-500 text-red-700 px-4 py-3 rounded-md text-sm mb-6 w-full">
+            {validationError || error}
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="space-y-5 md:space-y-6 w-full">
+          {/* First Name */}
+          <div className="space-y-2 md:space-y-3">
+            <label htmlFor="firstName" className="block text-sm md:text-base font-medium">
+              First Name
+            </label>
+            <input
+              id="firstName"
+              type="text"
+              value={form.firstName}
+              onChange={onChange("firstName")}
+              className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
+              autoComplete="given-name"
+              placeholder="Enter your first name"
             />
           </div>
 
-          <h1 className="text-4xl font-semibold tracking-tight mb-8">Sign Up</h1>
+          {/* Last Name */}
+          <div className="space-y-2 md:space-y-3">
+            <label htmlFor="lastName" className="block text-sm md:text-base font-medium">
+              Last Name
+            </label>
+            <input
+              id="lastName"
+              type="text"
+              value={form.lastName}
+              onChange={onChange("lastName")}
+              className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
+              autoComplete="family-name"
+              placeholder="Enter your last name"
+            />
+          </div>
 
-          {/* Error Messages */}
-          {(error || validationError) && (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md text-sm mb-6">
-              {validationError || error}
-            </div>
-          )}
+          {/* Email */}
+          <div className="space-y-2 md:space-y-3">
+            <label htmlFor="email" className="block text-sm md:text-base font-medium">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={onChange("email")}
+              className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
+              autoComplete="email"
+              placeholder="Enter your email address"
+            />
+            {form.email && !emailOk(form.email) && (
+              <p className="mt-1 text-xs md:text-sm text-red-600">Please enter a valid email.</p>
+            )}
+          </div>
 
-          <form onSubmit={onSubmit} className="space-y-6">
-            {/* First Name */}
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium mb-2">
-                First Name
-              </label>
+          {/* Password */}
+          <div className="space-y-2 md:space-y-3">
+            <label htmlFor="password" className="block text-sm md:text-base font-medium">
+              Password
+            </label>
+            <div className="relative">
               <input
-                id="firstName"
-                type="text"
-                value={form.firstName}
-                onChange={onChange("firstName")}
-                className="w-full rounded-lg border border-neutral-300 px-4 py-3 outline-none focus:border-black"
-                autoComplete="given-name"
+                id="password"
+                type={showPw ? "text" : "password"}
+                value={form.password}
+                onChange={onChange("password")}
+                className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 pr-12 border border-black"
+                autoComplete="new-password"
+                placeholder="Enter password"
               />
-            </div>
-
-            {/* Last Name */}
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium mb-2">
-                Last Name
-              </label>
-              <input
-                id="lastName"
-                type="text"
-                value={form.lastName}
-                onChange={onChange("lastName")}
-                className="w-full rounded-lg border border-neutral-300 px-4 py-3 outline-none focus:border-black"
-                autoComplete="family-name"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={onChange("email")}
-                className="w-full rounded-lg border border-neutral-300 px-4 py-3 outline-none focus:border-black"
-                autoComplete="email"
-              />
-              {form.email && !emailOk(form.email) && (
-                <p className="mt-1 text-sm text-red-600">Please enter a valid email.</p>
-              )}
-            </div>
-
-            {/* Password */}
-			<div>
-			{/* Label + show/hide (lucide) */}
-			<div className="mb-2 flex items-center justify-between">
-				<label htmlFor="password" className="text-sm font-medium">
-				Password
-				</label>
-				<button
-				type="button"
-				onClick={() => setShowPw(!showPw)}
-				className="text-sm flex items-center gap-1 text-neutral-600 hover:text-neutral-800"
-				>
-				{showPw ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
-				{showPw ? "Hide" : "Show"}
-				</button>
-			</div>
-
-			<input
-				id="password"
-				type={showPw ? "text" : "password"}
-				value={form.password}
-				onChange={onChange("password")}
-				className="w-full rounded-lg border border-neutral-300 px-4 py-3 outline-none focus:border-black"
-				autoComplete="new-password"
-			/>
-
-			{/*Always-visible password rules */}
-			<div className="mt-3 min-h-[52px]">
-				<ul className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] md:text-sm leading-5">
-				<Bullet ok={checks.len} first>
-					Use 8 or more characters
-				</Bullet>
-				<Bullet ok={checks.upper}>One Uppercase character</Bullet>
-				<Bullet ok={checks.lower}>One lowercase character</Bullet>
-				<Bullet ok={checks.special}>One special character</Bullet>
-				<Bullet ok={checks.digit}>One number</Bullet>
-				</ul>
-			</div>
-			</div>
-
-           {/* Marketing opt-in checkbox */}
-			<div className="flex items-start gap-2">
-			<input
-				type="checkbox"
-				id="marketing"
-				checked={marketingOptIn}
-				onChange={(e) => setMarketingOptIn(e.target.checked)}
-				className="mt-1 h-4 w-4 accent-black cursor-pointer"
-			/>
-			<label htmlFor="marketing" className="text-sm cursor-pointer">
-				I want to receive emails about the product, feature updates, events, and
-				marketing promotions.
-			</label>
-			</div>
-
-            {/* Terms (keep your style) */}
-            <p className="text-sm text-neutral-700">
-              By creating an account, you agree to the{" "}
-              <a href="#" className="underline text-black">Terms of use</a> and{" "}
-              <a href="#" className="underline text-black">Privacy Policy</a>.
-            </p>
-
-            {/* Submit Button */}
-            <div className="pt-2 pb-16">
               <button
-                type="submit"
-                disabled={!canSubmit || isLoading}
-                className={`mx-auto flex w-64 items-center justify-center rounded-full px-6 py-4 text-base font-semibold text-white ${
-                  canSubmit && !isLoading
-                    ? "bg-black hover:opacity-90 cursor-pointer"
-                    : "bg-neutral-400 cursor-not-allowed"
-                }`}
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 border-none bg-transparent focus:outline-none"
+                onClick={() => setShowPw(!showPw)}
               >
-                {isLoading ? "Creating account..." : "Create an account"}
+                {showPw ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
               </button>
-
-              <p className="mt-4 text-center text-sm">
-                Already have an account?{" "}
-                <Link to="/signin" className="font-semibold text-black underline">
-                  Log in
-                </Link>
-              </p>
             </div>
-          </form>
-        </div>
-      </section>
 
-      {/* Right column: gray (auto full height via grid) */}
-      <aside className="hidden md:block bg-neutral-200" />
+            {/* Password requirements - validation bullets */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2 mt-3 md:mt-4">
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    checks.len ? "bg-green-500" : "bg-gray-300"
+                  }`}
+                ></div>
+                <span
+                  className={`text-xs md:text-sm ${
+                    checks.len ? "text-green-600" : "text-gray-600"
+                  }`}
+                >
+                  Use 8 or more characters
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    checks.upper ? "bg-green-500" : "bg-gray-300"
+                  }`}
+                ></div>
+                <span
+                  className={`text-xs md:text-sm ${
+                    checks.upper ? "text-green-600" : "text-gray-600"
+                  }`}
+                >
+                  One Uppercase character
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    checks.lower ? "bg-green-500" : "bg-gray-300"
+                  }`}
+                ></div>
+                <span
+                  className={`text-sm ${
+                    checks.lower ? "text-green-600" : "text-gray-600"
+                  }`}
+                >
+                  One lowercase character
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    checks.special ? "bg-green-500" : "bg-gray-300"
+                  }`}
+                ></div>
+                <span
+                  className={`text-xs md:text-sm ${
+                    checks.special ? "text-green-600" : "text-gray-600"
+                  }`}
+                >
+                  One special character
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    checks.digit ? "bg-green-500" : "bg-gray-300"
+                  }`}
+                ></div>
+                <span
+                  className={`text-xs md:text-sm ${
+                    checks.digit ? "text-green-600" : "text-gray-600"
+                  }`}
+                >
+                  One number
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Marketing opt-in checkbox */}
+          <div className="flex items-start gap-2 pt-1 md:pt-2">
+            <input
+              type="checkbox"
+              id="marketing"
+              checked={marketingOptIn}
+              onChange={(e) => setMarketingOptIn(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-black cursor-pointer"
+            />
+            <label htmlFor="marketing" className="text-xs md:text-sm cursor-pointer">
+              I want to receive emails about the product, feature updates, events, and
+              marketing promotions.
+            </label>
+          </div>
+
+          {/* Terms */}
+          <p className="text-xs md:text-sm text-gray-600">
+            By creating an account, you agree to the{" "}
+            <a href="#" className="underline text-black font-medium">
+              Terms of use
+            </a>{" "}
+            and{" "}
+            <a href="#" className="underline text-black font-medium">
+              Privacy Policy
+            </a>
+            .
+          </p>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={!canSubmit || isLoading}
+            className="w-full rounded-full h-11 md:h-12 text-sm md:text-base font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-gray-400"
+            style={{
+              backgroundColor:
+                canSubmit && !isLoading ? "#000" : "#a3a3a3",
+            }}
+          >
+            {isLoading ? "Creating account..." : "Create account"}
+          </button>
+
+          {/* Sign In Link */}
+          <p className="text-center text-xs md:text-sm">
+            Already have an account?{" "}
+            <Link to="/signin" className="font-medium text-primary hover:underline underline">
+              Sign In
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
