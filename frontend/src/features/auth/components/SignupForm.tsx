@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getDashboardPath } from "@/utils/navigation";
 import { usePasswordValidation, isPasswordValid } from "../hooks/usePasswordValidation";
 import { useFormValidation } from "../hooks/useFormValidation";
