@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function InterviewerDashboard() {
   const { user, logout } = useAuth();
