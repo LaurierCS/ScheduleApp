@@ -20,6 +20,9 @@ export enum UserRole {
  * @property profileImage - Optional URL/path to user's profile image
  * @property isActive - Whether the user account is active (for soft deletion)
  * @property lastLogin - The date of this user's last login
+ * @property pendingNewPassword - Temporarily stores new password during 2FA verification
+ * @property twoFactorCode - Hashed 6-digit verification code for password reset
+ * @property twoFactorCodeExpiry - Expiration time for the 2FA code (5 minutes)
  * @property createdAt - The date this user object was created (auto-managed)
  * @property updatedAt - The date this user object was last updated (auto-managed)
  * @property comparePassword - Method to compare entered password with hashed password
@@ -35,6 +38,9 @@ export interface IUser extends Document {
     profileImage?: string;
     isActive: boolean;
     lastLogin?: Date;
+    pendingNewPassword?: string;
+    twoFactorCode?: string;
+    twoFactorCodeExpiry?: Date;
     createdAt: Date;
     updatedAt: Date;
     comparePassword(enteredPassword: string): Promise<boolean>;
@@ -87,6 +93,15 @@ const UserSchema: Schema = new Schema(
             default: true,
         },
         lastLogin: {
+            type: Date,
+        },
+        pendingNewPassword: {
+            type: String,
+        },
+        twoFactorCode: {
+            type: String,
+        },
+        twoFactorCodeExpiry: {
             type: Date,
         }
     },

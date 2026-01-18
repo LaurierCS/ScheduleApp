@@ -1,24 +1,40 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
+import { verifyPasswordResetCode } from "../services/authApi";
 
 export default function TwoFactorAuth() {
+	const navigate = useNavigate();
 	const [code, setCode] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
 
 	// Handle input change for verification code
 	const handleInputChange = (value: string) => {
 		// Only allow digits and limit to 6 characters
 		if (value.length > 6 || (value && !/^\d*$/.test(value))) return;
 		setCode(value);
+		setError(""); // Clear error when user starts typing
 	};
 
 	// Handle form submission
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log("2FA code submitted:", code);
-		// TODO: Implement 2FA verification API call
+		setLoading(true);
+		setError("");
+
+		try {
+			await verifyPasswordResetCode({ code });
+			// Redirect to success page
+			navigate("/new-password-made");
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Failed to verify code';
+			setError(errorMessage);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	// Check if code is complete (6 digits)
@@ -29,22 +45,29 @@ export default function TwoFactorAuth() {
 			<div className="w-full max-w-lg p-8 flex flex-col items-center justify-center">
 				{/* Main header */}
 				<div className="text-center mb-4">
-					<h3 className="text-3xl font-medium">Two-Factor Authentication</h3>
+					<h3 className="text-3xl font-medium">Verify Password Reset</h3>
 				</div>
 
 				{/* Instructions */}
 				<div className="text-center mb-6">
 					<p className="text-base text-gray-600 leading-relaxed mb-2">
-						You can use any two-factor authentication application, like 
-						Google Authenticator, Microsoft Authenticator, and Twilio Authy.
+						A 6-digit verification code has been sent to your email.
+						Enter the code to complete your password reset.
 					</p>
 				</div>
+
+				{/* Error message */}
+				{error && (
+					<div className="border border-red-500 text-red-700 px-4 py-3 rounded-md text-sm mb-6 w-full">
+						{error}
+					</div>
+				)}
 
 				<form className="space-y-8 w-full" onSubmit={handleSubmit}>
 					{/* 2FA Code input field */}
 					<div className="space-y-3">
 						<label htmlFor="2faCode" className="block text-base font-medium">
-							2FA Code
+							Verification Code
 						</label>
 						<Input
 							id="2faCode"
@@ -74,9 +97,9 @@ export default function TwoFactorAuth() {
 					<Button
 						type="submit"
 						className="w-full rounded-full hover:bg-opacity-90 h-12 text-base"
-						disabled={!isCodeComplete}
+						disabled={!isCodeComplete || loading}
 					>
-						Confirm
+						{loading ? "Verifying..." : "Confirm"}
 					</Button>
 				</form>
 			</div>

@@ -5,6 +5,9 @@ import JWTUtils from '../utils/jwt';
 import { authenticate } from '../middleware/authMiddleware';
 import { ApiResponseUtil } from '../utils/apiResponse';
 import { ValidationError, AuthenticationError } from '../errors';
+import CodeGenerator from '../utils/codeGenerator';
+import PasswordResetUtil from '../utils/passwordReset';
+import { EmailService } from '../utils/email';
 
 const router = Router();
 
@@ -345,12 +348,81 @@ router.post('/forgot-password', (req, res) => {
 
 /**
  * @route   POST /api/auth/reset-password
- * @desc    Reset password with token
- * @access  Public (with reset token)
- * @todo    Implement password reset functionality
+ * @desc    Initiate password reset (step 1 - send verification code)
+ * @access  Private (requires valid JWT token)
  */
-router.post('/reset-password', (req, res) => {
-  ApiResponseUtil.success(res, null, 'Reset password route - will be implemented in future');
+router.post('/reset-password', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validate inputs
+    PasswordResetUtil.validateResetInput(currentPassword, newPassword, confirmPassword);
+
+    // Get user and verify current password
+    const user = await User.findById(req.user!._id).select('+password');
+    if (!user) throw new AuthenticationError('User not found');
+
+    await PasswordResetUtil.verifyCurrentPassword(user, currentPassword);
+
+    // Generate code and store pending password
+    const code = CodeGenerator.generate6DigitCode();
+    user.pendingNewPassword = newPassword;
+    user.twoFactorCode = CodeGenerator.hashCode(code);
+    user.twoFactorCodeExpiry = CodeGenerator.getCodeExpiration();
+    await user.save();
+
+    // Send verification email
+    try {
+      const emailService = new EmailService();
+      await emailService.sendPasswordResetCode(user.email, code, user.name);
+      console.log(`[RESET-PASSWORD] Verification code sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('[RESET-PASSWORD] Failed to send email:', emailError);
+      PasswordResetUtil.clearResetData(user);
+      await user.save();
+      throw new Error('Failed to send verification code email');
+    }
+
+    res.json({
+      success: true,
+      message: 'Verification code sent to your email',
+      data: { user: { id: user._id, name: user.name, email: user.email, role: user.role } }
+    });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   POST /api/auth/verify-password-reset-code
+ * @desc    Verify 6-digit code and update password (step 2)
+ * @access  Private (requires valid JWT token)
+ */
+router.post('/verify-password-reset-code', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code } = req.body;
+
+    // Get user
+    const user = await User.findById(req.user!._id);
+    if (!user) throw new AuthenticationError('User not found');
+
+    // Validate code
+    PasswordResetUtil.validateVerificationCode(code, user);
+
+    // Update password and clear fields
+    PasswordResetUtil.updatePassword(user);
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password updated successfully',
+      data: { user: { id: user._id, name: user.name, email: user.email, role: user.role } }
+    });
+
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;
