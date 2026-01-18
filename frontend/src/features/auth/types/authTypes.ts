@@ -87,3 +87,41 @@ export interface ErrorResponse {
     error?: string;
     errors?: Array<{ field?: string; message: string }>;
 }
+
+/**
+ * Password reset request body
+ */
+export interface ResetPasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
+/**
+ * Password reset response
+ */
+export interface ResetPasswordResponse {
+    success: true;
+    message: string;
+    data: {
+        user: User;
+    };
+}
+
+/**
+ * Verify password reset code request
+ */
+export interface VerifyPasswordResetCodeRequest {
+    code: string;
+}
+
+/**
+ * Verify password reset code response
+ */
+export interface VerifyPasswordResetCodeResponse {
+    success: true;
+    message: string;
+    data: {
+        user: User;
+    };
+}

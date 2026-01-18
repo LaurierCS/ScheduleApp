@@ -20,6 +20,10 @@ import type {
   MeResponse,
   RefreshResponse,
   ErrorResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  VerifyPasswordResetCodeRequest,
+  VerifyPasswordResetCodeResponse,
 } from '../types/authTypes';
 
 // Re-export types and utilities for backward compatibility
@@ -151,6 +155,46 @@ export const logout = async (): Promise<void> => {
 // ============================================================================
 
 /**
+ * Reset user password (requires authentication)
+ * @param data - Current password and new password
+ * @returns Promise with user data
+ */
+export const resetPassword = async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
+  const response = await authenticatedFetch('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error: ErrorResponse = await response.json();
+    throw new Error(error.message || 'Failed to reset password');
+  }
+
+  const result: ResetPasswordResponse = await response.json();
+  return result;
+};
+
+/**
+ * Verify password reset code (step 2 - actually update password)
+ * @param data - 6-digit verification code
+ * @returns Promise with user data
+ */
+export const verifyPasswordResetCode = async (data: VerifyPasswordResetCodeRequest): Promise<VerifyPasswordResetCodeResponse> => {
+  const response = await authenticatedFetch('/auth/verify-password-reset-code', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error: ErrorResponse = await response.json();
+    throw new Error(error.message || 'Invalid verification code');
+  }
+
+  const result: VerifyPasswordResetCodeResponse = await response.json();
+  return result;
+};
+
+/**
  * Default export providing all auth API functions
  */
 const authApi = {
@@ -159,6 +203,8 @@ const authApi = {
   logout,
   getCurrentUser,
   refreshAccessToken,
+  resetPassword,
+  verifyPasswordResetCode,
 };
 
 export default authApi;

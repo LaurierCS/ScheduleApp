@@ -1,22 +1,27 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { usePasswordValidation, isPasswordValid } from "../hooks/usePasswordValidation";
 import { useFormValidation } from "../hooks/useFormValidation";
+import { resetPassword } from "../services/authApi";
 import { FormPasswordInput } from "./ui/FormPasswordInput";
 import { PasswordRequirements } from "./ui/PasswordRequirements";
 
 export default function NewPassword() {
+	const navigate = useNavigate();
+	const [currentPassword, setCurrentPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const [loading, setLoading] = useState(false);
 	const { validationError, setValidationError, clearError } = useFormValidation();
 
 	// Password validation
 	const passwordChecks = usePasswordValidation(newPassword);
 	const isPasswordOk = isPasswordValid(passwordChecks);
 	const passwordsMatch = newPassword === confirmPassword && confirmPassword !== "";
-	const isFormValid = isPasswordOk && passwordsMatch;
+	const isFormValid = currentPassword !== "" && isPasswordOk && passwordsMatch;
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		clearError();
 
@@ -25,8 +30,22 @@ export default function NewPassword() {
 			return;
 		}
 
-		console.log("New password created");
-		// TODO: Implement password update API call
+		setLoading(true);
+		try {
+			await resetPassword({
+				currentPassword,
+				newPassword,
+				confirmPassword,
+			});
+
+			// Redirect to 2FA verification page on success
+			navigate("/2fa");
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to update password';
+			setValidationError(errorMessage);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -45,7 +64,16 @@ export default function NewPassword() {
 				)}
 
 				<form className="space-y-8 w-full" onSubmit={handleSubmit}>
-					{/* New Password input */}
+				{/* Current Password input */}
+				<FormPasswordInput
+					id="currentPassword"
+					label="Current Password"
+					value={currentPassword}
+					onChange={(e) => setCurrentPassword(e.target.value)}
+					placeholder="Enter current password"
+					required
+				/>
+
 					<FormPasswordInput
 						id="newPassword"
 						label="New Password"
@@ -77,9 +105,9 @@ export default function NewPassword() {
 					<Button
 						type="submit"
 						className="w-full rounded-full hover:bg-opacity-90 h-12 text-base"
-						disabled={!isFormValid}
+						disabled={!isFormValid || loading}
 					>
-						Save
+						{loading ? "Updating..." : "Save"}
 					</Button>
 				</form>
 			</div>
