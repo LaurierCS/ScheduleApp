@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useFormValidation } from "../hooks/useFormValidation";
+import { forgotPassword } from "../services/authApi";
 import { FormInput } from "./ui/FormInput";
 
 export default function ForgotPassword() {
+	const navigate = useNavigate();
 	const [email, setEmail] = useState("");
+	const [loading, setLoading] = useState(false);
 	const { validationError, setValidationError, clearError, isEmailValid } = useFormValidation();
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		clearError();
 
@@ -23,8 +26,21 @@ export default function ForgotPassword() {
 			return;
 		}
 
-		console.log("Password recovery requested for email:", email);
-		// TODO: Implement password recovery API call
+		setLoading(true);
+		try {
+			await forgotPassword({ email: email.toLowerCase() });
+			
+			// Store email in session for next step
+			sessionStorage.setItem('resetEmail', email.toLowerCase());
+			
+			// Navigate to 2FA verification
+			navigate("/2fa");
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to send reset code';
+			setValidationError(errorMessage);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -77,9 +93,9 @@ export default function ForgotPassword() {
 					<Button
 						type="submit"
 						className="w-full rounded-full hover:bg-opacity-90 h-12 text-base"
-						disabled={!email || !isEmailValid(email)}
+						disabled={!email || !isEmailValid(email) || loading}
 					>
-						Send Code
+						{loading ? "Sending..." : "Send Code"}
 					</Button>
 				</form>
 			</div>
