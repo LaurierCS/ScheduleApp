@@ -83,9 +83,11 @@ export interface RefreshResponse {
  */
 export interface ErrorResponse {
     success: false;
-    message: string;
-    error?: string;
-    errors?: Array<{ field?: string; message: string }>;
+    error: {
+        code: string;
+        message: string;
+        details?: any;
+    };
 }
 
 /**

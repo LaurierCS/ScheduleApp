@@ -23,6 +23,7 @@ export enum UserRole {
  * @property pendingNewPassword - Temporarily stores new password during 2FA verification
  * @property twoFactorCode - Hashed 6-digit verification code for password reset
  * @property twoFactorCodeExpiry - Expiration time for the 2FA code (5 minutes)
+ * @property lastPasswordResetAt - Timestamp of last password reset (for rate limiting)
  * @property createdAt - The date this user object was created (auto-managed)
  * @property updatedAt - The date this user object was last updated (auto-managed)
  * @property comparePassword - Method to compare entered password with hashed password
@@ -41,6 +42,7 @@ export interface IUser extends Document {
     pendingNewPassword?: string;
     twoFactorCode?: string;
     twoFactorCodeExpiry?: Date;
+    lastPasswordResetAt?: Date;
     createdAt: Date;
     updatedAt: Date;
     comparePassword(enteredPassword: string): Promise<boolean>;
@@ -102,6 +104,9 @@ const UserSchema: Schema = new Schema(
             type: String,
         },
         twoFactorCodeExpiry: {
+            type: Date,
+        },
+        lastPasswordResetAt: {
             type: Date,
         }
     },

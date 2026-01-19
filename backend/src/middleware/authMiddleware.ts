@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import JWTUtils, { JWTPayload } from '../utils/jwt';
 import User, { UserRole, IUser } from '../models/user';
+import { ValidationError } from '../errors';
 
 /**
  * Extend Express Request interface to include user information
@@ -26,22 +27,45 @@ export interface AuthRequest extends Request {
 }
 
 /**
- * Authentication middleware
- * Verifies JWT access token and attaches user information to request
+ * Password Reset Rate Limiter Middleware
+ * Enforces 24-hour rate limit on password resets per user
  * 
- * This middleware:
- * 1. Extracts token from Authorization header (format: "Bearer <token>")
- * 2. Verifies the token signature using JWTUtils
- * 3. Validates that the user still exists and is active
- * 4. Attaches user info (userId, email, role) to req.user for RBAC
- * 
- * Usage:
- * router.get('/protected', authenticate, (req: AuthRequest, res) => {
- *   const userId = req.user.userId; // User info is available here
- * });
- * 
- * @returns 401 if token is missing, invalid, or user not found/inactive
+ * @throws ValidationError if user attempts password reset within 24 hours
  */
+export const passwordResetRateLimiter = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return next(); // Let route handler deal with missing email
+        }
+
+        // Find user by email
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            return next(); // Let route handler deal with user not found
+        }
+
+        // Check if user has reset password in last 24 hours
+        if (user.lastPasswordResetAt) {
+            const lastResetTime = new Date(user.lastPasswordResetAt).getTime();
+            const currentTime = new Date().getTime();
+            const oneDayMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+            if (currentTime - lastResetTime < oneDayMs) {
+                throw new ValidationError('Password reset limited to once every 24 hours');
+            }
+        }
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
 export const authenticate = async (
     req: Request,
     res: Response,

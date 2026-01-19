@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { usePasswordValidation, isPasswordValid } from "../hooks/usePasswordValidation";
 import { useFormValidation } from "../hooks/useFormValidation";
-import { useAuth } from "../hooks/useAuth";
 import { resetPassword } from "../services/authApi";
-import { getDashboardPath } from "@/utils/navigation";
 import { FormPasswordInput } from "./ui/FormPasswordInput";
 import { PasswordRequirements } from "./ui/PasswordRequirements";
 
 export default function NewPassword() {
 	const navigate = useNavigate();
-	const { user } = useAuth();
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -39,17 +36,16 @@ export default function NewPassword() {
 				confirmPassword,
 			});
 
-			// Redirect to appropriate dashboard based on user role
-			// The user context should still be valid from the reset token auth
-			if (user) {
-				const dashboardPath = getDashboardPath(user.role);
-				navigate(dashboardPath);
-			} else {
-				// If user is not available (shouldn't happen), redirect to home
-				navigate("/home");
-			}
+			// Redirect to success page
+			navigate("/new-password-made");
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to reset password';
+			let errorMessage = 'Failed to reset password';
+			
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+
+			// Display the error message directly from the server
 			setValidationError(errorMessage);
 		} finally {
 			setLoading(false);
