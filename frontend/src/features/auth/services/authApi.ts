@@ -55,8 +55,15 @@ export const register = async (data: RegisterRequest): Promise<AuthResponse> => 
   });
 
   if (!response.ok) {
-    const error: ErrorResponse = await response.json();
-    throw new Error(error.message || 'Registration failed');
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Registration failed');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Registration failed');
+    }
   }
 
   const result: AuthResponse = await response.json();
@@ -77,8 +84,15 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
   });
 
   if (!response.ok) {
-    const error: ErrorResponse = await response.json();
-    throw new Error(error.message || 'Login failed');
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Login failed');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Login failed');
+    }
   }
 
   const result: AuthResponse = await response.json();
@@ -97,8 +111,15 @@ export const getCurrentUser = async (): Promise<User> => {
   });
 
   if (!response.ok) {
-    const error: ErrorResponse = await response.json();
-    throw new Error(error.message || 'Failed to get user info');
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Failed to get user info');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Failed to get user info');
+    }
   }
 
   const result: MeResponse = await response.json();
@@ -156,7 +177,7 @@ export const logout = async (): Promise<void> => {
 
 /**
  * Reset user password (requires authentication)
- * @param data - Current password and new password
+ * @param data - New password and confirmation
  * @returns Promise with user data
  */
 export const resetPassword = async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
@@ -166,8 +187,15 @@ export const resetPassword = async (data: ResetPasswordRequest): Promise<ResetPa
   });
 
   if (!response.ok) {
-    const error: ErrorResponse = await response.json();
-    throw new Error(error.message || 'Failed to reset password');
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Failed to reset password');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Failed to reset password');
+    }
   }
 
   const result: ResetPasswordResponse = await response.json();
@@ -186,8 +214,15 @@ export const verifyPasswordResetCode = async (data: VerifyPasswordResetCodeReque
   });
 
   if (!response.ok) {
-    const error: ErrorResponse = await response.json();
-    throw new Error(error.message || 'Invalid verification code');
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Invalid verification code');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Invalid verification code');
+    }
   }
 
   const result: VerifyPasswordResetCodeResponse = await response.json();
@@ -206,8 +241,15 @@ export const forgotPassword = async (data: { email: string }): Promise<{ success
   });
 
   if (!response.ok) {
-    const error: ErrorResponse = await response.json();
-    throw new Error(error.message || 'Failed to send reset code');
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Failed to send reset code');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Failed to send reset code');
+    }
   }
 
   return await response.json();
@@ -225,8 +267,15 @@ export const verifyResetCode = async (data: { email: string; code: string }): Pr
   });
 
   if (!response.ok) {
-    const error: ErrorResponse = await response.json();
-    throw new Error(error.message || 'Failed to verify code');
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Failed to verify code');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Failed to verify code');
+    }
   }
 
   return await response.json();

@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import User, { UserRole } from '../models/user';
 import RefreshToken from '../models/RefreshToken';
 import JWTUtils from '../utils/jwt';
-import { authenticate } from '../middleware/authMiddleware';
+import { authenticate, passwordResetRateLimiter } from '../middleware/authMiddleware';
 import { ApiResponseUtil } from '../utils/apiResponse';
 import { ValidationError, AuthenticationError } from '../errors';
 import CodeGenerator from '../utils/codeGenerator';
@@ -340,8 +340,9 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
  * @route   POST /api/auth/forgot-password
  * @desc    Send password reset code to user email
  * @access  Public
+ * @middleware passwordResetRateLimiter - Enforces 24-hour rate limit on password resets
  */
-router.post('/forgot-password', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/forgot-password', passwordResetRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
 
@@ -447,13 +448,20 @@ router.post('/reset-password', authenticate, async (req: Request, res: Response,
     }
 
     // Get user and update password
-    const user = await User.findById(req.user!._id);
+    const user = await User.findById(req.user!._id).select('+password');
     if (!user) {
       throw new AuthenticationError('User not found');
     }
 
-    // Update password
+    // Prevent password reuse - check if new password is same as current password
+    const isSamePassword = await user.comparePassword(newPassword);
+    if (isSamePassword) {
+      throw new ValidationError('Cannot use current password');
+    }
+
+    // Update password and track reset time
     user.password = newPassword;
+    user.lastPasswordResetAt = new Date();
     user.twoFactorCode = undefined;
     user.twoFactorCodeExpiry = undefined;
     await user.save();
