@@ -6,10 +6,11 @@ interface FormInputProps {
   type?: string;
   value?: string;
   placeholder?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   autoComplete?: string;
   error?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -26,6 +27,7 @@ export const FormInput: React.FC<FormInputProps> = ({
   autoComplete,
   error,
   required,
+  disabled = false,
 }) => {
   return (
     <div className="space-y-2 md:space-y-3">
@@ -38,7 +40,10 @@ export const FormInput: React.FC<FormInputProps> = ({
         type={type}
         value={value}
         onChange={onChange}
-        className="w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black"
+        disabled={disabled}
+        className={`w-full rounded-md h-11 md:h-12 text-sm md:text-base px-4 border border-black ${
+          disabled ? 'bg-gray-100 cursor-not-allowed text-gray-500' : ''
+        }`}
         autoComplete={autoComplete}
         placeholder={placeholder}
       />

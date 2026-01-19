@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { usePasswordValidation, isPasswordValid } from "../hooks/usePasswordValidation";
 import { useFormValidation } from "../hooks/useFormValidation";
+import { useAuth } from "../hooks/useAuth";
 import { resetPassword } from "../services/authApi";
+import { getDashboardPath } from "@/utils/navigation";
 import { FormPasswordInput } from "./ui/FormPasswordInput";
 import { PasswordRequirements } from "./ui/PasswordRequirements";
 
 export default function NewPassword() {
 	const navigate = useNavigate();
-	const [currentPassword, setCurrentPassword] = useState("");
+	const { user } = useAuth();
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ export default function NewPassword() {
 	const passwordChecks = usePasswordValidation(newPassword);
 	const isPasswordOk = isPasswordValid(passwordChecks);
 	const passwordsMatch = newPassword === confirmPassword && confirmPassword !== "";
-	const isFormValid = currentPassword !== "" && isPasswordOk && passwordsMatch;
+	const isFormValid = isPasswordOk && passwordsMatch;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -33,15 +35,21 @@ export default function NewPassword() {
 		setLoading(true);
 		try {
 			await resetPassword({
-				currentPassword,
 				newPassword,
 				confirmPassword,
 			});
 
-			// Redirect to 2FA verification page on success
-			navigate("/2fa");
+			// Redirect to appropriate dashboard based on user role
+			// The user context should still be valid from the reset token auth
+			if (user) {
+				const dashboardPath = getDashboardPath(user.role);
+				navigate(dashboardPath);
+			} else {
+				// If user is not available (shouldn't happen), redirect to home
+				navigate("/home");
+			}
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to update password';
+			const errorMessage = error instanceof Error ? error.message : 'Failed to reset password';
 			setValidationError(errorMessage);
 		} finally {
 			setLoading(false);
@@ -64,25 +72,15 @@ export default function NewPassword() {
 				)}
 
 				<form className="space-y-8 w-full" onSubmit={handleSubmit}>
-				{/* Current Password input */}
-				<FormPasswordInput
-					id="currentPassword"
-					label="Current Password"
-					value={currentPassword}
-					onChange={(e) => setCurrentPassword(e.target.value)}
-					placeholder="Enter current password"
-					required
-				/>
-
-					<FormPasswordInput
-						id="newPassword"
-						label="New Password"
-						value={newPassword}
-						onChange={(e) => setNewPassword(e.target.value)}
-						placeholder="Enter new password"
-						required
-					/>
-
+			{/* New Password input */}
+			<FormPasswordInput
+				id="newPassword"
+				label="New Password"
+				value={newPassword}
+				onChange={(e) => setNewPassword(e.target.value)}
+				placeholder="Enter new password"
+				required
+			/>
 					{/* Confirm Password */}
 					<FormPasswordInput
 						id="confirmPassword"

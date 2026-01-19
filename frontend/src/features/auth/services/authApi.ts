@@ -195,6 +195,44 @@ export const verifyPasswordResetCode = async (data: VerifyPasswordResetCodeReque
 };
 
 /**
+ * Initiate forgot password flow - send reset code to email
+ * @param data - User email address
+ * @returns Promise with success message
+ */
+export const forgotPassword = async (data: { email: string }): Promise<{ success: boolean; message: string }> => {
+  const response = await authenticatedFetch('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error: ErrorResponse = await response.json();
+    throw new Error(error.message || 'Failed to send reset code');
+  }
+
+  return await response.json();
+};
+
+/**
+ * Verify reset code and get reset token
+ * @param data - Email and 6-digit verification code
+ * @returns Promise with reset token
+ */
+export const verifyResetCode = async (data: { email: string; code: string }): Promise<{ success: boolean; message: string; data: { resetToken: string } }> => {
+  const response = await authenticatedFetch('/auth/verify-reset-code', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error: ErrorResponse = await response.json();
+    throw new Error(error.message || 'Failed to verify code');
+  }
+
+  return await response.json();
+};
+
+/**
  * Default export providing all auth API functions
  */
 const authApi = {
@@ -205,6 +243,8 @@ const authApi = {
   refreshAccessToken,
   resetPassword,
   verifyPasswordResetCode,
+  forgotPassword,
+  verifyResetCode,
 };
 
 export default authApi;

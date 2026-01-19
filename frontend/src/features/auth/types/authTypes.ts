@@ -89,10 +89,9 @@ export interface ErrorResponse {
 }
 
 /**
- * Password reset request body
+ * Password reset request body (forgot password flow - no current password)
  */
 export interface ResetPasswordRequest {
-    currentPassword: string;
     newPassword: string;
     confirmPassword: string;
 }

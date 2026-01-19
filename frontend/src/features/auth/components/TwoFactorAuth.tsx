@@ -1,34 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
-import { verifyPasswordResetCode } from "../services/authApi";
+import { verifyResetCode, setTokens } from "../services/authApi";
+import { FormInput } from "./ui/FormInput";
 
 export default function TwoFactorAuth() {
 	const navigate = useNavigate();
+	const [email, setEmail] = useState("");
 	const [code, setCode] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
-	// Handle input change for verification code
-	const handleInputChange = (value: string) => {
-		// Only allow digits and limit to 6 characters
+	// Load email from session storage on mount
+	useEffect(() => {
+		const storedEmail = sessionStorage.getItem('resetEmail');
+		if (storedEmail) {
+			setEmail(storedEmail);
+		} else {
+			// Redirect back to forgot password if no email
+			navigate("/forgot-password");
+		}
+	}, [navigate]);
+
+	// Handle code input change - only allow digits, max 6
+	const handleCodeChange = (value: string) => {
 		if (value.length > 6 || (value && !/^\d*$/.test(value))) return;
 		setCode(value);
-		setError(""); // Clear error when user starts typing
+		setError("");
 	};
 
 	// Handle form submission
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setLoading(true);
 		setError("");
 
+		if (!code || code.length !== 6) {
+			setError("Please enter a 6-digit code");
+			return;
+		}
+
+		setLoading(true);
 		try {
-			await verifyPasswordResetCode({ code });
-			// Redirect to success page
-			navigate("/new-password-made");
+			const response = await verifyResetCode({ 
+				email,
+				code 
+			});
+
+			// Store the reset token for password update
+			if (response && response.data && response.data.resetToken) {
+				setTokens(response.data.resetToken, '');
+			}
+
+			// Clear session email and navigate to password reset
+			sessionStorage.removeItem('resetEmail');
+			navigate("/new-password");
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to verify code';
 			setError(errorMessage);
@@ -45,14 +72,13 @@ export default function TwoFactorAuth() {
 			<div className="w-full max-w-lg p-8 flex flex-col items-center justify-center">
 				{/* Main header */}
 				<div className="text-center mb-4">
-					<h3 className="text-3xl font-medium">Verify Password Reset</h3>
+					<h3 className="text-3xl font-medium">Verify Your Email</h3>
 				</div>
 
 				{/* Instructions */}
 				<div className="text-center mb-6">
-					<p className="text-base text-gray-600 leading-relaxed mb-2">
-						A 6-digit verification code has been sent to your email.
-						Enter the code to complete your password reset.
+					<p className="text-base text-gray-600 leading-relaxed">
+						A 6-digit verification code has been sent to your email. Enter the code below to reset your password.
 					</p>
 				</div>
 
@@ -64,42 +90,53 @@ export default function TwoFactorAuth() {
 				)}
 
 				<form className="space-y-8 w-full" onSubmit={handleSubmit}>
-					{/* 2FA Code input field */}
+					{/* Email display (read-only) */}
+					<FormInput
+						id="email"
+						label="Email"
+						type="email"
+						value={email}
+						disabled
+						placeholder="Your email address"
+						required
+					/>
+
+					{/* 2FA Code input */}
 					<div className="space-y-3">
-						<label htmlFor="2faCode" className="block text-base font-medium">
+						<label htmlFor="code" className="block text-base font-medium">
 							Verification Code
 						</label>
 						<Input
-							id="2faCode"
+							id="code"
 							type="text"
 							inputMode="numeric"
 							className="w-full rounded-md h-12 text-base px-4 border border-black"
 							value={code}
-							onChange={(e) => handleInputChange(e.target.value)}
+							onChange={(e) => handleCodeChange(e.target.value)}
 							placeholder="Enter 6-digit code"
 							maxLength={6}
 							required
 						/>
 					</div>
 
-					{/* Back to login page */}
+					{/* Back to forgot password */}
 					<div className="flex justify-start">
 						<Link 
-							to="/signin" 
-							className="text-base font-medium text-primary hover:underline underline flex items-center gap-2"
+							to="/forgot-password" 
+							className="text-base font-medium text-primary hover:underline flex items-center gap-2"
 						>
 							<ArrowLeft size={18} />
-							Back To Login
+							Back To Email
 						</Link>
 					</div>
 
-					{/* Confirm button */}
+					{/* Verify button */}
 					<Button
 						type="submit"
 						className="w-full rounded-full hover:bg-opacity-90 h-12 text-base"
 						disabled={!isCodeComplete || loading}
 					>
-						{loading ? "Verifying..." : "Confirm"}
+						{loading ? "Verifying..." : "Verify Code"}
 					</Button>
 				</form>
 			</div>
