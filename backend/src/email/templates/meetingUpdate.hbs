@@ -1,0 +1,26 @@
+{{#> master}}
+
+<p>Hello {{firstName}},</p>
+
+{{#if isCancellation}}
+    <p>Your interview for {{role}}, originally scheduled on {{oldDate}} at {{oldTime}}{{#if wasMorning}}am{{else}}pm{{/if}} has been cancelled.</p>
+{{else}}
+    <p>Your interview for {{role}}, originally scheduled on {{oldDate}} at {{oldTime}}{{#if wasMorning}}am{{else}}pm{{/if}} has been rescheduled. Please see the updated details below and update your calendar accordingly.</p>
+
+    <div>
+        <p style="margin: 0;"><strong>Role: </strong>{{role}}</p>
+        <p style="margin: 0;"><strong>Date: </strong>{{newDate}}</p>
+        <p style="margin: 0;"><strong>Time: </strong>{{newTime}}{{#if isMorning}}am{{else}}pm{{/if}}</p>
+        <p style="margin: 0;"><strong>Link: </strong><a href="{{meetingLink}}">{{meetingLink}}</a></p>
+    </div>
+
+    <p>You may also view the new details on your dashboard. We look forward to seeing you!</p>
+
+{{/if}}
+
+<p>Thanks,</p>
+
+<p style="margin-bottom: 0;">{{senderName}}</p>
+<p style="margin-top: 0;"><small style="font-weight: bold;">{{senderRole}}</small> | {{senderOrganization}}</p>
+
+{{/master}}
