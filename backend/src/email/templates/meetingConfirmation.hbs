@@ -1,0 +1,16 @@
+{{#> master}}
+
+<p>Hello {{firstName}},</p>
+
+<p>We have scheduled your interview for {{role}} on {{date}} at {{time}}{{#if isMorning}}am{{else}}pm{{/if}}.</p>
+
+<p>You should have received an invite in your myLaurier inbox to join from. Alternatively, you can join with the link below!</p>
+
+<a href="{{meetingLink}}">{{meetingLink}}</a>
+
+<p>Thanks,</p>
+
+<p style="margin-bottom: 0;">{{senderName}}</p>
+<p><small style="font-weight: bold;">{{senderRole}}</small> | {{senderOrganization}}</p>
+
+{{/master}}
