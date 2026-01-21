@@ -1,8 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import User, { UserRole } from '../models/user';
 import RefreshToken from '../models/RefreshToken';
+import Invite from '../models/Invite'
 import JWTUtils from '../utils/jwt';
-import { authenticate, passwordResetRateLimiter } from '../middleware/authMiddleware';
+import { authenticate, passwordResetRateLimiter, loginRateLimiter, authorize } from '../middleware/authMiddleware';
 import { ApiResponseUtil } from '../utils/apiResponse';
 import { ValidationError, AuthenticationError } from '../errors';
 import CodeGenerator from '../utils/codeGenerator';
@@ -15,11 +16,11 @@ const router = Router();
  * @route   POST /api/auth/register
  * @desc    Register a new user with JWT authentication
  * @access  Public
- * @permissions Creates new user with CANDIDATE role by default (RBAC)
+ * @permissions Creates new user with CANDIDATE role by default. Invite code required for ADMIN or INTERVIEWER roles.
  */
 router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, inviteCode } = req.body;
 
     // Validation
     if (!name || !email || !password) {
@@ -36,17 +37,63 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
       throw new ValidationError('User already exists with this email');
     }
 
-    // Create user with CANDIDATE role (default for new users per RBAC)
+    // Determine role based on invite code
+    let role = UserRole.CANDIDATE;
+    let invite = null;
+
+    if (inviteCode) {
+      invite = await Invite.findOne({ 
+        code: inviteCode, 
+        isActive: true,
+        expiresAt: { $gt: new Date() }
+      });
+
+      if (!invite) {
+        throw new ValidationError('Invalid or expired invite code');
+      }
+
+      // If invite is locked to specific email, verify it matches
+      if (invite.email && invite.email !== email.toLowerCase()) {
+        throw new ValidationError('This invite code is not valid for this email');
+      }
+
+      role = invite.role;
+    }
+
+    // Create user with determined role
     // Password will be hashed automatically by the pre-save middleware
     const user = new User({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
-      role: UserRole.CANDIDATE, // Default role for new registrations
+      role,      // either admin role or candidate role by default
       isActive: true
     });
 
     await user.save();
+
+    // Send verification email
+    const verificationCode = CodeGenerator.generate6DigitCode();
+    user.emailVerificationCode = CodeGenerator.hashCode(verificationCode);
+    user.emailVerificationCodeExpiry = CodeGenerator.getCodeExpiration();
+    await user.save();
+
+    try {
+      const emailService = new EmailService();
+      await emailService.sendVerificationCode(user.email, verificationCode, user.name);
+      console.log(`[REGISTER] Verification code sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('[REGISTER] Failed to send verification email:', emailError);
+      // Don't fail registration, user can request new code later
+    }
+
+    // Mark invite as used
+    if (invite) {
+      invite.isActive = false;
+      invite.usedAt = new Date();
+      invite.usedBy = user._id;
+      await invite.save();
+    }
 
     // Generate JWT tokens
     const accessToken = JWTUtils.generateAccessToken({
@@ -94,7 +141,7 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
  * @access  Public
  * @permissions Validates user credentials and enforces isActive status (RBAC)
  */
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', loginRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
@@ -114,11 +161,30 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       throw new AuthenticationError('Account is deactivated');
     }
 
+    // Check if user account is email verified
+    if (!user.isEmailVerified) {
+      throw new AuthenticationError('Please verify your email before logging in');
+    }
+
     // Verify password using bcrypt comparePassword method
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
+
+      // Increment failed attempts
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+
+      // Lock account after 5 failed attempts for 15 minutes
+      if (user.failedLoginAttempts >= 5) {
+        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+      }
+
+      await user.save();
       throw new AuthenticationError('Invalid credentials');
     }
+
+    // Reset failed attempts on successful login
+    user.failedLoginAttempts = 0;
+    user.lockUntil = undefined;
 
     // Update last login timestamp
     user.lastLogin = new Date();
@@ -496,6 +562,141 @@ router.post('/verify-password-reset-code', authenticate, async (req: Request, re
       success: true,
       message: 'Password updated successfully',
       data: { user: { id: user._id, name: user.name, email: user.email, role: user.role } }
+    });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   POST /api/auth/verify-email
+ * @desc    Verify user email with 6-digit code
+ * @access  Public
+ */
+router.post('/verify-email', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      throw new ValidationError('Email and code are required');
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      throw new ValidationError('Invalid email or code');
+    }
+
+    if (user.isEmailVerified) {
+      throw new ValidationError('Email is already verified');
+    }
+
+    // Verify the code
+    if (!user.emailVerificationCode || !user.emailVerificationCodeExpiry) {
+      throw new ValidationError('No verification code found. Please request a new one');
+    }
+
+    const isCodeValid = CodeGenerator.hashCode(code) === user.emailVerificationCode;
+    const isExpired = new Date() > new Date(user.emailVerificationCodeExpiry);
+
+    if (!isCodeValid || isExpired) {
+      throw new ValidationError('Invalid or expired verification code');
+    }
+
+    // Mark email as verified and clear code
+    user.isEmailVerified = true;
+    user.emailVerificationCode = undefined;
+    user.emailVerificationCodeExpiry = undefined;
+    await user.save();
+
+    ApiResponseUtil.success(res, { email: user.email }, 'Email verified successfully');
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   POST /api/auth/resend-verification
+ * @desc    Resend email verification code
+ * @access  Public
+ */
+router.post('/resend-verification', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new ValidationError('Email is required');
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      throw new ValidationError('No account found with this email');
+    }
+
+    if (user.isEmailVerified) {
+      throw new ValidationError('Email is already verified');
+    }
+
+    // Generate new code
+    const verificationCode = CodeGenerator.generate6DigitCode();
+    user.emailVerificationCode = CodeGenerator.hashCode(verificationCode);
+    user.emailVerificationCodeExpiry = CodeGenerator.getCodeExpiration();
+    await user.save();
+
+    try {
+      const emailService = new EmailService();
+      await emailService.sendVerificationCode(user.email, verificationCode, user.name);
+      console.log(`[RESEND-VERIFICATION] Code sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('[RESEND-VERIFICATION] Failed to send email:', emailError);
+      throw new Error('Failed to send verification email');
+    }
+
+    ApiResponseUtil.success(res, { email: user.email }, 'Verification code sent to your email');
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   POST /api/auth/invite
+ * @desc    Create an invite code for new ADMIN account registration. Need special permission to register a new ADMIN account.
+ * @access  Private (Admin only)
+ */
+router.post('/invite', authenticate, authorize(UserRole.ADMIN), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, role, expiresInDays = 7 } = req.body;
+
+    if (!role) {
+      throw new ValidationError('Role is required');
+    }
+
+    if (!Object.values(UserRole).includes(role)) {
+      throw new ValidationError('Invalid role');
+    }
+
+    const code = CodeGenerator.generate6DigitCode();
+
+    const invite = new Invite({
+      code,
+      email: email?.toLowerCase(),
+      role,
+      createdBy: req.user!._id,
+      expiresAt: new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000),
+      isActive: true
+    });
+
+    await invite.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Invite created successfully',
+      data: {
+        code: invite.code,
+        email: invite.email,
+        role: invite.role,
+        expiresAt: invite.expiresAt
+      }
     });
 
   } catch (error) {

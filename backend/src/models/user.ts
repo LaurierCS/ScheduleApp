@@ -46,6 +46,11 @@ export interface IUser extends Document {
     createdAt: Date;
     updatedAt: Date;
     comparePassword(enteredPassword: string): Promise<boolean>;
+    failedLoginAttempts: number;
+    lockUntil?: Date;
+    isEmailVerified: boolean;
+    emailVerificationCode?: string;
+    emailVerificationCodeExpiry?: Date;
 }
 
 const UserSchema: Schema = new Schema(
@@ -108,7 +113,24 @@ const UserSchema: Schema = new Schema(
         },
         lastPasswordResetAt: {
             type: Date,
-        }
+        },
+        failedLoginAttempts: {
+            type: Number,
+            default: 0,
+        },
+        lockUntil: {
+            type: Date,
+        },
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
+        },
+        emailVerificationCode: {
+        type: String,
+        },
+        emailVerificationCodeExpiry: {
+            type: Date,
+        },
     },
     {
         timestamps: true,            // Automatically adds and updates createdAt and updatedAt
