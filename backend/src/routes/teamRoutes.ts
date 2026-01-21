@@ -10,6 +10,7 @@ import User from '../models/user';
 import Group from '../models/group';
 import TeamSettings from '../models/teamSettings';
 import Meeting, { MeetingStatus } from '../models/meeting';
+import Interviewer from '../models/interviewer';
 
 const router = Router();
 
@@ -922,7 +923,40 @@ router.put(
             await settings.save();
         }
 
-        return ApiResponseUtil.success(res, settings, 'Team settings updated successfully');
+return ApiResponseUtil.success(res, settings, 'Team settings updated successfully');
+    })
+);
+
+/**
+ * @route   GET /api/teams/:id/interviewers
+ * @desc    Get all interviewers for a team
+ * @access  Private (Team Members)
+ * @permissions Team members can view team interviewers
+ */
+router.get(
+    '/:id/interviewers',
+    requireAuth,
+    asyncHandler(async (req: AuthRequest, res) => {
+        if (!req.user) {
+            return ApiResponseUtil.error(res, 'Authentication required', 401);
+        }
+
+        const id = objectIdSchema.parse(req.params.id);
+
+        const team = await Team.findById(id);
+        if (!team) {
+            return ApiResponseUtil.error(res, 'Team not found', 404);
+        }
+
+        // Use PermissionChecker to verify team access
+        PermissionChecker.requireTeamAccess(req, req.params.id);
+
+        // Get all interviewers for this team
+        const interviewers = await Interviewer.find({ teamId: id })
+            .select('-password')
+            .lean();
+
+        return ApiResponseUtil.success(res, interviewers, 'Team interviewers retrieved successfully');
     })
 );
 
