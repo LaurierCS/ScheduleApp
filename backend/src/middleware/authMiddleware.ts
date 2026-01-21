@@ -66,6 +66,49 @@ export const passwordResetRateLimiter = async (
         next(error);
     }
 };
+
+/**
+ * Login Rate Limiter Middleware
+ * Locks account after 5 failed login attempts for 15 minutes
+ * 
+ * @throws ValidationError if account is currently locked
+ */
+export const loginRateLimiter = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return next(); // Let route handler deal with missing email
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            return next(); // Let route handler deal with user not found
+        }
+
+        // Check if account is locked
+        if (user.lockUntil && user.lockUntil > new Date()) {
+            const minutesRemaining = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000);
+            throw new ValidationError(`Account locked. Try again in ${minutesRemaining} minutes`);
+        }
+
+        // Reset lock if expired
+        if (user.lockUntil && user.lockUntil <= new Date()) {
+            user.failedLoginAttempts = 0;
+            user.lockUntil = undefined;
+            await user.save();
+        }
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const authenticate = async (
     req: Request,
     res: Response,
