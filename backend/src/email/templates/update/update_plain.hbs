@@ -1,0 +1,22 @@
+Hello {{firstName}},
+
+{{#if isCancellation}}
+Your interview for {{role}}, originally scheduled on {{oldDate}} at {{oldTime}}{{#if wasMorning}}am{{else}}pm{{/if}} has been cancelled.
+{{else}}
+Your interview for {{role}}, originally scheduled on {{oldDate}} at {{oldTime}}{{#if wasMorning}}am{{else}}pm{{/if}} has been rescheduled. Please see the updated details below and update your calendar accordingly.
+
+
+Role: {{role}}
+Date: {{newDate}}
+Time: {{newTime}}{{#if isMorning}}am{{else}}pm{{/if}}
+Link: {{meetingLink}}
+
+
+You may also view the new details on your dashboard. We look forward to seeing you!
+
+{{/if}}
+
+Thanks,
+
+{{senderName}}
+{{senderRole}} | {{senderOrganization}}
