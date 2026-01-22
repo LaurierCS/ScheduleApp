@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import User, { UserRole } from '../models/user';
 import RefreshToken from '../models/RefreshToken';
-import Invite from '../models/Invite'
+import Invite from '../models/invite'
 import JWTUtils from '../utils/jwt';
 import { authenticate, passwordResetRateLimiter, loginRateLimiter, authorize } from '../middleware/authMiddleware';
 import { ApiResponseUtil } from '../utils/apiResponse';
