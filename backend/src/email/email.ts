@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import EmailTemplateManager from '../email/emailTemplateManager';
+import EmailTemplateManager from './emailTemplateManager';
 
 interface EmailOptions {
     to: string;
