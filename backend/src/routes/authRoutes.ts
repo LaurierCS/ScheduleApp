@@ -364,7 +364,7 @@ router.post('/forgot-password', passwordResetRateLimiter, async (req: Request, r
 
     // Send verification email
     try {
-      const emailService = new EmailService();
+      const emailService = await EmailService.create();
       await emailService.sendPasswordResetCode(user.email, code, user.name);
       console.log(`[FORGOT-PASSWORD] Reset code sent to ${user.email}`);
     } catch (emailError) {

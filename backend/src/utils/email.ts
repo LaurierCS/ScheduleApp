@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import EmailTemplateManager from '../email/emailTemplateManager';
 
 interface EmailOptions {
     to: string;
@@ -9,7 +10,9 @@ interface EmailOptions {
 
 class EmailService {
     private transporter: nodemailer.Transporter;
-    constructor() {
+    
+    private constructor( private templateManager: EmailTemplateManager ) {
+
         // Check for Gmail credentials first
         const gmailUser = process.env.GMAIL_USER;
         const gmailPassword = process.env.GMAIL_APP_PASSWORD;
@@ -45,6 +48,12 @@ class EmailService {
             console.log(`[EmailService] Initialized with ${emailHost}:${emailPort}`);
         }
     }
+
+    static async create(): Promise<EmailService> {
+        const manager = await EmailTemplateManager.create();
+        return new EmailService(manager);
+    }
+
     async sendEmail(options: EmailOptions): Promise<void> {
         try {
             const fromEmail = process.env.GMAIL_USER || process.env.EMAIL_FROM || 'no-reply@example.com';
@@ -68,21 +77,17 @@ class EmailService {
      * @param userName - User's name
      */
     async sendPasswordResetCode(email: string, code: string, userName: string): Promise<void> {
+
+        const { subject, html, plain } = await this.templateManager.renderTemplate("passwordReset", {
+            userName: userName,
+            code: code,
+        });
+
         const mailOptions = {
             to: email,
-            subject: 'Your Password Reset Verification Code',
-            html: `
-                <h2>Password Reset Verification</h2>
-                <p>Hello ${userName},</p>
-                <p>Your password reset verification code is:</p>
-                <h1 style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4CAF50;">
-                    ${code}
-                </h1>
-                <p>This code will expire in 5 minutes.</p>
-                <p>If you did not request a password reset, please ignore this email.</p>
-                <hr/>
-                <p><small>This is an automated message, please do not reply to this email.</small></p>
-            `,
+            subject: subject,
+            html: html,
+            text: plain,
         };
         await this.sendEmail(mailOptions);
     }
