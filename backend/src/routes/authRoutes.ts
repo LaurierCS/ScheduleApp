@@ -7,7 +7,7 @@ import { ApiResponseUtil } from '../utils/apiResponse';
 import { ValidationError, AuthenticationError } from '../errors';
 import CodeGenerator from '../utils/codeGenerator';
 import PasswordResetUtil from '../utils/passwordReset';
-import { EmailService } from '../utils/email';
+import { EmailService } from '../email/email';
 
 const router = Router();
 
