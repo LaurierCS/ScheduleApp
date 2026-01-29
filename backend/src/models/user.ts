@@ -51,8 +51,32 @@ export interface IUser extends Document {
     isEmailVerified: boolean;
     emailVerificationCode?: string;
     emailVerificationCodeExpiry?: Date;
+    phone?: string;
+    bio?: string;
+    preferences: {
+        timezone: string;
+        notifications: {
+        email: boolean;
+        sms: boolean;
+        push: boolean;
+        };
+    };
 }
-
+const PreferencesSchema = new Schema(
+  {
+    timezone: {
+      type: String,
+      default: "America/Toronto",
+      trim: true,
+    },
+    notifications: {
+      email: { type: Boolean, default: true },
+      sms: { type: Boolean, default: false },
+      push: { type: Boolean, default: true },
+    },
+  },
+  { _id: false }
+);
 const UserSchema: Schema = new Schema(
     {
         name: {
@@ -130,6 +154,19 @@ const UserSchema: Schema = new Schema(
         },
         emailVerificationCodeExpiry: {
             type: Date,
+        },
+        bio: {
+        type: String,
+        trim: true,
+        maxlength: [500, "Bio too long"],
+        },
+        phone: {
+            type: String,
+            trim: true,
+        },
+        preferences: {
+            type: PreferencesSchema,
+        default: () => ({}),
         },
     },
     {
