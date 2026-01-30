@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/authMiddleware';
+import { authenticate, authorize } from '../middleware/authMiddleware';
 import { UserRole } from '../models/user';
 import {
     getCandidates,
@@ -18,7 +18,7 @@ const router = Router();
  * @access  Private (Admin and Interviewers)
  * @permissions Admins and interviewers can view all candidates in their team
  */
-router.get('/', requireAuth, requireRole([UserRole.ADMIN, UserRole.INTERVIEWER]), getCandidates);
+router.get('/', authenticate, authorize(UserRole.ADMIN, UserRole.INTERVIEWER), getCandidates);
 
 /**
  * @route   POST /api/candidates
@@ -26,7 +26,7 @@ router.get('/', requireAuth, requireRole([UserRole.ADMIN, UserRole.INTERVIEWER])
  * @access  Private (Admin)
  * @permissions Only admins can create candidates
  */
-router.post('/', requireAuth, requireRole([UserRole.ADMIN]), createCandidate);
+router.post('/', authenticate, authorize(UserRole.ADMIN), createCandidate);
 
 /**
  * @route   GET /api/candidates/:id
@@ -34,7 +34,7 @@ router.post('/', requireAuth, requireRole([UserRole.ADMIN]), createCandidate);
  * @access  Private (Admin, Interviewer in same team, and Own User)
  * @permissions Admins and interviewers can view team candidates, candidates can view their own profile
  */
-router.get('/:id', requireAuth, getCandidateById);
+router.get('/:id', authenticate, getCandidateById);
 
 /**
  * @route   PUT /api/candidates/:id
@@ -42,7 +42,7 @@ router.get('/:id', requireAuth, getCandidateById);
  * @access  Private (Admin in same team and Own User)
  * @permissions Admins can update team candidates, candidates can update their own profile
  */
-router.put('/:id', requireAuth, updateCandidate);
+router.put('/:id', authenticate, updateCandidate);
 
 /**
  * @route   DELETE /api/candidates/:id
@@ -50,7 +50,7 @@ router.put('/:id', requireAuth, updateCandidate);
  * @access  Private (Admin in same team)
  * @permissions Only admins can delete candidates in their team
  */
-router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), deleteCandidate);
+router.delete('/:id', authenticate, authorize(UserRole.ADMIN), deleteCandidate);
 
 /**
  * @route   GET /api/candidates/:id/availability
@@ -58,6 +58,6 @@ router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), deleteCandidat
  * @access  Private (Admin, Interviewer in same team, and Own User)
  * @permissions Admins and interviewers can view team candidates' availability, candidates can view their own
  */
-router.get('/:id/availability', requireAuth, getCandidateAvailability);
+router.get('/:id/availability', authenticate, getCandidateAvailability);
 
 export default router;

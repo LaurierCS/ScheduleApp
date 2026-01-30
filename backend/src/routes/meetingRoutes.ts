@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/authMiddleware';
+import { authenticate, authorize } from '../middleware/authMiddleware';
 import { UserRole } from '../models/user';
 import {
     getMeetings,
@@ -21,7 +21,7 @@ const router = Router();
  * @access  Private (All authenticated users)
  * @permissions Users see meetings they're part of, admins see all team meetings
  */
-router.get('/', requireAuth, getMeetings);
+router.get('/', authenticate, getMeetings);
 
 /**
  * @route   POST /api/meetings
@@ -29,7 +29,7 @@ router.get('/', requireAuth, getMeetings);
  * @access  Private (Admin)
  * @permissions Only admins can create meetings
  */
-router.post('/', requireAuth, requireRole([UserRole.ADMIN]), createMeeting);
+router.post('/', authenticate, authorize(UserRole.ADMIN), createMeeting);
 
 /**
  * @route   GET /api/meetings/:id
@@ -37,7 +37,7 @@ router.post('/', requireAuth, requireRole([UserRole.ADMIN]), createMeeting);
  * @access  Private (Admin and Participants)
  * @permissions Admins and meeting participants can view meeting details
  */
-router.get('/:id', requireAuth, getMeetingById);
+router.get('/:id', authenticate, getMeetingById);
 
 /**
  * @route   PUT /api/meetings/:id
@@ -45,7 +45,7 @@ router.get('/:id', requireAuth, getMeetingById);
  * @access  Private (Admin in same team)
  * @permissions Only admins in the same team can update meetings
  */
-router.put('/:id', requireAuth, requireRole([UserRole.ADMIN]), updateMeeting);
+router.put('/:id', authenticate, authorize(UserRole.ADMIN), updateMeeting);
 
 /**
  * @route   DELETE /api/meetings/:id
@@ -53,7 +53,7 @@ router.put('/:id', requireAuth, requireRole([UserRole.ADMIN]), updateMeeting);
  * @access  Private (Admin in same team)
  * @permissions Only admins in the same team can delete meetings
  */
-router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), deleteMeeting);
+router.delete('/:id', authenticate, authorize(UserRole.ADMIN), deleteMeeting);
 
 /**
  * @route   POST /api/meetings/:id/confirm
@@ -61,7 +61,7 @@ router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), deleteMeeting)
  * @access  Private (Meeting Participants)
  * @permissions Only meeting participants can confirm their participation
  */
-router.post('/:id/confirm', requireAuth, confirmMeeting);
+router.post('/:id/confirm', authenticate, confirmMeeting);
 
 /**
  * @route   POST /api/meetings/:id/reschedule
@@ -69,7 +69,7 @@ router.post('/:id/confirm', requireAuth, confirmMeeting);
  * @access  Private (Meeting Participants)
  * @permissions Only meeting participants can request rescheduling
  */
-router.post('/:id/reschedule', requireAuth, rescheduleMeeting);
+router.post('/:id/reschedule', authenticate, rescheduleMeeting);
 
 /**
  * @route   GET /api/meetings/user/:userId
@@ -77,7 +77,7 @@ router.post('/:id/reschedule', requireAuth, rescheduleMeeting);
  * @access  Private (Own User, or Admin/Interviewer in same team)
  * @permissions Users can view their own meetings, admins/interviewers can view team members' meetings
  */
-router.get('/user/:userId', requireAuth, getUserMeetings);
+router.get('/user/:userId', authenticate, getUserMeetings);
 
 /**
  * @route   GET /api/meetings/team/:teamId
@@ -85,6 +85,6 @@ router.get('/user/:userId', requireAuth, getUserMeetings);
  * @access  Private (Team Members)
  * @permissions Team members can view their team's meetings
  */
-router.get('/team/:teamId', requireAuth, getTeamMeetings);
+router.get('/team/:teamId', authenticate, getTeamMeetings);
 
 export default router;

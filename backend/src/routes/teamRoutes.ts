@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/authMiddleware';
+import { authenticate } from '../middleware/authMiddleware';
 import { asyncHandler } from '../utils/asyncHandler';
 import {
     createTeam,
@@ -29,7 +29,7 @@ const router = Router();
  * @access  Private (Authenticated users - creator becomes admin)
  * @permissions Any authenticated user can create a team and becomes its admin
  */
-router.post('/', requireAuth, asyncHandler(createTeam));
+router.post('/', authenticate, asyncHandler(createTeam));
 
 /**
  * @route   GET /api/teams
@@ -37,7 +37,7 @@ router.post('/', requireAuth, asyncHandler(createTeam));
  * @access  Private (All authenticated users)
  * @permissions Users can view their own team, admins can view all teams
  */
-router.get('/', requireAuth, asyncHandler(getTeams));
+router.get('/', authenticate, asyncHandler(getTeams));
 
 /**
  * @route   GET /api/teams/:id
@@ -45,7 +45,7 @@ router.get('/', requireAuth, asyncHandler(getTeams));
  * @access  Private (Team Members)
  * @permissions Users can only view their own team
  */
-router.get('/:id', requireAuth, asyncHandler(getTeamById));
+router.get('/:id', authenticate, asyncHandler(getTeamById));
 
 /**
  * @route   PUT /api/teams/:id
@@ -53,7 +53,7 @@ router.get('/:id', requireAuth, asyncHandler(getTeamById));
  * @access  Private (Team Admin only)
  * @permissions Only the team's admin can update team details
  */
-router.put('/:id', requireAuth, asyncHandler(updateTeam));
+router.put('/:id', authenticate, asyncHandler(updateTeam));
 
 /**
  * @route   DELETE /api/teams/:id
@@ -61,7 +61,7 @@ router.put('/:id', requireAuth, asyncHandler(updateTeam));
  * @access  Private (Team Admin only)
  * @permissions Only the team's admin can delete the team
  */
-router.delete('/:id', requireAuth, asyncHandler(deleteTeam));
+router.delete('/:id', authenticate, asyncHandler(deleteTeam));
 
 /**
  * @route   GET /api/teams/:id/members
@@ -69,7 +69,7 @@ router.delete('/:id', requireAuth, asyncHandler(deleteTeam));
  * @access  Private (Team Members)
  * @permissions Team members can view the member list
  */
-router.get('/:id/members', requireAuth, asyncHandler(getTeamMembers));
+router.get('/:id/members', authenticate, asyncHandler(getTeamMembers));
 
 /**
  * @route   POST /api/teams/:id/members
@@ -77,7 +77,7 @@ router.get('/:id/members', requireAuth, asyncHandler(getTeamMembers));
  * @access  Private (Team Admin only)
  * @permissions Only team admin can add members
  */
-router.post('/:id/members', requireAuth, asyncHandler(addTeamMembers));
+router.post('/:id/members', authenticate, asyncHandler(addTeamMembers));
 
 /**
  * @route   DELETE /api/teams/:id/members
@@ -85,7 +85,7 @@ router.post('/:id/members', requireAuth, asyncHandler(addTeamMembers));
  * @access  Private (Team Admin only)
  * @permissions Only team admin can remove members
  */
-router.delete('/:id/members', requireAuth, asyncHandler(removeTeamMembers));
+router.delete('/:id/members', authenticate, asyncHandler(removeTeamMembers));
 
 /**
  * @route   DELETE /api/teams/:id/members/:userId
@@ -93,7 +93,7 @@ router.delete('/:id/members', requireAuth, asyncHandler(removeTeamMembers));
  * @access  Private (Team Admin only)
  * @permissions Only team admin can remove members
  */
-router.delete('/:id/members/:userId', requireAuth, asyncHandler(removeSingleTeamMember));
+router.delete('/:id/members/:userId', authenticate, asyncHandler(removeSingleTeamMember));
 
 /**
  * @route   GET /api/teams/:id/groups
@@ -101,7 +101,7 @@ router.delete('/:id/members/:userId', requireAuth, asyncHandler(removeSingleTeam
  * @access  Private (Team Members)
  * @permissions Team members can view team groups
  */
-router.get('/:id/groups', requireAuth, asyncHandler(getTeamGroups));
+router.get('/:id/groups', authenticate, asyncHandler(getTeamGroups));
 
 /**
  * @route   POST /api/teams/:id/groups
@@ -109,7 +109,7 @@ router.get('/:id/groups', requireAuth, asyncHandler(getTeamGroups));
  * @access  Private (Team Admin only)
  * @permissions Only team admin can create groups
  */
-router.post('/:id/groups', requireAuth, asyncHandler(createTeamGroup));
+router.post('/:id/groups', authenticate, asyncHandler(createTeamGroup));
 
 /**
  * @route   DELETE /api/teams/:id/groups
@@ -117,7 +117,7 @@ router.post('/:id/groups', requireAuth, asyncHandler(createTeamGroup));
  * @access  Private (Team Admin only)
  * @permissions Only team admin can delete groups
  */
-router.delete('/:id/groups', requireAuth, asyncHandler(deleteTeamGroups));
+router.delete('/:id/groups', authenticate, asyncHandler(deleteTeamGroups));
 
 /**
  * @route   DELETE /api/teams/:id/groups/:groupId
@@ -125,7 +125,7 @@ router.delete('/:id/groups', requireAuth, asyncHandler(deleteTeamGroups));
  * @access  Private (Team Admin only)
  * @permissions Only team admin can delete groups
  */
-router.delete('/:id/groups/:groupId', requireAuth, asyncHandler(deleteSingleTeamGroup));
+router.delete('/:id/groups/:groupId', authenticate, asyncHandler(deleteSingleTeamGroup));
 
 /**
  * @route   GET /api/teams/:id/settings
@@ -133,7 +133,7 @@ router.delete('/:id/groups/:groupId', requireAuth, asyncHandler(deleteSingleTeam
  * @access  Private (Team Members)
  * @permissions Team members can view team settings
  */
-router.get('/:id/settings', requireAuth, asyncHandler(getTeamSettings));
+router.get('/:id/settings', authenticate, asyncHandler(getTeamSettings));
 
 /**
  * @route   PUT /api/teams/:id/settings
@@ -141,7 +141,7 @@ router.get('/:id/settings', requireAuth, asyncHandler(getTeamSettings));
  * @access  Private (Team Admin only)
  * @permissions Only team admin can update team settings
  */
-router.put('/:id/settings', requireAuth, asyncHandler(updateTeamSettings));
+router.put('/:id/settings', authenticate, asyncHandler(updateTeamSettings));
 
 /**
  * @route   GET /api/teams/:id/interviewers
@@ -149,7 +149,7 @@ router.put('/:id/settings', requireAuth, asyncHandler(updateTeamSettings));
  * @access  Private (Team Members)
  * @permissions Team members can view team interviewers
  */
-router.get('/:id/interviewers', requireAuth, asyncHandler(getTeamInterviewers));
+router.get('/:id/interviewers', authenticate, asyncHandler(getTeamInterviewers));
 
 /* ---------------------------- Error handler ------------------------------ */
 
