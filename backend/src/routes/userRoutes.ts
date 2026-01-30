@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/authMiddleware';
+import { requireAuth, requireRole, authenticate } from '../middleware/authMiddleware';
 import { UserRole } from '../models/user';
 import {
     getUsers,
@@ -7,6 +7,9 @@ import {
     getUserById,
     updateUser,
     deleteUser,
+    updateProfile,
+    getPreferences,
+    updatePreferences,
 } from '../controllers/user';
 
 const router = Router();
@@ -50,5 +53,29 @@ router.put('/:id', requireAuth, updateUser);
  * @permissions Users can delete their own account, admins can delete team members
  */
 router.delete('/:id', requireAuth, deleteUser);
+
+/**
+ * @route   PUT /api/users/profile
+ * @desc    Update authenticated user's profile (name, phone, bio, role)
+ * @access  Private (requires authentication)
+ * @permissions Any authenticated user can update their own profile
+ */
+router.put('/profile', authenticate, updateProfile);
+
+/**
+ * @route   GET /api/users/preferences
+ * @desc    Get authenticated user's preferences
+ * @access  Private (requires authentication)
+ * @permissions Any authenticated user can view their own preferences
+ */
+router.get('/preferences', authenticate, getPreferences);
+
+/**
+ * @route   PUT /api/users/preferences
+ * @desc    Update authenticated user's preferences (timezone, notifications)
+ * @access  Private (requires authentication)
+ * @permissions Any authenticated user can update their own preferences
+ */
+router.put('/preferences', authenticate, updatePreferences);
 
 export default router;
