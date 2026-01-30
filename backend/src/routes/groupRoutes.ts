@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/authMiddleware';
+import { authenticate, authorize } from '../middleware/authMiddleware';
 import { UserRole } from '../models/user';
 import {
     getGroups,
@@ -21,7 +21,7 @@ const router = Router();
  * @access  Private (All authenticated users)
  * @permissions Users can view groups in their team
  */
-router.get('/', requireAuth, getGroups);
+router.get('/', authenticate, getGroups);
 
 /**
  * @route   POST /api/groups
@@ -29,7 +29,7 @@ router.get('/', requireAuth, getGroups);
  * @access  Private (Admin)
  * @permissions Only admins can create groups
  */
-router.post('/', requireAuth, requireRole([UserRole.ADMIN]), createGroup);
+router.post('/', authenticate, authorize(UserRole.ADMIN), createGroup);
 
 /**
  * @route   GET /api/groups/:id
@@ -37,7 +37,7 @@ router.post('/', requireAuth, requireRole([UserRole.ADMIN]), createGroup);
  * @access  Private (Team Members)
  * @permissions Users can view groups in their team
  */
-router.get('/:id', requireAuth, getGroupById);
+router.get('/:id', authenticate, getGroupById);
 
 /**
  * @route   PUT /api/groups/:id
@@ -45,7 +45,7 @@ router.get('/:id', requireAuth, getGroupById);
  * @access  Private (Admin in same team)
  * @permissions Only admins in the same team can update groups
  */
-router.put('/:id', requireAuth, requireRole([UserRole.ADMIN]), updateGroup);
+router.put('/:id', authenticate, authorize(UserRole.ADMIN), updateGroup);
 
 /**
  * @route   DELETE /api/groups/:id
@@ -53,7 +53,7 @@ router.put('/:id', requireAuth, requireRole([UserRole.ADMIN]), updateGroup);
  * @access  Private (Admin in same team)
  * @permissions Only admins in the same team can delete groups
  */
-router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), deleteGroup);
+router.delete('/:id', authenticate, authorize(UserRole.ADMIN), deleteGroup);
 
 /**
  * @route   GET /api/groups/:id/members
@@ -61,7 +61,7 @@ router.delete('/:id', requireAuth, requireRole([UserRole.ADMIN]), deleteGroup);
  * @access  Private (Team Members)
  * @permissions Users can view members of groups in their team
  */
-router.get('/:id/members', requireAuth, getGroupMembers);
+router.get('/:id/members', authenticate, getGroupMembers);
 
 /**
  * @route   POST /api/groups/:id/members
@@ -69,7 +69,7 @@ router.get('/:id/members', requireAuth, getGroupMembers);
  * @access  Private (Admin in same team)
  * @permissions Only admins in the same team can add members to groups
  */
-router.post('/:id/members', requireAuth, requireRole([UserRole.ADMIN]), addGroupMember);
+router.post('/:id/members', authenticate, authorize(UserRole.ADMIN), addGroupMember);
 
 /**
  * @route   DELETE /api/groups/:id/members/:userId
@@ -77,7 +77,7 @@ router.post('/:id/members', requireAuth, requireRole([UserRole.ADMIN]), addGroup
  * @access  Private (Admin in same team)
  * @permissions Only admins in the same team can remove members from groups
  */
-router.delete('/:id/members/:userId', requireAuth, requireRole([UserRole.ADMIN]), removeGroupMember);
+router.delete('/:id/members/:userId', authenticate, authorize(UserRole.ADMIN), removeGroupMember);
 
 /* ---------------------------- Error handler ------------------------------ */
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/authMiddleware';
+import { authenticate, authorize } from '../middleware/authMiddleware';
 import { UserRole } from '../models/user';
 import {
     generateSchedule,
@@ -17,7 +17,7 @@ const router = Router();
  * @access  Private (Admin in same team)
  * @permissions Only admins can generate schedules for their team
  */
-router.post('/generate', requireAuth, requireRole([UserRole.ADMIN]), generateSchedule);
+router.post('/generate', authenticate, authorize(UserRole.ADMIN), generateSchedule);
 
 /**
  * @route   GET /api/schedule/team/:teamId
@@ -25,7 +25,7 @@ router.post('/generate', requireAuth, requireRole([UserRole.ADMIN]), generateSch
  * @access  Private (Team Members)
  * @permissions Team members can view their team's schedule
  */
-router.get('/team/:teamId', requireAuth, getTeamSchedule);
+router.get('/team/:teamId', authenticate, getTeamSchedule);
 
 /**
  * @route   GET /api/schedule/conflicts
@@ -33,7 +33,7 @@ router.get('/team/:teamId', requireAuth, getTeamSchedule);
  * @access  Private (Admin)
  * @permissions Admins can check for conflicts in their team
  */
-router.get('/conflicts', requireAuth, requireRole([UserRole.ADMIN]), getScheduleConflicts);
+router.get('/conflicts', authenticate, authorize(UserRole.ADMIN), getScheduleConflicts);
 
 /**
  * @route   POST /api/schedule/optimize
@@ -41,7 +41,7 @@ router.get('/conflicts', requireAuth, requireRole([UserRole.ADMIN]), getSchedule
  * @access  Private (Admin)
  * @permissions Admins can optimize schedules for their team
  */
-router.post('/optimize', requireAuth, requireRole([UserRole.ADMIN]), optimizeSchedule);
+router.post('/optimize', authenticate, authorize(UserRole.ADMIN), optimizeSchedule);
 
 /**
  * @route   POST /api/schedule/publish/:teamId
@@ -49,6 +49,6 @@ router.post('/optimize', requireAuth, requireRole([UserRole.ADMIN]), optimizeSch
  * @access  Private (Admin in same team)
  * @permissions Only admins can publish schedules for their team
  */
-router.post('/publish/:teamId', requireAuth, requireRole([UserRole.ADMIN]), publishSchedule);
+router.post('/publish/:teamId', authenticate, authorize(UserRole.ADMIN), publishSchedule);
 
 export default router;
