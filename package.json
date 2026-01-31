@@ -12,5 +12,10 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "lodash": "^4.17.23"
+    }
   }
-} 
+}

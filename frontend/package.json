@@ -47,7 +47,8 @@
       "@eslint/plugin-kit": "^0.3.4",
       "brace-expansion": "^2.0.2",
       "glob": "^10.5.0",
-      "@babel/helpers": "^7.26.10"
+      "@babel/helpers": "^7.26.10",
+      "eslint": "^9.26.0"
     }
   }
 }
