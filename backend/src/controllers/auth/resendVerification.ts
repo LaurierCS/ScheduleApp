@@ -3,7 +3,7 @@ import User from '../../models/user';
 import { ApiResponseUtil } from '../../utils/apiResponse';
 import { ValidationError } from '../../errors';
 import CodeGenerator from '../../utils/codeGenerator';
-import { EmailService } from '../../utils/email';
+import { EmailService } from '../../email/email';
 
 /**
  * @route   POST /api/auth/resend-verification
@@ -34,7 +34,7 @@ export const resendVerification = async (req: Request, res: Response, next: Next
     await user.save();
 
     try {
-      const emailService = new EmailService();
+      const emailService = await EmailService.create();
       await emailService.sendVerificationCode(user.email, verificationCode, user.name);
       console.log(`[RESEND-VERIFICATION] Code sent to ${user.email}`);
     } catch (emailError) {

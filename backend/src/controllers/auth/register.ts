@@ -5,7 +5,7 @@ import Invite from '../../models/invite';
 import JWTUtils from '../../utils/jwt';
 import { ValidationError } from '../../errors';
 import CodeGenerator from '../../utils/codeGenerator';
-import { EmailService } from '../../utils/email';
+import { EmailService } from '../../email/email';
 
 /**
  * @route   POST /api/auth/register
@@ -74,7 +74,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     await user.save();
 
     try {
-      const emailService = new EmailService();
+      const emailService = await EmailService.create();
       await emailService.sendVerificationCode(user.email, verificationCode, user.name);
       console.log(`[REGISTER] Verification code sent to ${user.email}`);
     } catch (emailError) {
