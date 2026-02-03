@@ -37,8 +37,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     let invite = null;
 
     if (inviteCode) {
-      invite = await Invite.findOne({ 
-        code: inviteCode, 
+      invite = await Invite.findOne({
+        code: inviteCode,
         isActive: true,
         expiresAt: { $gt: new Date() }
       });
