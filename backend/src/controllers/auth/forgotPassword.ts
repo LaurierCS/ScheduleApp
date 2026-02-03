@@ -3,7 +3,7 @@ import User from '../../models/user';
 import { ApiResponseUtil } from '../../utils/apiResponse';
 import { ValidationError } from '../../errors';
 import CodeGenerator from '../../utils/codeGenerator';
-import { EmailService } from '../../utils/email';
+import { EmailService } from '../../email/email';
 
 /**
  * @route   POST /api/auth/forgot-password
@@ -33,7 +33,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
     // Send verification email
     try {
-      const emailService = new EmailService();
+      const emailService = await EmailService.create();
       await emailService.sendPasswordResetCode(user.email, code, user.name);
       console.log(`[FORGOT-PASSWORD] Reset code sent to ${user.email}`);
     } catch (emailError) {
