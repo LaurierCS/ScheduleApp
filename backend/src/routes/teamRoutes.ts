@@ -19,6 +19,11 @@ import {
     updateTeamSettings,
     getTeamInterviewers,
     teamErrorHandler,
+    // New user-team association functionality
+    addTeamMembersBatch,
+    addTeamCandidatesBatch,
+    getTeamCandidates,
+    removeTeamCandidates,
 } from '../controllers/team';
 
 const router = Router();
@@ -150,6 +155,40 @@ router.put('/:id/settings', authenticate, asyncHandler(updateTeamSettings));
  * @permissions Team members can view team interviewers
  */
 router.get('/:id/interviewers', authenticate, asyncHandler(getTeamInterviewers));
+
+/* ------------------------ New User-Team Association Routes ---------------------- */
+
+/**
+ * @route   POST /api/teams/:id/members/batch
+ * @desc    Add multiple members to team via email invitations (batch operation)
+ * @access  Private (Team Admin only)
+ * @permissions Only team admin can add members in batch
+ */
+router.post('/:id/members/batch', authenticate, asyncHandler(addTeamMembersBatch));
+
+/**
+ * @route   POST /api/teams/:id/candidates/batch
+ * @desc    Add multiple candidates to team via email invitations (batch operation)
+ * @access  Private (Team Admin only)
+ * @permissions Only team admin can add candidates in batch
+ */
+router.post('/:id/candidates/batch', authenticate, asyncHandler(addTeamCandidatesBatch));
+
+/**
+ * @route   GET /api/teams/:id/candidates
+ * @desc    Get all candidates for a team
+ * @access  Private (Team Members)
+ * @permissions Team members can view team candidates
+ */
+router.get('/:id/candidates', authenticate, asyncHandler(getTeamCandidates));
+
+/**
+ * @route   DELETE /api/teams/:id/candidates
+ * @desc    Remove multiple candidates from team (bulk)
+ * @access  Private (Team Admin only)
+ * @permissions Only team admin can remove candidates
+ */
+router.delete('/:id/candidates', authenticate, asyncHandler(removeTeamCandidates));
 
 /* ---------------------------- Error handler ------------------------------ */
 
