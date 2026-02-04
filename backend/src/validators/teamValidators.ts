@@ -142,3 +142,20 @@ export const updateTeamSettingsSchema = z.object({
     interviewDurationDefaults: interviewDurationSchema.optional(),
     groupConfig: groupConfigSchema.optional(),
 });
+
+/**
+ * Schema for adding members to team via email invitations (batch operation)
+ */
+export const addMembersBatchSchema = z.object({
+    emails: z.array(z.string().email()).min(1, 'emails must include at least one email address'),
+    role: z.nativeEnum(UserRole).optional(),
+    message: z.string().optional(), // Custom message to include in invitation
+});
+
+/**
+ * Schema for adding candidates to team via email invitations
+ */
+export const addCandidatesBatchSchema = z.object({
+    emails: z.array(z.string().email()).min(1, 'emails must include at least one email address'),
+    message: z.string().optional(), // Custom message to include in invitation
+});
