@@ -15,3 +15,7 @@ export { getTeamSettings } from './getTeamSettings';
 export { updateTeamSettings } from './updateTeamSettings';
 export { getTeamInterviewers } from './getTeamInterviewers';
 export { teamErrorHandler } from './teamErrorHandler';
+
+// New user-team association functionality
+export { addTeamMembersBatch } from './addTeamMembersBatch';
+export { addTeamCandidatesBatch, getTeamCandidates, removeTeamCandidates } from './teamCandidates';
