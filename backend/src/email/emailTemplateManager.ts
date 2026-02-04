@@ -10,15 +10,15 @@ type RenderedEmail = {
 
 type EmailTemplateDataMap = {
     confirmation: {
-      firstName: string,
-      role: string,
-      date: string,
-      time: string,
-      isMorning: boolean,
-      meetingLink: string,
-      senderName: string,
-      senderRole: string,
-      senderOrganization: string,  
+        firstName: string,
+        role: string,
+        date: string,
+        time: string,
+        isMorning: boolean,
+        meetingLink: string,
+        senderName: string,
+        senderRole: string,
+        senderOrganization: string,
     },
     passwordReset: {
         userName: string,
@@ -37,11 +37,19 @@ type EmailTemplateDataMap = {
         meetingLink: string,
         senderName: string,
         senderRole: string,
-        senderOrganization: string,  
+        senderOrganization: string,
     },
     welcome: {
         firstName: string,
         appName: string,
+    },
+    teamInvitation: {
+        recipientEmail: string,
+        teamName: string,
+        inviterName: string,
+        role: string,
+        message?: string,
+        appUrl: string,
     },
 }
 
@@ -50,7 +58,7 @@ class EmailTemplateManager {
 
     templateCount: number = 0;
 
-    private constructor() {}
+    private constructor() { }
 
     /**
      * Factory method for EmailTemplateManager.
@@ -75,11 +83,11 @@ class EmailTemplateManager {
     ): Promise<RenderedEmail> {
 
         const filePath = path.join(__dirname, "./templates", templateName);
-        
+
         const [subjectSrc, htmlSrc, plainSrc] = await Promise.all([
             readFile(path.join(filePath, templateName + "_subject.hbs"), 'utf-8'),
-            readFile(path.join(filePath, templateName +         ".hbs"), 'utf-8'),
-            readFile(path.join(filePath, templateName +   "_plain.hbs"), 'utf-8')
+            readFile(path.join(filePath, templateName + ".hbs"), 'utf-8'),
+            readFile(path.join(filePath, templateName + "_plain.hbs"), 'utf-8')
         ]);
 
         const subject = Handlebars.compile(subjectSrc)(data);
@@ -120,8 +128,8 @@ class EmailTemplateManager {
     async getTemplateList(): Promise<string[]> {
         const templates: string[] = [];
         const filePath = path.join(__dirname, "./templates");
-        
-        const files = await readdir(filePath, {withFileTypes: true});
+
+        const files = await readdir(filePath, { withFileTypes: true });
 
         for (const file of files) {
             if (file.isDirectory()) {
