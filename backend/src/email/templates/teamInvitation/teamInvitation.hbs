@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Invitation</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 30px;
+            line-height: 1.6;
+        }
+
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Team Invitation</h1>
+        </div>
+
+        <div class="content">
+            <p>Hello {{recipientEmail}},</p>
+
+            <p>{{inviterName}} has invited you to join the team <strong>{{teamName}}</strong> as a {{role}}.</p>
+
+            {{#if message}}
+            <div style="background: #f8f9fa; padding: 15px; border-left: 4px solid #007bff; margin: 20px 0;">
+                <p><strong>Personal message:</strong></p>
+                <p>{{message}}</p>
+            </div>
+            {{/if}}
+
+            <p>To accept this invitation and join the team, click the button below:</p>
+
+            <p style="text-align: center;">
+                <a href="{{appUrl}}/join-team" class="button">Accept Invitation</a>
+            </p>
+
+            <p>If you don't have an account yet, you'll be prompted to create one during the process.</p>
+
+            <p>Best regards,<br>The Schedule App Team</p>
+        </div>
+
+        <div class="footer">
+            <p>If you have any questions, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+
+</html>

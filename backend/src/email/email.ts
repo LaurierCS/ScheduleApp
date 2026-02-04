@@ -10,8 +10,8 @@ interface EmailOptions {
 
 class EmailService {
     private transporter: nodemailer.Transporter;
-    
-    private constructor( private templateManager: EmailTemplateManager ) {
+
+    private constructor(private templateManager: EmailTemplateManager) {
 
         // Check for Gmail credentials first
         const gmailUser = process.env.GMAIL_USER;
@@ -114,6 +114,41 @@ class EmailService {
                 <hr/>
                 <p><small>This is an automated message, please do not reply to this email.</small></p>
             `,
+        };
+        await this.sendEmail(mailOptions);
+    }
+
+    /**
+     * Send team invitation email
+     * @param recipientEmail - Recipient's email address
+     * @param teamName - Name of the team they're being invited to
+     * @param inviterName - Name of the person sending the invitation
+     * @param role - Role they'll have in the team
+     * @param message - Optional custom message from inviter
+     */
+    async sendTeamInvitation(
+        recipientEmail: string,
+        teamName: string,
+        inviterName: string,
+        role: string,
+        message?: string
+    ): Promise<void> {
+        const appUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+        const { subject, html, plain } = await this.templateManager.renderTemplate('teamInvitation', {
+            recipientEmail,
+            teamName,
+            inviterName,
+            role,
+            message,
+            appUrl,
+        });
+
+        const mailOptions = {
+            to: recipientEmail,
+            subject: subject,
+            html: html,
+            text: plain,
         };
         await this.sendEmail(mailOptions);
     }
