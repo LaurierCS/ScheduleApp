@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const Home = () => {
   return (
-    <div className="container mx-auto p-8 flex flex-col items-center justify-center min-h-[80vh] text-center">
+    <div className="container mx-auto p-8 flex flex-col items-center justify-center min-h-[80vh] text-center pt-20">
       <h1 className="text-4xl font-bold mb-4 text-white">schedule app</h1>
       <p className="text-zinc-400 max-w-lg mb-8">
         welcome to the schedule app.

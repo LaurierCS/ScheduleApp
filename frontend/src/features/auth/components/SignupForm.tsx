@@ -90,124 +90,125 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="w-full max-w-lg p-6 md:p-8 flex flex-col items-center justify-center">
-        {/* Main header */}
-        <div className="text-center mb-6 md:mb-8">
-          <h3 className="text-2xl md:text-3xl font-medium">Sign Up</h3>
-        </div>
-
-        {/* Error Messages */}
-        {(error || validationError) && (
-          <div className="border border-red-500 text-red-700 px-4 py-3 rounded-md text-sm mb-6 w-full">
-            {validationError || error}
+    <div className="flex flex-col min-h-screen pt-20">
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Sign Up</h1>
+            <p className="text-gray-600">Join us to get started</p>
           </div>
-        )}
 
-        <form onSubmit={onSubmit} className="space-y-5 md:space-y-6 w-full">
-          {/* First Name */}
-          <FormInput
-            id="firstName"
-            label="First Name"
-            type="text"
-            value={form.firstName}
-            onChange={onChange("firstName")}
-            autoComplete="given-name"
-            placeholder="Enter your first name"
-            required
-          />
+          {/* Error Messages */}
+          {(error || validationError) && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">
+              {validationError || error}
+            </div>
+          )}
 
-          {/* Last Name */}
-          <FormInput
-            id="lastName"
-            label="Last Name"
-            type="text"
-            value={form.lastName}
-            onChange={onChange("lastName")}
-            autoComplete="family-name"
-            placeholder="Enter your last name"
-            required
-          />
-
-          {/* Email */}
-          <FormInput
-            id="email"
-            label="Email"
-            type="email"
-            value={form.email}
-            onChange={onChange("email")}
-            autoComplete="email"
-            placeholder="Enter your email address"
-            error={form.email && !validateEmail(form.email) ? "Please enter a valid email." : ""}
-            required
-          />
-
-          {/* Password */}
-          <FormPasswordInput
-            id="password"
-            label="Password"
-            value={form.password}
-            onChange={onChange("password")}
-            autoComplete="new-password"
-            placeholder="Enter password"
-            required
-          />
-
-          {/* Password requirements - validation bullets */}
-          <PasswordRequirements 
-            validation={passwordChecks}
-            responsive={true}
-          />
-
-          {/* Marketing opt-in checkbox */}
-          <div className="flex items-start gap-2 pt-1 md:pt-2">
-            <input
-              type="checkbox"
-              id="marketing"
-              checked={marketingOptIn}
-              onChange={(e) => setMarketingOptIn(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-black cursor-pointer"
+          {/* Form */}
+          <form onSubmit={onSubmit} className="space-y-5">
+            {/* First Name */}
+            <FormInput
+              id="firstName"
+              label="First Name"
+              type="text"
+              value={form.firstName}
+              onChange={onChange("firstName")}
+              autoComplete="given-name"
+              placeholder="John"
+              required
             />
-            <label htmlFor="marketing" className="text-xs md:text-sm cursor-pointer">
-              I want to receive emails about the product, feature updates, events, and
-              marketing promotions.
-            </label>
-          </div>
 
-          {/* Terms */}
-          <p className="text-xs md:text-sm text-gray-600">
-            By creating an account, you agree to the{" "}
-            <a href="#" className="underline text-black font-medium">
-              Terms of use
-            </a>{" "}
-            and{" "}
-            <a href="#" className="underline text-black font-medium">
-              Privacy Policy
-            </a>
-            .
-          </p>
+            {/* Last Name */}
+            <FormInput
+              id="lastName"
+              label="Last Name"
+              type="text"
+              value={form.lastName}
+              onChange={onChange("lastName")}
+              autoComplete="family-name"
+              placeholder="Doe"
+              required
+            />
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={!canSubmit || isLoading}
-            className="w-full rounded-full h-11 md:h-12 text-sm md:text-base font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-gray-400"
-            style={{
-              backgroundColor:
-                canSubmit && !isLoading ? "#000" : "#a3a3a3",
-            }}
-          >
-            {isLoading ? "Creating account..." : "Create account"}
-          </button>
+            {/* Email */}
+            <FormInput
+              id="email"
+              label="Email Address"
+              type="email"
+              value={form.email}
+              onChange={onChange("email")}
+              autoComplete="email"
+              placeholder="john@example.com"
+              error={form.email && !validateEmail(form.email) ? "Please enter a valid email." : ""}
+              required
+            />
 
-          {/* Sign In Link */}
-          <p className="text-center text-xs md:text-sm">
-            Already have an account?{" "}
-            <Link to="/signin" className="font-medium text-primary hover:underline underline">
-              Sign In
-            </Link>
-          </p>
-        </form>
+            {/* Password */}
+            <FormPasswordInput
+              id="password"
+              label="Password"
+              value={form.password}
+              onChange={onChange("password")}
+              autoComplete="new-password"
+              placeholder="Create a strong password"
+              required
+            />
+
+            {/* Password Requirements */}
+            <PasswordRequirements 
+              validation={passwordChecks}
+              responsive={true}
+            />
+
+            {/* Marketing Opt-in */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="marketing"
+                  checked={marketingOptIn}
+                  onChange={(e) => setMarketingOptIn(e.target.checked)}
+                  className="h-4 w-4 accent-blue-600 cursor-pointer"
+                />
+                <label htmlFor="marketing" className="text-sm text-gray-600 cursor-pointer">
+                  Send me updates about new features and product news
+                </label>
+              </div>
+            </div>
+
+            {/* Terms */}
+            <p className="text-xs text-gray-500 leading-relaxed text-center">
+              By signing up, you agree to our{" "}
+              <a href="#" className="text-blue-600 hover:underline font-medium">
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a href="#" className="text-blue-600 hover:underline font-medium">
+                Privacy Policy
+              </a>
+              .
+            </p>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={!canSubmit || isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-base mt-6"
+            >
+              {isLoading ? "Creating account..." : "Create account"}
+            </button>
+
+            {/* Sign In Link */}
+            <p className="text-center text-sm text-gray-600 mt-6 pb-8">
+              Already have an account?{" "}
+              <Link to="/signin" className="text-blue-600 hover:underline font-medium">
+                Sign In
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );

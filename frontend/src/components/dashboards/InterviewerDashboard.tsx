@@ -1,25 +1,14 @@
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function InterviewerDashboard() {
-  const { user, logout } = useAuth();
-
-  const handleLogout = async () => {
-    await logout();
-    window.location.href = "/signin";
-  };
+  const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen pt-20">
       {/* Header */}
       <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900">Interviewer Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-          >
-            Logout
-          </button>
         </div>
       </header>
 

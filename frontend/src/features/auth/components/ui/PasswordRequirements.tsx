@@ -21,7 +21,8 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
   const gapClass = responsive ? "gap-x-3 gap-y-2 mt-3 md:mt-4" : "gap-x-8 gap-y-2";
 
   return (
-    <div className={`grid grid-cols-2 ${gapClass}`}>
+    <div className="flex justify-center">
+      <div className={`grid grid-cols-2 ${gapClass}`}>
       <div className="flex items-center space-x-2">
         <div
           className={`w-2 h-2 rounded-full ${
@@ -113,6 +114,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
           </span>
         </div>
       )}
+    </div>
     </div>
   );
 };

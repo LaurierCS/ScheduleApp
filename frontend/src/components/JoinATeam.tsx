@@ -37,7 +37,7 @@ export default function JoinATeam() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 flex flex-col">
+    <div className="min-h-screen w-full flex flex-col pt-20">
       {/* Top header bar */}
       <header className="w-full h-12 px-4 md:px-7 bg-gray-100 flex items-center border-b border-gray-200">
         <span className="text-gray-400 font-semibold text-base">

@@ -171,7 +171,7 @@ export default function InterviewerAvailability() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-100 p-8">
+		<div className="min-h-screen p-8 pt-20">
 			<div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
 				{/* Back Button */}
 				<Link
