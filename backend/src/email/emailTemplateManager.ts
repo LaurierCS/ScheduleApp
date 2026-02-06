@@ -24,6 +24,10 @@ type EmailTemplateDataMap = {
         userName: string,
         code: string,
     },
+    signupVerification: {
+        userName: string,
+        code: string,
+    },
     update: {
         firstName: string,
         isCancellation: boolean,

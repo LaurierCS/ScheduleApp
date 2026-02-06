@@ -25,6 +25,7 @@ export interface AuthContextType {
     register: (name: string, email: string, password: string) => Promise<User>;
     logout: () => Promise<void>;
     clearError: () => void;               // Clear error message
+    setUser: (user: User | null) => void; // Manually set user (for post-verification)
 }
 
 /**

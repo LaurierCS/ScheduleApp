@@ -104,6 +104,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Register a new user
+   * Note: Does NOT auto-login. User must verify email first.
+   * Stores registration response in sessionStorage for email verification step.
    * Returns the newly created user data
    */
   const register = async (
@@ -118,12 +120,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Call the API
       const response = await apiRegister({ name, email, password });
       
-      // Update state with user data
-      setUser(response.data.user);
+      // Store the response in sessionStorage for after email verification
+      // NOTE: We DON'T call setTokens() or setUser() here - user must verify email first
+      sessionStorage.setItem('signupResponse', JSON.stringify(response.data));
       
-      console.log('Registration successful:', response.data.user);
+      console.log('Registration successful - email verification required:', response.data.user);
       
-      // Return the user data so component can use it immediately
+      // Return the user data so component can use it for UI purposes
       return response.data.user;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';
@@ -165,6 +168,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
   };
 
+  /**
+   * Manually set user (used for post-email-verification flows)
+   */
+  const setUserState = (userData: User | null): void => {
+    setUser(userData);
+  };
+
   // ============================================================================
   // CONTEXT VALUE
   // ============================================================================
@@ -184,6 +194,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     clearError,
+    setUser: setUserState,
   };
 
   // ============================================================================

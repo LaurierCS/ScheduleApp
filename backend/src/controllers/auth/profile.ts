@@ -33,6 +33,7 @@ export const me = async (req: Request, res: Response, next: NextFunction) => {
           groupIds: user.groupIds,
           profileImage: user.profileImage,
           isActive: user.isActive,
+          isEmailVerified: user.isEmailVerified,
           lastLogin: user.lastLogin
         }
       }

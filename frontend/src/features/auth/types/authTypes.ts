@@ -24,6 +24,7 @@ export interface User {
     groupIds?: string[];
     profileImage?: string;
     isActive: boolean;
+    isEmailVerified?: boolean;
     lastLogin?: string;
 }
 
