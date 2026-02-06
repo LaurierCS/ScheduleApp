@@ -11,7 +11,6 @@ import {
 	TwoFactorAuth,
 	NewPassword,
 	ForgotPassword,
-	EmailVerificationSuccess,
 } from '@/features/auth/components'
 import InterviewerSchedule from '@/components/interviewerSchedule'
 import JoinATeam from '@/components/JoinATeam'
@@ -37,7 +36,6 @@ function App() {
 					<Route path="/joinateam" element={<JoinATeam />} />
 					<Route path="/create-or-join-team" element={<CreateOrJoinTeam />} />
 					<Route path="/new-password-made" element={<NewPasswordMade />} />
-					<Route path="/email-verified-success" element={<EmailVerificationSuccess />} />
 					<Route path="/2fa" element={<TwoFactorAuth />} />
 					<Route path="/new-password" element={<NewPassword />} />
 					<Route path="/forgot-password" element={<ForgotPassword />} />

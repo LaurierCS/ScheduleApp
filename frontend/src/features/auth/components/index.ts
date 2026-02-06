@@ -9,4 +9,3 @@ export { default as NewPasswordMade } from './NewPasswordMade';
 export { default as TwoFactorAuth } from './TwoFactorAuth';
 export { default as NewPassword } from './NewPassword';
 export { default as ForgotPassword } from './ForgotPassword';
-export { default as EmailVerificationSuccess } from './EmailVerificationSuccess';
