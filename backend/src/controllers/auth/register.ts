@@ -118,7 +118,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          isEmailVerified: user.isEmailVerified
         },
         accessToken,
         refreshToken

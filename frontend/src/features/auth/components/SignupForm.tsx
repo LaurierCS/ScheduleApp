@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { getDashboardPath } from "@/utils/navigation";
 import { usePasswordValidation, isPasswordValid } from "../hooks/usePasswordValidation";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { FormInput } from "./ui/FormInput";
@@ -75,14 +74,23 @@ export default function SignupForm() {
     try {
       const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`;
       const newUser = await register(fullName, form.email, form.password);
-      const dashboardPath = getDashboardPath(newUser.role);
       
       console.log(`✅ Registration successful!`);
       console.log(`   User: ${newUser.name}`);
       console.log(`   Role: ${newUser.role}`);
-      console.log(`   Redirecting to: ${dashboardPath}`);
+      console.log(`   Email verification required - redirecting to /2fa`);
       
-      navigate(dashboardPath);
+      // Store email and role in sessionStorage for the 2FA/verification page
+      sessionStorage.setItem('signupEmail', form.email);
+      sessionStorage.setItem('verificationType', 'signup');
+      sessionStorage.setItem('signupUserRole', newUser.role);
+      
+      console.log(`📋 Stored in sessionStorage:`);
+      console.log(`   signupEmail: ${form.email}`);
+      console.log(`   verificationType: signup`);
+      console.log(`   signupUserRole: ${newUser.role}`);
+      
+      navigate('/2fa');
       
     } catch (err) {
       console.error("❌ Registration failed:", err);

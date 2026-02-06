@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from '@/components/ui/Navbar'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
 import Welcome from '@/components/Welcome'
@@ -10,6 +11,7 @@ import {
 	TwoFactorAuth,
 	NewPassword,
 	ForgotPassword,
+	EmailVerificationSuccess,
 } from '@/features/auth/components'
 import InterviewerSchedule from '@/components/interviewerSchedule'
 import JoinATeam from '@/components/JoinATeam'
@@ -35,15 +37,16 @@ function App() {
 					<Route path="/joinateam" element={<JoinATeam />} />
 					<Route path="/create-or-join-team" element={<CreateOrJoinTeam />} />
 					<Route path="/new-password-made" element={<NewPasswordMade />} />
+					<Route path="/email-verified-success" element={<EmailVerificationSuccess />} />
 					<Route path="/2fa" element={<TwoFactorAuth />} />
 					<Route path="/new-password" element={<NewPassword />} />
 					<Route path="/forgot-password" element={<ForgotPassword />} />
 					<Route path="/interviewer-availability" element={<InterviewerAvailability />} />
 					
-					{/* Role-Based Dashboards */}
-					<Route path="/admin/dashboard" element={<AdminDashboard />} />
-					<Route path="/interviewer/dashboard" element={<InterviewerDashboard />} />
-					<Route path="/candidate/dashboard" element={<CandidateDashboard />} />
+					{/* Role-Based Dashboards - Protected */}
+					<Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+					<Route path="/interviewer/dashboard" element={<ProtectedRoute><InterviewerDashboard /></ProtectedRoute>} />
+					<Route path="/candidate/dashboard" element={<ProtectedRoute><CandidateDashboard /></ProtectedRoute>} />
 					
 					{/* Catch-all - must be last */}
 					<Route path="*" element={<Navigate to="/" replace />} />

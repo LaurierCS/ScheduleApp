@@ -99,21 +99,16 @@ class EmailService {
      * @param userName - User's name
      */
     async sendVerificationCode(email: string, code: string, userName: string): Promise<void> {
+        const { subject, html, plain } = await this.templateManager.renderTemplate("signupVerification", {
+            userName: userName,
+            code: code,
+        });
+
         const mailOptions = {
             to: email,
-            subject: 'Verify Your Email Address',
-            html: `
-                <h2>Welcome! Please Verify Your Email</h2>
-                <p>Hello ${userName},</p>
-                <p>Thank you for registering. Your email verification code is:</p>
-                <h1 style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2196F3;">
-                    ${code}
-                </h1>
-                <p>This code will expire in 5 minutes.</p>
-                <p>If you did not create an account, please ignore this email.</p>
-                <hr/>
-                <p><small>This is an automated message, please do not reply to this email.</small></p>
-            `,
+            subject: subject,
+            html: html,
+            text: plain,
         };
         await this.sendEmail(mailOptions);
     }

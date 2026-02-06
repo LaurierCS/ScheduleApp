@@ -282,6 +282,32 @@ export const verifyResetCode = async (data: { email: string; code: string }): Pr
 };
 
 /**
+ * Verify user email with verification code (for signup)
+ * @param data - Email and 6-digit verification code
+ * @returns Promise with success message
+ */
+export const verifyEmail = async (data: { email: string; code: string }): Promise<{ success: boolean; message: string; data: { email: string } }> => {
+  const response = await authenticatedFetch('/auth/verify-email', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    try {
+      const errorResponse: ErrorResponse = await response.json();
+      throw new Error(errorResponse.error.message || 'Failed to verify email');
+    } catch (parseError) {
+      if (parseError instanceof Error) {
+        throw parseError;
+      }
+      throw new Error('Failed to verify email');
+    }
+  }
+
+  return await response.json();
+};
+
+/**
  * Default export providing all auth API functions
  */
 const authApi = {
@@ -294,6 +320,7 @@ const authApi = {
   verifyPasswordResetCode,
   forgotPassword,
   verifyResetCode,
+  verifyEmail,
 };
 
 export default authApi;
