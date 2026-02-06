@@ -1,71 +1,41 @@
 import { Button } from '@/components/ui/button'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'   
 
 const Welcome = () => {
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
-      {/* Navigation Bar */}
-      <nav className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-        <img 
-          src="/Lcs_logo.png" 
-          alt="LCS Logo" 
-          className="h-11 w-auto flex items-center space-x-3 ml-40"
-        />
-        
-        {/* Right side buttons */}
-        <div className="flex items-center space-x-3 mr-44">
-          <Button 
-            asChild 
-            variant="outline"
-            className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-          >
-            <Link to="/signin">
-              Log In
-            </Link>
-          </Button>
-          
-          <Button 
-            asChild 
-            variant="default"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white hover:text-white font-semibold py-3 text-lg"
-          >
-            <Link to="/signup">
-              Get Started
-            </Link>
-          </Button>
-        </div>
-      </nav>
-      
+    <div className="min-h-screen flex flex-col pt-20">
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row h-screen max-w-7xl mx-auto">
+      <div className="flex-1 flex flex-col lg:flex-row gap-0 items-center w-full">
         {/* Left Side - Marketing */}
-        <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 relative">
+        <div className="flex-none flex flex-col justify-center relative pl-6 sm:pl-8 lg:pl-12 pt-12">
           {/* Background Shapes for Left Side */}
-          <div className="absolute top-1/4 -left-40 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-blue-100 opacity-30 rotate-45" style={{borderRadius: '50%'}}></div>
-          <div className="absolute bottom-1/3 -left-60 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-purple-100 rounded-lg opacity-35 rotate-135"></div>
-          <div className="absolute top-1/2 -left-28 w-14 h-14 sm:w-18 sm:h-18 lg:w-22 lg:h-22 bg-blue-100 opacity-25 rotate-90" style={{borderRadius: '50%'}}></div>
-          <div className="absolute top-3/4 -left-28 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-purple-100 rounded-lg opacity-40 rotate-12"></div>
+          <div className="absolute -top-32 -left-48 w-64 h-64 bg-blue-100 opacity-10 rounded-full blur-3xl hidden lg:block"></div>
+          <div className="absolute -bottom-32 -left-64 w-80 h-80 bg-purple-100 opacity-8 rounded-full blur-3xl hidden lg:block"></div>
           
-          <div className="max-w-md lg:max-w-lg relative z-10">
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
-              Easy scheduling
-              <span className="text-blue-600 block">ahead.</span>
+          <div className="max-w-xl relative z-10">
+            <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+              Schedule your
+              <span className="text-blue-600 block">interviews smarter.</span>
             </h1>
             
-            <p className="text-lg text-gray-600 mb-6">
-              Easily book and schedule interviews with the #1 scheduling tool.
+            <p className="text-xl text-gray-600 mb-4 leading-relaxed">
+              Beautiful booking pages, automated scheduling, and seamless coordination. All the tools your recruiting team needs in one place.
+            </p>
+            
+            <p className="text-gray-500 mb-8">
+              Trusted by leading companies worldwide.
             </p>
             
             {/* Sign-up Options */}
-            <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 asChild 
                 variant="default"
                 size="lg"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white hover:text-white font-semibold py-3 text-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-8 text-base rounded-lg transition-colors"
               >
                 <Link to="/signup">
-                  Get Started
+                  Get Started Free
                 </Link>
               </Button>
               
@@ -73,10 +43,10 @@ const Welcome = () => {
                 asChild 
                 variant="outline"
                 size="lg"
-                className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-3 text-lg"
+                className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 font-semibold py-2.5 px-8 text-base rounded-lg transition-colors"
               >
                 <Link to="/signin">
-                  Log in
+                  Sign In
                 </Link>
               </Button>
             </div>
@@ -84,72 +54,66 @@ const Welcome = () => {
         </div>
 
         {/* Right Side - Demo/Preview */}
-        <div className="flex-1 relative flex items-center justify-center px-4 sm:px-6 lg:px-8">
-          {/* Abstract Background Shapes */}
-          <div className="absolute top-4 right-4 w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 bg-blue-100 opacity-50 rotate-90" style={{borderRadius: '50%'}}></div>
-          <div className="absolute bottom-4 right-4 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-purple-100 rounded-lg opacity-50 rotate-135"></div>
-          
-          {/* Additional Background Shapes */}
-          <div className="absolute top-1/4 left-8 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-blue-100 opacity-30 rotate-45" style={{borderRadius: '50%'}}></div>
-          <div className="absolute top-3/4 left-4 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-purple-100 rounded-lg opacity-40 rotate-12"></div>
-          <div className="absolute top-1/2 right-8 w-14 h-14 sm:w-18 sm:h-18 lg:w-22 lg:h-22 bg-blue-100 opacity-35 rotate-180" style={{borderRadius: '50%'}}></div>
-          <div className="absolute top-1/3 left-1/4 w-10 h-10 sm:w-14 sm:h-14 lg:w-18 lg:h-18 bg-purple-100 rounded-lg opacity-45 rotate-45"></div>
-          <div className="absolute bottom-1/3 right-1/4 w-18 h-18 sm:w-22 sm:h-22 lg:w-26 lg:h-26 bg-blue-100 opacity-25 rotate-270" style={{borderRadius: '50%'}}></div>
+        <div className="flex-1 flex flex-col items-center justify-center relative pt-12 scale-90 origin-top">
           
           {/* Demo Card */}
-          <div className="relative bg-white rounded-2xl shadow-2xl p-4 sm:p-6 max-w-xs sm:max-w-sm w-full border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Share your booking page</h3>
+          <div className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-lg border border-gray-200 z-10">
+            {/* Card Header */}
+            <div className="mb-5">
+              <h3 className="text-lg font-bold text-gray-900">Interview Booking</h3>
+              <p className="text-sm text-gray-500 mt-1">Pick a time that works best</p>
+            </div>
             
-            <div className="space-y-4">
-              {/* Event Details */}
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">F</span>
-                </div>
-                <div>
-                  <div className="font-medium text-gray-900 text-sm">Fatima Sy</div>
-                  <div className="text-xs text-gray-600">Interview</div>
-                  <div className="text-xs text-gray-500">30 min • Zoom</div>
-                </div>
+            {/* Interviewer Info Card */}
+            <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg mb-5 border border-blue-100">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-white">
+                JM
               </div>
-              
-              {/* Calendar Preview */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 text-sm">Select a Date & Time</h4>
-                <div className="grid grid-cols-7 gap-1 text-center">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                    <div key={i} className="text-xs text-gray-500 py-1">{day}</div>
-                  ))}
-                  <div className="py-1"></div>
-                  <div className="py-1"></div>
-                  <div className="py-1 text-blue-600 bg-blue-50 rounded-full text-xs">16</div>
-                  <div className="py-1"></div>
-                  <div className="py-1 text-blue-600 bg-blue-50 rounded-full text-xs">19</div>
-                  <div className="py-1"></div>
-                  <div className="py-1 bg-blue-600 text-white rounded-full text-xs">22</div>
-                  <div className="py-1 text-blue-600 bg-blue-50 rounded-full text-xs">23</div>
-                  <div className="py-1 text-blue-600 bg-blue-50 rounded-full text-xs">24</div>
-                  <div className="py-1 text-blue-600 bg-blue-50 rounded-full text-xs">25</div>
-                  <div className="py-1"></div>
-                  <div className="py-1 text-blue-600 bg-blue-50 rounded-full text-xs">30</div>
-                  <div className="py-1 text-blue-600 bg-blue-50 rounded-full text-xs">31</div>
-                </div>
-              </div>
-              
-              {/* Time Slots */}
-              <div className="space-y-2">
-                <h5 className="font-medium text-gray-900 text-sm">Monday, July 22</h5>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2 text-xs border border-gray-200 rounded bg-white">10:00am</div>
-                  <div className="p-2 text-xs bg-blue-600 text-white rounded">11:00am</div>
-                  <div className="p-2 text-xs border border-gray-200 rounded bg-white">1:00pm</div>
-                  <div className="p-2 text-xs border border-gray-200 rounded bg-white">2:30pm</div>
-                </div>
-                <div className="w-full mt-3 bg-blue-600 text-white text-sm py-2 rounded text-center">
-                  Confirm
-                </div>
+              <div className="min-w-0">
+                <div className="font-semibold text-gray-900 truncate">Jessica Martin</div>
+                <div className="text-sm text-gray-600">Hiring Manager</div>
               </div>
             </div>
+            
+            {/* Interview Info */}
+            <div className="space-y-3 mb-5 pb-5 border-b border-gray-200">
+              <div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Position</div>
+                <div className="text-sm font-medium text-gray-900">Senior Engineer</div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Duration & Format</div>
+                <div className="text-sm text-gray-700">60 min • <span className="text-blue-600 font-medium">Google Meet</span></div>
+              </div>
+            </div>
+            
+            {/* Time Slots */}
+            <div className="mb-5">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Available Times</div>
+              <div className="grid grid-cols-2 gap-2">
+                <button className="p-3 text-sm border border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left font-medium text-gray-800">
+                  Dec 15
+                  <div className="text-xs text-gray-600 mt-0.5">2:00 PM</div>
+                </button>
+                <button className="p-3 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-left font-medium">
+                  Dec 16
+                  <div className="text-xs opacity-90 mt-0.5">10:00 AM</div>
+                </button>
+                <button className="p-3 text-sm border border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left font-medium text-gray-800">
+                  Dec 17
+                  <div className="text-xs text-gray-600 mt-0.5">3:30 PM</div>
+                </button>
+                <button className="p-3 text-sm border border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left font-medium text-gray-800">
+                  Dec 20
+                  <div className="text-xs text-gray-600 mt-0.5">1:00 PM</div>
+                </button>
+              </div>
+            </div>
+            
+            {/* CTA */}
+            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 text-sm rounded-lg transition-colors">
+              Continue
+            </button>
           </div>
         </div>
       </div>

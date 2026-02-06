@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import Navbar from '@/components/ui/Navbar'
 import StatusDashboard from '@/components/StatusDashboard'
 import Home from '@/components/Home'
 import Welcome from '@/components/Welcome'
@@ -23,6 +24,7 @@ function App() {
 	return (
 		<AuthProvider>
 			<Router>
+				<Navbar />
 				<Routes>
 					<Route path="/" element={<Welcome />} />
 					<Route path="/home" element={<Home />} />

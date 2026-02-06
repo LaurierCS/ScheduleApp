@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function CreateOrJoinTeam() {
     return (
-        <div className="flex overflow-hidden">
+        <div className="flex overflow-hidden pt-20">
             <div className="w-3/5">
                 <div className="flex items-center absolute top-10 left-20">
                     <div className="text-black font-bold text-3xl">

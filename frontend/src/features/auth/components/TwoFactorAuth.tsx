@@ -68,7 +68,7 @@ export default function TwoFactorAuth() {
 	const isCodeComplete = code.length === 6;
 
 	return (
-		<div className="flex flex-col items-center justify-center min-h-screen">
+		<div className="flex flex-col items-center justify-center min-h-screen pt-20">
 			<div className="w-full max-w-lg p-8 flex flex-col items-center justify-center">
 				{/* Main header */}
 				<div className="text-center mb-4">
