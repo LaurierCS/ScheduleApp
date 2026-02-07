@@ -1,0 +1,414 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { CalendarDays, LayoutDashboard, Users, Settings, Plus, User, X } from "lucide-react";
+
+interface Moderator {
+	id: string;
+	name: string;
+	email: string;
+	isMain?: boolean;
+}
+
+interface Role {
+	id: string;
+	name: string;
+}
+
+interface Department {
+	id: string;
+	name: string;
+}
+
+export default function AdminSettings() {
+	const [moderators, setModerators] = useState<Moderator[]>([
+		{ id: "1", name: "Jason Van-Humbeek", email: "jason@example.com", isMain: true },
+		{ id: "2", name: "Vincenzo Milano", email: "vincenzo@example.com" },
+	]);
+
+	const [roles, setRoles] = useState<Role[]>([
+		{ id: "1", name: "Software Engineer" },
+		{ id: "2", name: "Academic Coordinator" },
+	]);
+
+	const [departments, setDepartments] = useState<Department[]>([
+		{ id: "1", name: "Eng" },
+		{ id: "2", name: "Academics" },
+	]);
+
+	const [interviewersPerInterviewee, setInterviewersPerInterviewee] = useState<number>(2);
+	const [maxInterviewsPerDay, setMaxInterviewsPerDay] = useState<number>(5);
+
+	// Input visibility states
+	const [showRoleInput, setShowRoleInput] = useState(false);
+	const [newRoleName, setNewRoleName] = useState("");
+	const [showDeptInput, setShowDeptInput] = useState(false);
+	const [newDeptName, setNewDeptName] = useState("");
+	const [showModeratorInput, setShowModeratorInput] = useState(false);
+	const [newModeratorEmail, setNewModeratorEmail] = useState("");
+
+	const removeModerator = (id: string) => {
+		setModerators(moderators.filter((mod) => mod.id !== id));
+	};
+
+	const removeRole = (id: string) => {
+		setRoles(roles.filter((role) => role.id !== id));
+	};
+
+	const removeDepartment = (id: string) => {
+		setDepartments(departments.filter((dept) => dept.id !== id));
+	};
+
+	const addRole = () => {
+		if (newRoleName.trim()) {
+			setRoles([...roles, { id: Date.now().toString(), name: newRoleName.trim() }]);
+			setNewRoleName("");
+			setShowRoleInput(false);
+		}
+	};
+
+	const addDepartment = () => {
+		if (newDeptName.trim()) {
+			setDepartments([...departments, { id: Date.now().toString(), name: newDeptName.trim() }]);
+			setNewDeptName("");
+			setShowDeptInput(false);
+		}
+	};
+
+	const inviteModerator = () => {
+		if (newModeratorEmail.trim()) {
+			// This would typically make an API call to send an invite email
+			console.log("Inviting moderator:", newModeratorEmail);
+			// For demo purposes, add them to the list
+			setModerators([
+				...moderators,
+				{
+					id: Date.now().toString(),
+					name: "Pending",
+					email: newModeratorEmail.trim(),
+				},
+			]);
+			setNewModeratorEmail("");
+			setShowModeratorInput(false);
+			alert(`Invite sent to ${newModeratorEmail}`);
+		}
+	};
+
+	const handleSave = () => {
+		// This would typically make an API call to save all settings
+		console.log("Saving settings:", {
+			moderators,
+			roles,
+			departments,
+			interviewersPerInterviewee,
+			maxInterviewsPerDay,
+		});
+		alert("Settings saved successfully!");
+	};
+
+	return (
+		<div className="flex h-screen pt-20">
+			{/* Left Sidebar */}
+			<aside className="w-64 bg-white p-6 shadow-md flex flex-col">
+				<div className="mb-10 text-2xl font-bold text-gray-800">LOGO</div>
+				<nav className="space-y-4">
+					<Link
+						to="/interviewer-availability"
+						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+					>
+						<CalendarDays size={20} />
+						<span>Availability</span>
+					</Link>
+					<Link
+						to="/admin/dashboard2"
+						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+					>
+						<LayoutDashboard size={20} />
+						<span>Dashboard</span>
+					</Link>
+					<Link
+						to="#"
+						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+					>
+						<Users size={20} />
+						<span>Team Availability</span>
+					</Link>
+					<Link
+						to="#"
+						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+					>
+						<Users size={20} />
+						<span>Candidate Availability</span>
+					</Link>
+					<Link
+						to="/admin-settings"
+						className="flex items-center space-x-3 p-3 rounded-lg bg-blue-100 text-blue-700 font-semibold"
+					>
+						<Settings size={20} />
+						<span>Admin Settings</span>
+					</Link>
+
+					{/* Schedule Interviews Button */}
+					<button className="mt-auto flex items-center justify-center space-x-2 bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors">
+						<Plus size={20} className="text-white" />
+						<span>Schedule Interviews</span>
+					</button>
+				</nav>
+			</aside>
+
+			{/* Main Content Area */}
+			<main className="flex-1 p-8 overflow-auto bg-gray-50">
+				{/* Header / Top Right */}
+				<header className="flex justify-between items-center mb-8">
+					<h1 className="text-3xl font-bold text-gray-900">Admin Settings</h1>
+					<div className="flex items-center space-x-2 p-2 pl-5 pr-5 bg-white rounded-full shadow-sm border border-gray-200">
+						<User className="h-6 w-6 text-gray-500" />
+						<div className="flex flex-col text-sm">
+							<span className="font-semibold text-gray-800">Name</span>
+							<span className="text-gray-500">Admin</span>
+						</div>
+					</div>
+				</header>
+
+				{/* Settings Content */}
+				<div className="max-w-4xl space-y-6">
+					{/* Moderators Section */}
+					<div className="bg-white p-6 rounded-lg shadow-sm">
+						<div className="flex items-center justify-between mb-4">
+							<h2 className="text-lg font-semibold text-gray-900">Team Moderators</h2>
+							<button
+								onClick={() => setShowModeratorInput(!showModeratorInput)}
+								className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+							>
+								+ Invite
+							</button>
+						</div>
+
+						{showModeratorInput && (
+							<div className="mb-4 flex gap-2">
+								<input
+									type="email"
+									value={newModeratorEmail}
+									onChange={(e) => setNewModeratorEmail(e.target.value)}
+									placeholder="Enter moderator email"
+									className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+									onKeyPress={(e) => e.key === "Enter" && inviteModerator()}
+								/>
+								<button
+									onClick={inviteModerator}
+									className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+								>
+									Send Invite
+								</button>
+								<button
+									onClick={() => {
+										setShowModeratorInput(false);
+										setNewModeratorEmail("");
+									}}
+									className="px-4 py-2 bg-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-400 transition-colors"
+								>
+									Cancel
+								</button>
+							</div>
+						)}
+
+						<div className="flex flex-wrap gap-2">
+							{moderators.map((moderator) => (
+								<div
+									key={moderator.id}
+									className="inline-flex items-center gap-1.5 bg-gray-100 rounded-md px-3 py-1.5 text-sm"
+								>
+									<span className="text-gray-700">
+										{moderator.name}
+										{moderator.isMain && (
+											<span className="text-gray-500 text-xs ml-1">(main)</span>
+										)}
+									</span>
+									{!moderator.isMain && (
+										<button
+											onClick={() => removeModerator(moderator.id)}
+											className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+										>
+											<X size={14} />
+										</button>
+									)}
+								</div>
+							))}
+						</div>
+					</div>
+
+					{/* Auto Scheduling Preferences Section */}
+					<div className="bg-white p-6 rounded-lg shadow-sm">
+						<h2 className="text-lg font-semibold text-gray-900 mb-4">
+							Auto Scheduling Preferences
+						</h2>
+						<div className="space-y-4">
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">
+									Number of Interviewers per Interviewee
+								</label>
+								<input
+									type="number"
+									min="1"
+									value={interviewersPerInterviewee}
+									onChange={(e) => setInterviewersPerInterviewee(parseInt(e.target.value) || 0)}
+									className="w-full md:w-48 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+									placeholder="e.g., 2"
+								/>
+								<p className="text-xs text-gray-500 mt-1">
+									Set how many interviewers should meet with each candidate
+								</p>
+							</div>
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">
+									Max Interviews per Day per Interviewer
+								</label>
+								<input
+									type="number"
+									min="1"
+									value={maxInterviewsPerDay}
+									onChange={(e) => setMaxInterviewsPerDay(parseInt(e.target.value) || 0)}
+									className="w-full md:w-48 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+									placeholder="e.g., 5"
+								/>
+								<p className="text-xs text-gray-500 mt-1">
+									Limit daily interviews to prevent interviewer burnout
+								</p>
+							</div>
+						</div>
+					</div>
+
+					{/* Two Column Layout for Roles and Departments */}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+						{/* Manage Roles Section */}
+						<div className="bg-white p-6 rounded-lg shadow-sm">
+							<div className="flex items-center justify-between mb-4">
+								<h2 className="text-lg font-semibold text-gray-900">Interview Roles</h2>
+								<button
+									onClick={() => setShowRoleInput(!showRoleInput)}
+									className="px-3 py-1.5 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-700 transition-colors"
+								>
+									+ Add
+								</button>
+							</div>
+							<p className="text-xs text-gray-500 mb-3">Roles available for interviewees</p>
+
+							{showRoleInput && (
+								<div className="mb-3 flex gap-2">
+									<input
+										type="text"
+										value={newRoleName}
+										onChange={(e) => setNewRoleName(e.target.value)}
+										placeholder="Enter role name"
+										className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+										onKeyPress={(e) => e.key === "Enter" && addRole()}
+									/>
+									<button
+										onClick={addRole}
+										className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+									>
+										Add
+									</button>
+									<button
+										onClick={() => {
+											setShowRoleInput(false);
+											setNewRoleName("");
+										}}
+										className="px-3 py-1.5 bg-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-400"
+									>
+										Cancel
+									</button>
+								</div>
+							)}
+
+							<div className="flex flex-wrap gap-2">
+								{roles.map((role) => (
+									<div
+										key={role.id}
+										className="inline-flex items-center gap-1.5 bg-gray-100 rounded-md px-3 py-1.5 text-sm"
+									>
+										<span className="text-gray-700">{role.name}</span>
+										<button
+											onClick={() => removeRole(role.id)}
+											className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+										>
+											<X size={14} />
+										</button>
+									</div>
+								))}
+							</div>
+						</div>
+
+						{/* Manage Departments Section */}
+						<div className="bg-white p-6 rounded-lg shadow-sm">
+							<div className="flex items-center justify-between mb-4">
+								<h2 className="text-lg font-semibold text-gray-900">Departments</h2>
+								<button
+									onClick={() => setShowDeptInput(!showDeptInput)}
+									className="px-3 py-1.5 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-700 transition-colors"
+								>
+									+ Add
+								</button>
+							</div>
+							<p className="text-xs text-gray-500 mb-3">Departments for interviewers</p>
+
+							{showDeptInput && (
+								<div className="mb-3 flex gap-2">
+									<input
+										type="text"
+										value={newDeptName}
+										onChange={(e) => setNewDeptName(e.target.value)}
+										placeholder="Enter department name"
+										className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+										onKeyPress={(e) => e.key === "Enter" && addDepartment()}
+									/>
+									<button
+										onClick={addDepartment}
+										className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+									>
+										Add
+									</button>
+									<button
+										onClick={() => {
+											setShowDeptInput(false);
+											setNewDeptName("");
+										}}
+										className="px-3 py-1.5 bg-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-400"
+									>
+										Cancel
+									</button>
+								</div>
+							)}
+
+							<div className="flex flex-wrap gap-2">
+								{departments.map((dept) => (
+									<div
+										key={dept.id}
+										className="inline-flex items-center gap-1.5 bg-gray-100 rounded-md px-3 py-1.5 text-sm"
+									>
+										<span className="text-gray-700">{dept.name}</span>
+										<button
+											onClick={() => removeDepartment(dept.id)}
+											className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+										>
+											<X size={14} />
+										</button>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+
+					{/* Save Button */}
+					<div className="flex justify-end pt-2">
+						<button
+							onClick={handleSave}
+							className="px-6 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+						>
+							Save Changes
+						</button>
+					</div>
+				</div>
+			</main>
+		</div>
+	);
+}
