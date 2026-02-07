@@ -175,7 +175,7 @@ export default function InterviewerAvailability() {
 			<div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
 				{/* Back Button */}
 				<Link
-					to="/interviewer-schedule"
+					to="/admin/dashboard2"
 					className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
 				>
 					<ArrowLeft size={20} />

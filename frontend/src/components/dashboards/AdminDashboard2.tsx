@@ -166,7 +166,12 @@ export default function InterviewerSchedule() {
 						className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
 					>
 						<Settings size={20} />
-						<span>Interview Selection</span>
+						<Link
+							to="/admin-settings"
+							className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+						>
+							<span>Admin Settings</span>
+						</Link>
 					</a>
 
 					{/* Schedule Interviews Button */}
