@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/ui/button";
+import { Input } from "@/ui/input";
 import { ArrowLeft } from "lucide-react";
 import { verifyResetCode, verifyEmail, setTokens, getCurrentUser } from "../services/authApi";
 import { useAuth } from "../hooks/useAuth";

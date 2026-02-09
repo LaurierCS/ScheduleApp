@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { forgotPassword } from "../services/authApi";

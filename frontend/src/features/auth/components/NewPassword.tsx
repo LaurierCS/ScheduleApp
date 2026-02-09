@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/ui/button";
 import { usePasswordValidation, isPasswordValid } from "../hooks/usePasswordValidation";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { resetPassword } from "../services/authApi";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays, LayoutDashboard, User, Plus, Users, Settings } from "lucide-react";
-import CalendarCard from "@/components/ui/CalendarCard";
+import CalendarCard from "@/ui/CalendarCard";
 
 export default function InterviewerSchedule() {
 	const [activeTab, setActiveTab] = useState("This week");
