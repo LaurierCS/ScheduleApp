@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/ui/checkbox";
 
 interface AvailabilityData {
 	[dateKey: string]: string[]; // dateKey format: "YYYY-MM-DD", value: array of time slots

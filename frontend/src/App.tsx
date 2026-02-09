@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Navbar from '@/components/ui/Navbar'
-import ProtectedRoute from '@/components/ProtectedRoute'
-import StatusDashboard from '@/components/StatusDashboard'
-import Welcome from '@/components/Welcome'
+import Navbar from '@/ui/Navbar'
+import ProtectedRoute from '@/ui/ProtectedRoute'
+import StatusDashboard from '@/ui/StatusDashboard'
+import Welcome from '@/ui/Welcome'
 import {
 	SignupForm,
 	SigninForm,
@@ -12,13 +12,13 @@ import {
 	ForgotPassword,
 } from '@/features/auth/components'
 import AdminDashboard2 from '@/features/admin/AdminDashboard'
-import JoinATeam from '@/components/JoinATeam'
-import CreateOrJoinTeam from '@/components/CreateOrJoinTeam'
-import InterviewerAvailability from '@/components/InterviewerAvailability'
+import JoinATeam from '@/features/candidate/JoinATeam'
+import CreateOrJoinTeam from '@/features/auth/CreateOrJoinTeam'
+import InterviewerAvailability from '@/features/interviewer/InterviewerAvailability'
 import { AuthProvider } from '@/provider/AuthProvider'
-import InterviewerDashboard from '@/components/dashboards/InterviewerDashboard'
+import InterviewerDashboard from '@/features/dashboard/InterviewerDashboard'
 import CandidateDashboard from '@/features/candidate/CandidateDashboard'
-import AdminSettings from './components/AdminSettings'
+import AdminSettings from './features/admin/AdminSettings'
 
 function App() {
 	return (
