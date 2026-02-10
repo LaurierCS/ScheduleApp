@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Navbar from '@/ui/Navbar'
 import ProtectedRoute from '@/ui/ProtectedRoute'
 import StatusDashboard from '@/ui/StatusDashboard'
 import Welcome from '@/ui/Welcome'
@@ -24,7 +23,6 @@ function App() {
 	return (
 		<AuthProvider>
 			<Router>
-				<Navbar />
 				<Routes>
 					<Route path="/" element={<Welcome />} />
 					<Route path="/status" element={<StatusDashboard />} />
