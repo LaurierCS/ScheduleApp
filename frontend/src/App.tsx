@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import ProtectedRoute from '@/ui/ProtectedRoute'
+import { UserRole } from '@/features/auth/services/authApi'
+import ProtectedRoute from '@/utils/ProtectedRoute'
 import StatusDashboard from '@/ui/StatusDashboard'
 import Welcome from '@/ui/Welcome'
 import {
@@ -38,9 +39,9 @@ function App() {
 					<Route path="/admin-settings" element={<AdminSettings />} />
 					
 					{/* Role-Based Dashboards - Protected */}
-					<Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard2 /></ProtectedRoute>} />
-					<Route path="/interviewer/dashboard" element={<ProtectedRoute><InterviewerDashboard /></ProtectedRoute>} />
-					<Route path="/candidate/dashboard" element={<ProtectedRoute><CandidateDashboard /></ProtectedRoute>} />
+					<Route path="/admin/dashboard" element={<ProtectedRoute requiredRole={UserRole.ADMIN}><AdminDashboard2 /></ProtectedRoute>} />
+					<Route path="/interviewer/dashboard" element={<ProtectedRoute requiredRole={UserRole.INTERVIEWER}><InterviewerDashboard /></ProtectedRoute>} />
+					<Route path="/candidate/dashboard" element={<ProtectedRoute requiredRole={UserRole.CANDIDATE}><CandidateDashboard /></ProtectedRoute>} />
 					
 					{/* Catch-all - must be last */}
 					<Route path="*" element={<Navigate to="/" replace />} />
