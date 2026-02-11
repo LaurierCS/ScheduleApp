@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays, LayoutDashboard, User, Plus, Users, Settings } from "lucide-react";
-import CalendarCard from "@/ui/CalendarCard";
 
 export default function InterviewerSchedule() {
 	const [activeTab, setActiveTab] = useState("This week");
@@ -203,11 +202,10 @@ export default function InterviewerSchedule() {
 					<h2 className="text-xl font-semibold text-gray-800 mb-4">Your calendar at a glance</h2>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 						{calendarStats.map((stat, index) => (
-							<CalendarCard
-								key={index}
-								title={stat.title}
-								count={stat.count}
-							/>
+							<div key={index} className="border border-gray-200 rounded-lg p-4 text-left">
+								<p className="text-gray-600 text-sm mb-1">{stat.title}</p>
+								<p className="text-3xl font-bold text-gray-900">{stat.count}</p>
+							</div>
 						))}
 					</div>
 				</section>
