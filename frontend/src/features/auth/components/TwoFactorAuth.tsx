@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/ui/button";
-import { Input } from "@/ui/input";
 import { ArrowLeft } from "lucide-react";
 import { verifyResetCode, verifyEmail, setTokens, getCurrentUser } from "../services/authApi";
 import { useAuth } from "../hooks/useAuth";
@@ -187,24 +186,16 @@ export default function TwoFactorAuth() {
 					/>
 
 					{/* 2FA Code input */}
-					<div className="space-y-3">
-						<label htmlFor="code" className="block text-base font-medium">
-							Verification Code
-						</label>
-						<Input
-							id="code"
-							type="text"
-							inputMode="numeric"
-							className="w-full rounded-md h-12 text-base px-4 border border-black"
-							value={code}
-							onChange={(e) => handleCodeChange(e.target.value)}
-							placeholder="Enter 6-digit code"
-							maxLength={6}
-							required
-							disabled={success}
-						/>
-					</div>
-
+				<FormInput
+					id="code"
+					label="Verification Code"
+					type="text"
+					value={code}
+					onChange={(e) => handleCodeChange(e.target.value)}
+					placeholder="Enter 6-digit code"
+					required
+					disabled={success}
+				/>
 					{/* Back link */}
 					<div className="flex justify-start">
 						<Link 
