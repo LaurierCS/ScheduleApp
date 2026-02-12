@@ -10,7 +10,7 @@ import {
 	ForgotPassword,
 } from '@/features/auth/components'
 import Dashboard from '@/features/dashboard/Dashboard'
-import JoinATeam from '@/features/candidate/JoinATeam'
+import JoinATeam from '@/features/candidate/components/JoinATeam'
 import CreateOrJoinTeam from '@/features/auth/CreateOrJoinTeam'
 import Availability from '@/features/dashboard/components/Availability'
 import { AuthProvider } from '@/provider/AuthProvider'
