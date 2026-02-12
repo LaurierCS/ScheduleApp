@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 
 interface AvailabilityData {
@@ -27,7 +26,7 @@ Checkbox.displayName = CheckboxPrimitive.Root.displayName;
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const TIME_SLOTS = ["8:00 am", "9:00 am", "10:00 am", "11:00 am", "12:00 pm", "1:00 pm", "2:00 pm", "3:00 pm", "4:00 pm", "5:00 pm", "6:00 pm", "7:00 pm", "8:00 pm", "9:00 pm", "10:00 pm", "11:00 pm"];
 
-export default function InterviewerAvailability() {
+export default function Availability() {
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 	const [availability, setAvailability] = useState<AvailabilityData>({});
 	const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -99,13 +98,10 @@ export default function InterviewerAvailability() {
 	const days = generateCalendarDays();
 
 	return (
-		<div className="min-h-screen p-8 pt-20">
-			<div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-				<Link to="/admin/dashboard2" className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors">
-					<ArrowLeft size={20} />
-					<span>Back to Dashboard</span>
-				</Link>
+		<div className="max-w-4xl space-y-6">
+			<h1 className="text-3xl font-bold text-gray-900">Your Availability</h1>
 
+			<div className="bg-white p-6 rounded-lg shadow-sm">
 				<div className="mb-8 space-y-2">
 					<p className="text-gray-700">Please select all the times you're available to meet for an interview. We'll use this information to schedule your interview.</p>
 					<p className="text-gray-700">• Select a day, fill in available times, and then repeat process for all available days.</p>
@@ -144,25 +140,25 @@ export default function InterviewerAvailability() {
 						))}
 					</div>
 				</div>
-
-				{selectedDate && (
-					<div className="mb-8">
-						<label className="block text-sm font-medium text-gray-700 mb-4">Available times (select all that apply)</label>
-						<div className="grid grid-cols-2 gap-4">
-							{TIME_SLOTS.map((timeSlot) => (
-								<label key={timeSlot} className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-gray-50">
-									<Checkbox checked={isTimeSlotSelected(timeSlot)} onCheckedChange={(checked) => handleTimeSlotToggle(timeSlot, checked === true)} />
-									<span className="text-sm text-gray-700">{timeSlot}</span>
-								</label>
-							))}
-						</div>
-					</div>
-				)}
-
-				<button onClick={handleSubmit} disabled={Object.keys(availability).length === 0} className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-					Submit Availability
-				</button>
 			</div>
+
+			{selectedDate && (
+				<div className="bg-white p-6 rounded-lg shadow-sm">
+					<label className="block text-sm font-medium text-gray-700 mb-4">Available times (select all that apply)</label>
+					<div className="grid grid-cols-2 gap-4">
+						{TIME_SLOTS.map((timeSlot) => (
+							<label key={timeSlot} className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-gray-50">
+								<Checkbox checked={isTimeSlotSelected(timeSlot)} onCheckedChange={(checked) => handleTimeSlotToggle(timeSlot, checked === true)} />
+								<span className="text-sm text-gray-700">{timeSlot}</span>
+							</label>
+						))}
+					</div>
+				</div>
+			)}
+
+			<button onClick={handleSubmit} disabled={Object.keys(availability).length === 0} className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+				Submit Availability
+			</button>
 		</div>
 	);
 }
