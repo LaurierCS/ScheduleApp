@@ -1,6 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { UserRole } from '@/features/auth/services/authApi'
-import ProtectedRoute from '@/utils/ProtectedRoute'
 import StatusDashboard from '@/ui/StatusDashboard'
 import Welcome from '@/ui/Welcome'
 import {
@@ -11,14 +9,11 @@ import {
 	NewPassword,
 	ForgotPassword,
 } from '@/features/auth/components'
-import AdminDashboard2 from '@/features/admin/AdminDashboard'
+import Dashboard from '@/features/dashboard/Dashboard'
 import JoinATeam from '@/features/candidate/JoinATeam'
 import CreateOrJoinTeam from '@/features/auth/CreateOrJoinTeam'
-import InterviewerAvailability from '@/features/interviewer/InterviewerAvailability'
+import Availability from '@/features/dashboard/components/Availability'
 import { AuthProvider } from '@/provider/AuthProvider'
-import InterviewerDashboard from '@/features/dashboard/InterviewerDashboard'
-import CandidateDashboard from '@/features/candidate/CandidateDashboard'
-import AdminSettings from './features/admin/AdminSettings'
 
 function App() {
 	return (
@@ -35,13 +30,10 @@ function App() {
 					<Route path="/2fa" element={<TwoFactorAuth />} />
 					<Route path="/new-password" element={<NewPassword />} />
 					<Route path="/forgot-password" element={<ForgotPassword />} />
-					<Route path="/interviewer-availability" element={<InterviewerAvailability />} />
-					<Route path="/admin-settings" element={<AdminSettings />} />
-					
-					{/* Role-Based Dashboards - Protected */}
-					<Route path="/admin/dashboard" element={<ProtectedRoute requiredRole={UserRole.ADMIN}><AdminDashboard2 /></ProtectedRoute>} />
-					<Route path="/interviewer/dashboard" element={<ProtectedRoute requiredRole={UserRole.INTERVIEWER}><InterviewerDashboard /></ProtectedRoute>} />
-					<Route path="/candidate/dashboard" element={<ProtectedRoute requiredRole={UserRole.CANDIDATE}><CandidateDashboard /></ProtectedRoute>} />
+					<Route path="/interviewer-availability" element={<Availability />} />
+
+					{/* Dashboard */}
+					<Route path="/dashboard" element={<Dashboard />} />
 					
 					{/* Catch-all - must be last */}
 					<Route path="*" element={<Navigate to="/" replace />} />
