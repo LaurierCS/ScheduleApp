@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { AuthContext } from "@/features/auth/services/AuthContext";
 import { authenticatedFetch } from "@/features/auth/utils/authClient";
-import { combineDateAndTime, toISOTimestamp, formatDisplayDateOnly } from "@/utils/timezone";
+import { combineDateAndTime, toISOTimestamp } from "@/utils/timezone";
 
 interface AvailabilityData {
 	[dateKey: string]: string[];
@@ -138,7 +138,7 @@ export default function Availability() {
 			}
 
 			// Submit each availability slot
-			const results = await Promise.all(
+			await Promise.all(
 				availabilitySlots.map(async (slot) => {
 					const response = await authenticatedFetch("/availability", {
 						method: "POST",
