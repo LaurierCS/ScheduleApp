@@ -1,7 +1,10 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Check } from "lucide-react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { AuthContext } from "@/features/auth/services/AuthContext";
+import { authenticatedFetch } from "@/features/auth/utils/authClient";
+import { combineDateAndTime, toISOTimestamp, formatDisplayDateOnly } from "@/utils/timezone";
 
 interface AvailabilityData {
 	[dateKey: string]: string[];
@@ -27,10 +30,16 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 const TIME_SLOTS = ["8:00 am", "9:00 am", "10:00 am", "11:00 am", "12:00 pm", "1:00 pm", "2:00 pm", "3:00 pm", "4:00 pm", "5:00 pm", "6:00 pm", "7:00 pm", "8:00 pm", "9:00 pm", "10:00 pm", "11:00 pm"];
 
 export default function Availability() {
+	const auth = useContext(AuthContext);
+	const user = auth?.user;
+
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 	const [availability, setAvailability] = useState<AvailabilityData>({});
 	const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
 	const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [submitSuccess, setSubmitSuccess] = useState(false);
 
 	const formatDateKey = (date: Date): string => {
 		const year = date.getFullYear();
@@ -91,8 +100,72 @@ export default function Availability() {
 	};
 
 	const handleSubmit = async () => {
-		console.log("Submitting availability:", availability);
-		alert("Availability submitted successfully!");
+		// Check if user has a team
+		if (!user?.teamId) {
+			setSubmitError("You must join a team before submitting availability.");
+			return;
+		}
+
+		if (Object.keys(availability).length === 0) {
+			setSubmitError("Please select at least one time slot.");
+			return;
+		}
+
+		setIsSubmitting(true);
+		setSubmitError(null);
+		setSubmitSuccess(false);
+
+		try {
+			// Transform availability data to API format
+			const availabilitySlots: Array<{ teamId: string; startTime: string; endTime: string; type: string }> = [];
+
+			for (const [dateKey, timeSlots] of Object.entries(availability)) {
+				const date = new Date(dateKey);
+
+				for (const timeSlot of timeSlots) {
+					const startDateTime = combineDateAndTime(date, timeSlot);
+					// Each slot is 1 hour
+					const endDateTime = new Date(startDateTime);
+					endDateTime.setHours(endDateTime.getHours() + 1);
+
+					availabilitySlots.push({
+						teamId: user.teamId,
+						startTime: toISOTimestamp(startDateTime),
+						endTime: toISOTimestamp(endDateTime),
+						type: "one-time",
+					});
+				}
+			}
+
+			// Submit each availability slot
+			const results = await Promise.all(
+				availabilitySlots.map(async (slot) => {
+					const response = await authenticatedFetch("/availability", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(slot),
+					});
+
+					if (!response.ok) {
+						const errorData = await response.json().catch(() => ({ message: "Failed to submit availability" }));
+						throw new Error(errorData.message || `Failed to submit slot at ${slot.startTime}`);
+					}
+
+					return response.json();
+				})
+			);
+
+			setSubmitSuccess(true);
+			// Clear availability after successful submission
+			setAvailability({});
+			setSelectedDate(null);
+		} catch (err) {
+			setSubmitError(err instanceof Error ? err.message : "Failed to submit availability. Please try again.");
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	const days = generateCalendarDays();
@@ -156,10 +229,26 @@ export default function Availability() {
 				</div>
 			)}
 
-			<button onClick={handleSubmit} disabled={Object.keys(availability).length === 0} className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-				Submit Availability
-			</button>
-		</div>
-	);
+		{submitError && (
+			<div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+				<p className="text-red-700">{submitError}</p>
+			</div>
+		)}
+
+		{submitSuccess && (
+			<div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+				<p className="text-green-700">Availability submitted successfully!</p>
+			</div>
+		)}
+
+		<button
+			onClick={handleSubmit}
+			disabled={Object.keys(availability).length === 0 || isSubmitting || !user?.teamId}
+			className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+		>
+			{isSubmitting ? "Submitting..." : "Submit Availability"}
+		</button>
+	</div>
+);
 }
 
