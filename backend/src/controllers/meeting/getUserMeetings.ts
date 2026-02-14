@@ -27,7 +27,8 @@ export async function getUserMeetings(req: AuthRequest, res: Response, next: Nex
         if (currentUserId === targetUserId) {
             // Determine the user's role to fetch appropriate meetings
             if (currentUserRole === UserRole.INTERVIEWER) {
-                const meetings = await Meeting.find({ interviewerIds: targetUserId });
+                const meetings = await Meeting.find({ interviewerIds: targetUserId })
+                    .populate('interviewerIds', 'name email');
                 return ApiResponseUtil.success(res, meetings, 'Meetings retrieved successfully');
             } else {
                 // Candidates and admins
@@ -36,7 +37,8 @@ export async function getUserMeetings(req: AuthRequest, res: Response, next: Nex
                         { candidateId: targetUserId },
                         { interviewerIds: targetUserId }
                     ]
-                });
+                })
+                    .populate('interviewerIds', 'name email');
                 return ApiResponseUtil.success(res, meetings, 'Meetings retrieved successfully');
             }
         }
@@ -64,7 +66,8 @@ export async function getUserMeetings(req: AuthRequest, res: Response, next: Nex
         // Fetch meetings based on target user's role
         const targetUserRole = targetUser.role || UserRole.CANDIDATE;
         if (targetUserRole === UserRole.INTERVIEWER) {
-            const meetings = await Meeting.find({ interviewerIds: targetUserId });
+            const meetings = await Meeting.find({ interviewerIds: targetUserId })
+                .populate('interviewerIds', 'name email');
             return ApiResponseUtil.success(res, meetings, 'Meetings retrieved successfully');
         } else {
             const meetings = await Meeting.find({
@@ -72,7 +75,8 @@ export async function getUserMeetings(req: AuthRequest, res: Response, next: Nex
                     { candidateId: targetUserId },
                     { interviewerIds: targetUserId }
                 ]
-            });
+            })
+                .populate('interviewerIds', 'name email');
             return ApiResponseUtil.success(res, meetings, 'Meetings retrieved successfully');
         }
     } catch (error) {
