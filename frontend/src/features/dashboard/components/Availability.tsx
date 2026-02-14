@@ -132,7 +132,7 @@ export default function Availability() {
 						teamId: user.teamId,
 						startTime: toISOTimestamp(startDateTime),
 						endTime: toISOTimestamp(endDateTime),
-						type: "one-time",
+						type: "available",
 					});
 				}
 			}
@@ -228,6 +228,15 @@ export default function Availability() {
 					</div>
 				</div>
 			)}
+
+		{!user?.teamId && (
+			<div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+				<p className="text-yellow-800">
+					<strong>Cannot submit availability:</strong> You must join a team first. 
+					Please contact your moderator or check your email for a team invitation.
+				</p>
+			</div>
+		)}
 
 		{submitError && (
 			<div className="p-4 bg-red-50 border border-red-200 rounded-lg">
