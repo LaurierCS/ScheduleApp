@@ -17,7 +17,7 @@ export default function DashboardHeader() {
 	// Show loading state
 	if (isLoading || !user) {
 		return (
-			<header className="flex justify-end mb-8 bg-white p-6 rounded-lg shadow-md">
+			<header className="flex justify-end bg-white px-8 py-4 shadow-lg border-b border-gray-100">
 				<div className="flex items-center space-x-2 p-2 pl-5 pr-10 bg-white rounded-full shadow-sm border border-gray-200">
 					<div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse" />
 					<div className="flex flex-col text-sm space-y-1">
@@ -30,7 +30,7 @@ export default function DashboardHeader() {
 	}
 
 	return (
-		<header className="flex justify-end mb-8 bg-white p-6 rounded-lg shadow-md">
+		<header className="flex justify-end bg-white px-8 py-4 shadow-lg border-b border-gray-100">
 			<div className="flex items-center space-x-2 p-2 pl-5 pr-10 bg-white rounded-full shadow-sm border border-gray-200">
 				{user.profileImage ? (
 					<img

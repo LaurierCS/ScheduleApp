@@ -13,6 +13,7 @@ import Dashboard from '@/features/dashboard/Dashboard'
 import JoinATeam from '@/features/candidate/components/JoinATeam'
 import CreateOrJoinTeam from '@/features/auth/CreateOrJoinTeam'
 import Availability from '@/features/dashboard/components/Availability'
+import ProtectedRoute from '@/utils/ProtectedRoute'
 import { AuthProvider } from '@/provider/AuthProvider'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
 		<AuthProvider>
 			<Router>
 				<Routes>
+					{/* ===== PUBLIC ROUTES ===== */}
 					<Route path="/" element={<Welcome />} />
 					<Route path="/status" element={<StatusDashboard />} />
 					<Route path="/signup" element={<SignupForm />} />
@@ -30,11 +32,25 @@ function App() {
 					<Route path="/2fa" element={<TwoFactorAuth />} />
 					<Route path="/new-password" element={<NewPassword />} />
 					<Route path="/forgot-password" element={<ForgotPassword />} />
-					<Route path="/interviewer-availability" element={<Availability />} />
 
-					{/* Dashboard */}
-					<Route path="/dashboard" element={<Dashboard />} />
-					
+					{/* ===== PROTECTED ROUTES ===== */}
+					<Route 
+						path="/dashboard" 
+						element={
+							<ProtectedRoute>
+								<Dashboard />
+							</ProtectedRoute>
+						} 
+					/>
+					<Route 
+						path="/interviewer-availability" 
+						element={
+							<ProtectedRoute>
+								<Availability />
+							</ProtectedRoute>
+						} 
+					/>
+
 					{/* Catch-all - must be last */}
 					<Route path="*" element={<Navigate to="/" replace />} />
 				</Routes>
