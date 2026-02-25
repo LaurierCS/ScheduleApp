@@ -6,18 +6,12 @@ import { UserRole } from '../features/auth/services/authApi';
 
 /**
  * Get the dashboard path for a specific user role
+ * All authenticated users go to the same /dashboard route
+ * The Dashboard component handles role-specific content rendering
  */
-export const getDashboardPath = (role: UserRole): string => {
-  switch (role) {
-    case UserRole.ADMIN:
-      return '/admin/dashboard';
-    case UserRole.INTERVIEWER:
-      return '/interviewer/dashboard';
-    case UserRole.CANDIDATE:
-      return '/candidate/dashboard';
-    default:
-      return '/home'; // Fallback
-  }
+export const getDashboardPath = (): string => {
+  // All roles go to the same dashboard - role-specific content is handled by the Dashboard component
+  return '/dashboard';
 };
 
 /**
