@@ -27,7 +27,6 @@ export default function DashboardSidebar({ activePage = "dashboard", onPageChang
 
 	return (
 		<aside className="w-64 bg-white p-6 shadow-md flex flex-col">
-			<div className="mb-10 text-2xl font-bold text-gray-800">LOGO</div>
 			<nav className="space-y-4">
 				<button
 					onClick={handleAvailabilityClick}

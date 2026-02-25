@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const Welcome = () => {
   return (
-    <div className="min-h-screen flex flex-col pt-20">
+    <div className="min-h-screen flex flex-col">
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row gap-0 items-center w-full">
         {/* Left Side - Marketing */}
