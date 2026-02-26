@@ -80,7 +80,7 @@ export default function TwoFactorAuth() {
 				try {
 					const userData = await getCurrentUser();
 					console.log('👤 User data fetched:', userData);
-					const dashboardPath = getDashboardPath(userData.role);
+				const dashboardPath = getDashboardPath();
 					console.log('🎯 Dashboard path determined:', dashboardPath);
 
 				// Clear signup-related session data
