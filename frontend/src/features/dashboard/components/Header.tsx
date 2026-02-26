@@ -2,6 +2,7 @@ import { User } from "lucide-react";
 import { useContext } from "react";
 import { AuthContext } from "@/features/auth/services/AuthContext";
 import { UserRole } from "@/features/auth/types/authTypes";
+import LcsLogo from "@/assets/LCS_Icon_Black_SVG.svg";
 
 export default function DashboardHeader() {
 	const auth = useContext(AuthContext);
@@ -17,7 +18,8 @@ export default function DashboardHeader() {
 	// Show loading state
 	if (isLoading || !user) {
 		return (
-			<header className="flex justify-end bg-white px-8 py-4 shadow-lg border-b border-gray-100">
+			<header className="flex justify-between items-center bg-white px-8 py-4 shadow-lg border-b border-gray-100">
+				<img src={LcsLogo} alt="LCS Logo" className="h-16 w-auto" />
 				<div className="flex items-center space-x-2 p-2 pl-5 pr-10 bg-white rounded-full shadow-sm border border-gray-200">
 					<div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse" />
 					<div className="flex flex-col text-sm space-y-1">
@@ -30,7 +32,8 @@ export default function DashboardHeader() {
 	}
 
 	return (
-		<header className="flex justify-end bg-white px-8 py-4 shadow-lg border-b border-gray-100">
+		<header className="flex justify-between items-center bg-white px-8 py-4 shadow-lg border-b border-gray-100">
+			<img src={LcsLogo} alt="LCS Logo" className="h-16 w-auto" />
 			<div className="flex items-center space-x-2 p-2 pl-5 pr-10 bg-white rounded-full shadow-sm border border-gray-200">
 				{user.profileImage ? (
 					<img
