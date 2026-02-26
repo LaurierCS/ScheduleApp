@@ -44,7 +44,7 @@ export default function SigninForm() {
 		
 		try {
 			const loggedInUser = await login(email, password);
-			const dashboardPath = getDashboardPath(loggedInUser.role);
+			const dashboardPath = getDashboardPath();
 			
 			console.log(`✅ Login successful!`);
 			console.log(`   User: ${loggedInUser.name}`);
