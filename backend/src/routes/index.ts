@@ -14,6 +14,7 @@ import groupRoutes from './groupRoutes';
 import availablilityRoutes from './availabilityRoutes';
 import meetingRoutes from './meetingRoutes';
 import scheduleRoutes from './scheduleRoutes';
+import profileRoutes from './profileRoutes';
 
 const router = Router();
 
@@ -38,7 +39,8 @@ router.get('/', (req, res) => {
       '/groups': 'group management endpoints',
       '/availability': 'availability management endpoints',
       '/meetings': 'meeting management endpoints',
-      '/schedules': 'schedule management endpoints'
+      '/schedules': 'schedule management endpoints',
+      '/profile': 'user profile management endpoints'
     }
   });
 });
@@ -141,5 +143,6 @@ router.use('/groups', groupRoutes);
 router.use('/availability', availablilityRoutes);
 router.use('/meetings', meetingRoutes);
 router.use('/schedules', scheduleRoutes);
+router.use('/profile', profileRoutes);
 
 export default router; 
