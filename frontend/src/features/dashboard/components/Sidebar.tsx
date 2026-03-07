@@ -1,4 +1,4 @@
-import { CalendarDays, LayoutDashboard, Users, Settings, Plus } from "lucide-react";
+import { CalendarDays, LayoutDashboard, Users, Settings, Plus, UserPlus } from "lucide-react";
 import { useContext } from "react";
 import { AuthContext } from "@/features/auth/services/AuthContext";
 import { UserRole } from "@/features/auth/types/authTypes";
@@ -80,11 +80,25 @@ export default function DashboardSidebar({ activePage = "dashboard", onPageChang
 							<span>Admin Settings</span>
 						</button>
 
+						<button
+							onClick={() => onPageChange?.("add-interviewers")}
+							className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+								activePage === "add-interviewers"
+									? "bg-blue-100 text-blue-700 font-semibold"
+									: "text-gray-600 hover:bg-gray-200"
+							}`}
+						>
+							<UserPlus size={20} />
+							<span>Add Interviewers</span>
+						</button>
+
 						{/* Schedule Interviews Button */}
 						<button className="mt-auto flex items-center justify-center space-x-2 bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors">
 							<Plus size={20} className="text-white" />
 							<span>Schedule Interviews</span>
 						</button>
+
+						
 					</>
 				)}
 			</nav>
