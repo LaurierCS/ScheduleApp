@@ -4,12 +4,16 @@ import { UserRole } from '../models/user';
 import {
     getUserAvailability,
     createAvailability,
+    createAvailabilityBulk,
     getAvailabilityById,
     updateAvailability,
     deleteAvailability,
     getTeamAvailability,
+    getGroupAvailability,
     findMatches,
+    exportAvailabilityIcs,
 } from '../controllers/availability';
+import rateLimiter from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -28,7 +32,13 @@ router.get('/', authenticate, getUserAvailability);
  * @permissions Only Interviewers and Candidates can submit their availability
  * @body    {teamId?, startTime, endTime, type?, recurring?, recurrencePattern?, timezone?}
  */
-router.post('/', authenticate, authorize(UserRole.INTERVIEWER, UserRole.CANDIDATE), createAvailability);
+router.post('/', authenticate, rateLimiter(), authorize(UserRole.INTERVIEWER, UserRole.CANDIDATE), createAvailability);
+
+/**
+ * @route   POST /api/availability/bulk
+ * @desc    Bulk create availability (array)
+ */
+router.post('/bulk', authenticate, rateLimiter(), authorize(UserRole.INTERVIEWER, UserRole.CANDIDATE), createAvailabilityBulk);
 
 /**
  * @route   GET /api/availability/:id
@@ -45,7 +55,7 @@ router.get('/:id', authenticate, getAvailabilityById);
  * @permissions Only the availability owner can update it
  * @body    {teamId?, startTime?, endTime?, type?, recurring?, recurrencePattern?, timezone?}
  */
-router.put('/:id', authenticate, updateAvailability);
+router.put('/:id', authenticate, rateLimiter(), updateAvailability);
 
 /**
  * @route   DELETE /api/availability/:id
@@ -53,7 +63,7 @@ router.put('/:id', authenticate, updateAvailability);
  * @access  Private (Owner only)
  * @permissions Only the availability owner can delete it
  */
-router.delete('/:id', authenticate, deleteAvailability);
+router.delete('/:id', authenticate, rateLimiter(), deleteAvailability);
 
 /**
  * @route   GET /api/availability/team/:teamId
@@ -63,6 +73,18 @@ router.delete('/:id', authenticate, deleteAvailability);
  * @query   {startTime, endTime, type?}
  */
 router.get('/team/:teamId', authenticate, getTeamAvailability);
+
+/**
+ * @route   GET /api/availability/group/:groupId
+ * @desc    Get availability for a group within a date range
+ */
+router.get('/group/:groupId', authenticate, getGroupAvailability);
+
+/**
+ * @route   GET /api/availability/ics
+ * @desc    Export availability to iCalendar (.ics)
+ */
+router.get('/ics', authenticate, exportAvailabilityIcs);
 
 /**
  * @route   GET /api/availability/matches

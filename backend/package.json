@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "test": "ts-node src/tests/availabilityValidatorsTest.ts"
   },
   "keywords": [
     "schedule",

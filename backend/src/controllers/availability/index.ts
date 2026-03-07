@@ -1,7 +1,10 @@
 export { getUserAvailability } from './getUserAvailability';
 export { createAvailability } from './createAvailability';
+export { createAvailabilityBulk } from './createAvailabilityBulk';
 export { getAvailabilityById } from './getAvailabilityById';
 export { updateAvailability } from './updateAvailability';
 export { deleteAvailability } from './deleteAvailability';
 export { getTeamAvailability } from './getTeamAvailability';
+export { getGroupAvailability } from './getGroupAvailability';
 export { findMatches } from './findMatches';
+export { exportAvailabilityIcs } from './exportAvailabilityIcs';
