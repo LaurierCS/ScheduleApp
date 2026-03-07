@@ -4,4 +4,6 @@ export { getAvailabilityById } from './getAvailabilityById';
 export { updateAvailability } from './updateAvailability';
 export { deleteAvailability } from './deleteAvailability';
 export { getTeamAvailability } from './getTeamAvailability';
+export { getGroupAvailability } from './getGroupAvailability';
+export { bulkCreateAvailability } from './bulkCreateAvailability';
 export { findMatches } from './findMatches';

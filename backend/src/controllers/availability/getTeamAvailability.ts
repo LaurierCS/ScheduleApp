@@ -3,6 +3,7 @@ import { ApiResponseUtil } from '../../utils/apiResponse';
 import { AuthRequest } from '../../middleware/authMiddleware';
 import { PermissionChecker } from '../../utils/permissions';
 import Availability, { AvailabilityType } from '../../models/availability';
+import { convertToICal } from '../../utils/availabilityHelpers';
 
 /**
  * @route   GET /api/availability/team/:teamId
@@ -48,6 +49,12 @@ export async function getTeamAvailability(req: AuthRequest, res: Response, next:
             end,
             availabilityType
         );
+
+        if (req.query.format === 'ical') {
+            const ics = convertToICal(availabilities as any[]);
+            res.type('text/calendar');
+            return res.send(ics);
+        }
 
         ApiResponseUtil.success(res, availabilities, 'Team availability retrieved successfully');
     } catch (error) {
