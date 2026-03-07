@@ -12,6 +12,7 @@ import {
     removeGroupMember,
     groupErrorHandler,
 } from '../controllers/group';
+import { getGroupAvailability } from '../controllers/availability';
 
 const router = Router();
 
@@ -62,6 +63,13 @@ router.delete('/:id', authenticate, authorize(UserRole.ADMIN), deleteGroup);
  * @permissions Users can view members of groups in their team
  */
 router.get('/:id/members', authenticate, getGroupMembers);
+
+/**
+ * @route   GET /api/groups/:id/availability
+ * @desc    Get availability for a group of users
+ * @access  Private (Team Members)
+ */
+router.get('/:id/availability', authenticate, getGroupAvailability);
 
 /**
  * @route   POST /api/groups/:id/members

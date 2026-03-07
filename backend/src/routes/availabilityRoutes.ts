@@ -8,8 +8,11 @@ import {
     updateAvailability,
     deleteAvailability,
     getTeamAvailability,
+    getGroupAvailability,
+    bulkCreateAvailability,
     findMatches,
 } from '../controllers/availability';
+import { availabilityRateLimiter } from '../middleware/authMiddleware';
 
 const router = Router();
 
@@ -28,7 +31,8 @@ router.get('/', authenticate, getUserAvailability);
  * @permissions Only Interviewers and Candidates can submit their availability
  * @body    {teamId?, startTime, endTime, type?, recurring?, recurrencePattern?, timezone?}
  */
-router.post('/', authenticate, authorize(UserRole.INTERVIEWER, UserRole.CANDIDATE), createAvailability);
+// rate limit submissions to prevent abuse
+router.post('/', authenticate, availabilityRateLimiter, authorize(UserRole.INTERVIEWER, UserRole.CANDIDATE), createAvailability);
 
 /**
  * @route   GET /api/availability/:id
@@ -45,7 +49,7 @@ router.get('/:id', authenticate, getAvailabilityById);
  * @permissions Only the availability owner can update it
  * @body    {teamId?, startTime?, endTime?, type?, recurring?, recurrencePattern?, timezone?}
  */
-router.put('/:id', authenticate, updateAvailability);
+router.put('/:id', authenticate, availabilityRateLimiter, updateAvailability);
 
 /**
  * @route   DELETE /api/availability/:id
@@ -62,6 +66,8 @@ router.delete('/:id', authenticate, deleteAvailability);
  * @permissions Team members can view their team's availability
  * @query   {startTime, endTime, type?}
  */
+router.post('/bulk', authenticate, availabilityRateLimiter, authorize(UserRole.INTERVIEWER, UserRole.CANDIDATE), bulkCreateAvailability);
+
 router.get('/team/:teamId', authenticate, getTeamAvailability);
 
 /**

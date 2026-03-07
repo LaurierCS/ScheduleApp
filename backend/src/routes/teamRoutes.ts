@@ -25,6 +25,7 @@ import {
     getTeamCandidates,
     removeTeamCandidates,
 } from '../controllers/team';
+import { getTeamAvailability } from '../controllers/availability';
 
 const router = Router();
 
@@ -155,6 +156,13 @@ router.put('/:id/settings', authenticate, asyncHandler(updateTeamSettings));
  * @permissions Team members can view team interviewers
  */
 router.get('/:id/interviewers', authenticate, asyncHandler(getTeamInterviewers));
+
+/**
+ * @route   GET /api/teams/:id/availability
+ * @desc    Retrieve team availability (leverages availability controller)
+ * @access  Private (Team Members)
+ */
+router.get('/:id/availability', authenticate, getTeamAvailability);
 
 /* ------------------------ New User-Team Association Routes ---------------------- */
 
