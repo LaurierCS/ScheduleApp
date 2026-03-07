@@ -106,7 +106,8 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
  * @returns Promise with user data
  */
 export const getCurrentUser = async (): Promise<User> => {
-  const response = await authenticatedFetch('/auth/me', {
+  // prefer user-specific endpoint; `/auth/me` still exists as an alias on server
+  const response = await authenticatedFetch('/users/profile', {
     method: 'GET',
   });
 
@@ -171,6 +172,44 @@ export const logout = async (): Promise<void> => {
     clearTokens();
   }
 };
+// ============================================================================
+// additional user/profile related helpers (not used yet – TODO integrate UI)
+// ============================================================================
+
+export const updateProfile = async (data: Partial<{ name: string; email: string; phone: string; bio: string; role: string; }>) => {
+  const response = await authenticatedFetch('/users/profile', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update profile');
+  return await response.json();
+};
+
+export const changePassword = async (data: { currentPassword: string; newPassword: string; confirmPassword: string; }) => {
+  const response = await authenticatedFetch('/users/password', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to change password');
+  return await response.json();
+};
+
+export const getPreferences = async () => {
+  const response = await authenticatedFetch('/users/preferences', { method: 'GET' });
+  if (!response.ok) throw new Error('Failed to fetch preferences');
+  return await response.json();
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const updatePreferences = async (data: any) => {
+  const response = await authenticatedFetch('/users/preferences', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update preferences');
+  return await response.json();
+};
+
 // ============================================================================
 // DEFAULT EXPORT
 // ============================================================================
@@ -316,6 +355,10 @@ const authApi = {
   logout,
   getCurrentUser,
   refreshAccessToken,
+  updateProfile,
+  changePassword,
+  getPreferences,
+  updatePreferences,
   resetPassword,
   verifyPasswordResetCode,
   forgotPassword,

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import User, { UserRole } from '../../models/user';
 import { AuthenticationError } from '../../errors';
+import { profileUpdateSchema } from '../../validators/userValidators';
 
 /**
  * @route   PUT /api/users/profile
@@ -8,36 +9,35 @@ import { AuthenticationError } from '../../errors';
  * @access  Private (requires authentication)
  * @permissions Any authenticated user can update their own profile
  */
+
 export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // Only allow these fields
-        const { name, phone, bio, role } = req.body;
-
+        // parse & sanitize input via Zod schema (trimming, type coercion, basic rules)
+        // this replaces the previous manual logic and helps keep controllers
+        // focused on business rules rather than validation mechanics.
+        const data = profileUpdateSchema.parse(req.body);
         const updates: Record<string, any> = {};
 
-        if (name !== undefined) updates.name = String(name).trim();
-        if (phone !== undefined) updates.phone = phone ? String(phone).trim() : undefined;
-        if (bio !== undefined) updates.bio = bio ? String(bio).trim() : undefined;
+        if (data.name !== undefined) updates.name = data.name;
+        if (data.phone !== undefined) updates.phone = data.phone || undefined;
+        if (data.bio !== undefined) updates.bio = data.bio || undefined;
+        if (data.role !== undefined) updates.role = data.role;
 
-        // Role validation (only allow values in your enum)
-        if (role !== undefined) {
-            const r = String(role).toLowerCase();
-            const allowed = Object.values(UserRole);
-            if (!allowed.includes(r as UserRole)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Invalid role. Allowed roles: ${allowed.join(", ")}`
-                });
+        // Email change must be unique
+        if (data.email !== undefined) {
+            const email = data.email.toLowerCase();
+            const existing = await User.findOne({ email, _id: { $ne: req.user!._id } });
+            if (existing) {
+                return res.status(400).json({ success: false, message: 'Email is already in use' });
             }
-            updates.role = r;
+            updates.email = email;
         }
 
-        // Optional: extra validation
-        if (updates.name !== undefined && updates.name.length === 0) {
-            return res.status(400).json({ success: false, message: "Name cannot be empty" });
-        }
-        if (updates.bio !== undefined && updates.bio.length > 500) {
-            return res.status(400).json({ success: false, message: "Bio must be 500 characters or less" });
+        if (Object.keys(updates).length === 0) {
+            // nothing to update, just return current profile
+            const current = await User.findById(req.user!._id).select('-password');
+            if (!current) throw new AuthenticationError('User not found');
+            return res.json({ success: true, data: { user: current } });
         }
 
         const user = await User.findByIdAndUpdate(

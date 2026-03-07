@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../../models/user';
 import { AuthenticationError } from '../../errors';
+import { preferencesSchema } from '../../validators/userValidators';
 
 /**
  * @route   GET /api/users/preferences
@@ -36,61 +37,25 @@ export const getPreferences = async (req: Request, res: Response, next: NextFunc
  */
 export const updatePreferences = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { timezone, notifications } = req.body;
+        // preferencesSchema handles trimming and basic validation
+        const data = preferencesSchema.parse(req.body);
         const updates: Record<string, any> = {};
 
-        if (timezone !== undefined) {
-            const tz = String(timezone).trim();
-            if (!tz) {
-                return res.status(400).json({
-                    success: false,
-                    message: "timezone cannot be empty",
-                });
-            }
-            updates["preferences.timezone"] = tz;
+        if (data.timezone !== undefined) {
+            updates['preferences.timezone'] = data.timezone;
         }
-
-        // notifications (nested)
-        if (notifications !== undefined) {
-            if (typeof notifications !== "object" || notifications === null) {
-                return res.status(400).json({
-                    success: false,
-                    message: "notifications must be an object",
-                });
+        if (data.notifications !== undefined) {
+            if (data.notifications.email !== undefined) {
+                updates['preferences.notifications.email'] = data.notifications.email;
             }
-
-            if (notifications.email !== undefined) {
-                if (typeof notifications.email !== "boolean") {
-                    return res.status(400).json({
-                        success: false,
-                        message: "notifications.email must be a boolean",
-                    });
-                }
-                updates["preferences.notifications.email"] = notifications.email;
+            if (data.notifications.sms !== undefined) {
+                updates['preferences.notifications.sms'] = data.notifications.sms;
             }
-
-            if (notifications.sms !== undefined) {
-                if (typeof notifications.sms !== "boolean") {
-                    return res.status(400).json({
-                        success: false,
-                        message: "notifications.sms must be a boolean",
-                    });
-                }
-                updates["preferences.notifications.sms"] = notifications.sms;
-            }
-
-            if (notifications.push !== undefined) {
-                if (typeof notifications.push !== "boolean") {
-                    return res.status(400).json({
-                        success: false,
-                        message: "notifications.push must be a boolean",
-                    });
-                }
-                updates["preferences.notifications.push"] = notifications.push;
+            if (data.notifications.push !== undefined) {
+                updates['preferences.notifications.push'] = data.notifications.push;
             }
         }
 
-        // Nothing valid provided
         if (Object.keys(updates).length === 0) {
             return res.status(400).json({
                 success: false,
