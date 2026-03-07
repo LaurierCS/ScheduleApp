@@ -56,26 +56,26 @@ export interface IUser extends Document {
     preferences: {
         timezone: string;
         notifications: {
-        email: boolean;
-        sms: boolean;
-        push: boolean;
+            email: boolean;
+            sms: boolean;
+            push: boolean;
         };
     };
 }
 const PreferencesSchema = new Schema(
-  {
-    timezone: {
-      type: String,
-      default: "America/Toronto",
-      trim: true,
+    {
+        timezone: {
+            type: String,
+            default: "America/Toronto",
+            trim: true,
+        },
+        notifications: {
+            email: { type: Boolean, default: true },
+            sms: { type: Boolean, default: false },
+            push: { type: Boolean, default: true },
+        },
     },
-    notifications: {
-      email: { type: Boolean, default: true },
-      sms: { type: Boolean, default: false },
-      push: { type: Boolean, default: true },
-    },
-  },
-  { _id: false }
+    { _id: false }
 );
 const UserSchema: Schema = new Schema(
     {
@@ -116,6 +116,9 @@ const UserSchema: Schema = new Schema(
                 ref: "Group"
             }
         ],
+        // TODO: profile image storage not yet implemented.  The field
+        // exists to store a URL or path; a multer/cloud upload route will
+        // populate this once the feature is added (#102).
         profileImage: {
             type: String,
         },
@@ -150,15 +153,15 @@ const UserSchema: Schema = new Schema(
             default: false,
         },
         emailVerificationCode: {
-        type: String,
+            type: String,
         },
         emailVerificationCodeExpiry: {
             type: Date,
         },
         bio: {
-        type: String,
-        trim: true,
-        maxlength: [500, "Bio too long"],
+            type: String,
+            trim: true,
+            maxlength: [500, "Bio too long"],
         },
         phone: {
             type: String,
@@ -166,7 +169,7 @@ const UserSchema: Schema = new Schema(
         },
         preferences: {
             type: PreferencesSchema,
-        default: () => ({}),
+            default: () => ({}),
         },
     },
     {

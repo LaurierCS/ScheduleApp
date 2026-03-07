@@ -54,6 +54,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       try {
         // Try to get current user info with the stored token
+        // NOTE: getCurrentUser currently hits `/users/profile` but the
+        // backend also supports `/auth/me` for compatibility.  We may
+        // want to harmonize this once the frontend has more profile
+        // features.
         const userData = await getCurrentUser();
         setUser(userData);
         setError(null);

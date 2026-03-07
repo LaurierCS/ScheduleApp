@@ -10,6 +10,8 @@ import {
     updateProfile,
     getPreferences,
     updatePreferences,
+    changePassword,
+    getProfile,
 } from '../controllers/user';
 
 const router = Router();
@@ -20,7 +22,48 @@ const router = Router();
  * @access  Private (Admin and Interviewer)
  * @permissions Admins and interviewers can view all users in their team
  */
+// public interfaces that don't take an ID must appear before the `/:id` routes
 router.get('/', authenticate, authorize(UserRole.ADMIN, UserRole.INTERVIEWER), getUsers);
+
+/**
+ * @route   GET /api/users/preferences
+ * @desc    Get authenticated user's preferences
+ * @access  Private (requires authentication)
+ * @permissions Any authenticated user can view their own preferences
+ */
+router.get('/preferences', authenticate, getPreferences);
+
+/**
+ * @route   PUT /api/users/preferences
+ * @desc    Update authenticated user's preferences (timezone, notifications)
+ * @access  Private (requires authentication)
+ * @permissions Any authenticated user can update their own preferences
+ */
+router.put('/preferences', authenticate, updatePreferences);
+
+/**
+ * @route   GET /api/users/profile
+ * @desc    Get current user's profile (alias for /auth/me)
+ * @access  Private
+ */
+router.get('/profile', authenticate, getProfile);
+
+/**
+ * @route   PUT /api/users/profile
+ * @desc    Update authenticated user's profile (name, email, phone, bio, role)
+ * @access  Private
+ */
+router.put('/profile', authenticate, updateProfile);
+
+/**
+ * @route   PUT /api/users/password
+ * @desc    Change current user's password (requires current password)
+ * @access  Private
+ */
+router.put('/password', authenticate, changePassword);
+
+// TODO: implement profile image upload using multer/cloud storage
+// router.post('/profile/image', authenticate, uploadProfileImage);
 
 /**
  * @route   POST /api/users
@@ -54,28 +97,5 @@ router.put('/:id', authenticate, updateUser);
  */
 router.delete('/:id', authenticate, deleteUser);
 
-/**
- * @route   PUT /api/users/profile
- * @desc    Update authenticated user's profile (name, phone, bio, role)
- * @access  Private (requires authentication)
- * @permissions Any authenticated user can update their own profile
- */
-router.put('/profile', authenticate, updateProfile);
-
-/**
- * @route   GET /api/users/preferences
- * @desc    Get authenticated user's preferences
- * @access  Private (requires authentication)
- * @permissions Any authenticated user can view their own preferences
- */
-router.get('/preferences', authenticate, getPreferences);
-
-/**
- * @route   PUT /api/users/preferences
- * @desc    Update authenticated user's preferences (timezone, notifications)
- * @access  Private (requires authentication)
- * @permissions Any authenticated user can update their own preferences
- */
-router.put('/preferences', authenticate, updatePreferences);
 
 export default router;

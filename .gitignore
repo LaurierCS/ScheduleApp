@@ -40,3 +40,6 @@ pnpm-debug.log*
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# misc
+.github/copilot-*.md
