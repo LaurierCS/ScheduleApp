@@ -55,3 +55,9 @@ export const CreateAvailabilitySchema = z.object({
  * Zod schema for updating availability
  */
 export const UpdateAvailabilitySchema = CreateAvailabilitySchema.partial();
+
+/**
+ * Schema for bulk availability submissions (array of single-slot payloads)
+ */
+export const BulkAvailabilitySchema = z.array(CreateAvailabilitySchema);
+
