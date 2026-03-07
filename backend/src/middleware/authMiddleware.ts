@@ -109,6 +109,57 @@ export const loginRateLimiter = async (
     }
 };
 
+
+// ---------------------------------------------------------------------------
+// Availability rate limiter
+// ---------------------------------------------------------------------------
+// Simple in-memory per-user throttle to guard against abuse of availability
+// endpoints. Limit applies to POST /api/availability, PUT /api/availability/:id,
+// and POST /api/availability/bulk. 10 requests per rolling minute.
+// NOTE: map is reset when server restarts; a distributed store would be
+// required for clustered deployments.
+
+interface RateEntry { count: number; reset: number; }
+const availabilityRateLimitMap = new Map<string, RateEntry>();
+const AVAILABILITY_WINDOW_MS = 60 * 1000; // 1 minute
+const AVAILABILITY_MAX = 10;
+
+export const availabilityRateLimiter = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        // require authentication for per-user tracking; if not yet attached,
+        // defer until authenticate middleware runs (this middleware should be
+        // placed after authenticate in routes)
+        const userId = (req as any).user?._id?.toString();
+        if (!userId) {
+            return next();
+        }
+
+        const now = Date.now();
+        let entry = availabilityRateLimitMap.get(userId);
+        if (!entry || now > entry.reset) {
+            entry = { count: 0, reset: now + AVAILABILITY_WINDOW_MS };
+            availabilityRateLimitMap.set(userId, entry);
+        }
+
+        if (entry.count >= AVAILABILITY_MAX) {
+            // Too many requests
+            return res.status(429).json({
+                success: false,
+                message: 'Too many availability submissions, please try again later'
+            });
+        }
+
+        entry.count += 1;
+        next();
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const authenticate = async (
     req: Request,
     res: Response,
