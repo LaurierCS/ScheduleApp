@@ -61,13 +61,19 @@ export default function DashboardSidebar({ activePage = "dashboard", onPageChang
 							<Users size={20} />
 							<span>Team Availability</span>
 						</a>
-						<a
-							href="#"
-							className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
+	
+						<button
+							onClick={() => onPageChange?.("candidate-availability")}
+							className={`w-full flex items-center text-left space-x-3 p-3 rounded-lg transition-colors ${
+								activePage === "candidate-availability"
+									? "bg-blue-100 text-blue-700 font-semibold"
+									: "text-gray-600 hover:bg-gray-200"
+							}`}
 						>
 							<Users size={20} />
 							<span>Candidate Availability</span>
-						</a>
+						</button>
+
 						<button
 							onClick={handleAdminSettingsClick}
 							className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${

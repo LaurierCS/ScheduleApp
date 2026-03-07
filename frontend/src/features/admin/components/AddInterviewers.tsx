@@ -183,7 +183,7 @@ export default function AddInterviewers({ departments = ["Engineering", "Design"
                     to { opacity: 1; transform: translateY(0); }
                 }
             `}</style>
-            <div className="bg-white rounded-xl border border-gray-200 p-8 h-full">
+            <div className="bg-white rounded-xl border border-gray-200 p-8 max-w-5xl">
                 <h1 className="text-3xl font-bold text-gray-900">Add Team Members</h1>
                 <p className="text-gray-500 text-base mt-1 mb-6">
                     Send invitations for interviewers and candidates to join your team!
