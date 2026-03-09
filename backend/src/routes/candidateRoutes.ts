@@ -6,6 +6,7 @@ import {
     createCandidate,
     getCandidateById,
     updateCandidate,
+    updateCandidateStatus,
     deleteCandidate,
     getCandidateAvailability,
 } from '../controllers/candidate';
@@ -59,5 +60,13 @@ router.delete('/:id', authenticate, authorize(UserRole.ADMIN), deleteCandidate);
  * @permissions Admins and interviewers can view team candidates' availability, candidates can view their own
  */
 router.get('/:id/availability', authenticate, getCandidateAvailability);
+
+/**
+ * @route   POST /api/candidates/:id/status
+ * @desc    Update candidate status
+ * @access  Private (Admin or Interviewer in same team)
+ * @permissions Admins and interviewers can change status of candidates within their team
+ */
+router.post('/:id/status', authenticate, authorize(UserRole.ADMIN, UserRole.INTERVIEWER), updateCandidateStatus);
 
 export default router;

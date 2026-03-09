@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { isValidObjectId } from 'mongoose';
+import { CandidateStatus } from '../models/candidate';
+
 
 /**
  * Zod schema for validating ObjectId strings
@@ -43,3 +45,11 @@ export const updateCandidateSchema = createCandidateSchema
         resumeUrl: z.string().optional(),
         program: z.string().optional(),
     });
+
+/**
+ * Schema for updating a candidate's status field
+ */
+export const updateCandidateStatusSchema = z.object({
+    status: z.enum(Object.values(CandidateStatus) as [CandidateStatus, ...CandidateStatus[]])
+});
+

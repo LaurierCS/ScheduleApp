@@ -1,11 +1,10 @@
 import { Response, NextFunction } from 'express';
-import { z } from 'zod';
-import { isValidObjectId, Schema } from 'mongoose';
+import { isValidObjectId } from 'mongoose';
 import { ApiResponseUtil } from '../../utils/apiResponse';
 import { AuthRequest } from '../../middleware/authMiddleware';
-import { UserRole } from '../../models/user';
 import { ValidationError } from '../../errors';
 import Candidate, { CandidateStatus } from '../../models/candidate';
+import Availability from '../../models/availability';
 
 /**
  * @route   GET /api/candidates
@@ -25,7 +24,7 @@ export async function getCandidates(req: AuthRequest, res: Response, next: NextF
             return ApiResponseUtil.success(res, [], 'No team assigned');
         }
 
-        const { name, email, status, groupIds } = req.query;
+        const { name, email, status, groupIds, hasAvailability } = req.query;
 
         const filter: any = {};
 
@@ -56,6 +55,21 @@ export async function getCandidates(req: AuthRequest, res: Response, next: NextF
 
             filter.groupIds = { $in: groupIds };
         };
+
+        // optional availability filter
+        if (hasAvailability !== undefined) {
+            if (hasAvailability !== 'true' && hasAvailability !== 'false') {
+                return next(new ValidationError(undefined, "hasAvailability must be true or false"));
+            }
+            const wants = hasAvailability === 'true';
+            if (wants) {
+                const availIds = await Availability.distinct('userId');
+                filter._id = { $in: availIds };
+            } else {
+                const availIds = await Availability.distinct('userId');
+                filter._id = { $nin: availIds };
+            }
+        }
 
         // Can only GET candidates in the same team
         filter.teamId = userTeamId;
