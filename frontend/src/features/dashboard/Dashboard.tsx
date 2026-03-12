@@ -7,9 +7,16 @@ import {
 	Availability,
 } from "./components";
 import { AdminSettings } from "../admin/components";
+import AddInterviewers from "../admin/components/AddInterviewers";
+import CandidateAvailability from "../admin/components/CandidateAvailability";
+import { useContext } from "react";
+import { AuthContext } from "@/features/auth/services/AuthContext";
+import { UserRole } from "@/features/auth/types/authTypes";
 
 export default function Dashboard() {
 	const [activePage, setActivePage] = useState<string>("dashboard");
+	const auth = useContext(AuthContext);
+	const isCandidate = auth?.user?.role === UserRole.CANDIDATE;
 
 	return (
 		<div className="flex flex-col h-screen">
@@ -30,6 +37,10 @@ export default function Dashboard() {
 						<AdminSettings />
 					) : activePage === "availability" ? (
 						<Availability />
+					) : activePage === "add-interviewers" && !isCandidate ? (
+						<AddInterviewers />
+					) : activePage === "candidate-availability" && !isCandidate ? (
+						<CandidateAvailability />
 					) : null}
 				</main>
 			</div>
