@@ -24,6 +24,10 @@ export default function DashboardSidebar({ activePage = "dashboard", onPageChang
 		e.preventDefault();
 		onPageChange?.("availability");
 	};
+	const handleTeamManagementClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
+		onPageChange?.("team-management");
+	};
 
 	return (
 		<aside className="w-64 bg-white p-6 shadow-md flex flex-col">
@@ -61,6 +65,17 @@ export default function DashboardSidebar({ activePage = "dashboard", onPageChang
 							<Users size={20} />
 							<span>Team Availability</span>
 						</a>
+						<button
+							onClick={handleTeamManagementClick}
+							className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+								activePage === "team-management"
+									? "bg-blue-100 text-blue-700 font-semibold"
+									: "text-gray-600 hover:bg-gray-200"
+							}`}
+						>
+							<Settings size={20} />
+							<span>Team Management</span>
+						</button>
 						<a
 							href="#"
 							className="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-200"
