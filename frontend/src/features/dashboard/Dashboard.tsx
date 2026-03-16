@@ -6,7 +6,7 @@ import {
 	InterviewScheduleSection,
 	Availability,
 } from "./components";
-import { AdminSettings } from "../admin/components";
+import { AdminSettings, TeamManagement } from "../admin/components";
 
 export default function Dashboard() {
 	const [activePage, setActivePage] = useState<string>("dashboard");
@@ -28,6 +28,8 @@ export default function Dashboard() {
 						</>
 					) : activePage === "admin-settings" ? (
 						<AdminSettings />
+					) : activePage === "team-management" ? (
+						<TeamManagement />
 					) : activePage === "availability" ? (
 						<Availability />
 					) : null}
