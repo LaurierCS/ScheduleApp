@@ -6,31 +6,43 @@ import {
 	InterviewScheduleSection,
 	Availability,
 } from "./components";
-import { AdminSettings } from "../admin/components";
+import {
+	AdminSettings,
+	AddTeamMembers,
+} from "../admin/components";
 
 export default function Dashboard() {
 	const [activePage, setActivePage] = useState<string>("dashboard");
 
+	const renderPage = () => {
+		switch (activePage) {
+			case "dashboard":
+				return (
+					<>
+						<CalendarStats />
+						<InterviewScheduleSection />
+					</>
+				);
+			case "availability":
+				return <Availability />;
+			case "admin-settings":
+				return <AdminSettings />;
+			case "add-team-members":
+				return <AddTeamMembers />;
+			default:
+				return null;
+		}
+	};
+
 	return (
 		<div className="flex flex-col h-screen">
-			<DashboardHeader />
-			
-			{/* Content Area with Sidebar */}
+			<DashboardHeader onPageChange={setActivePage} />
+
 			<div className="flex flex-1 overflow-hidden">
 				<DashboardSidebar activePage={activePage} onPageChange={setActivePage} />
 
-				{/* Main Content Area */}
-				<main className="flex-1 p-8 overflow-auto">
-					{activePage === "dashboard" ? (
-						<>
-							<CalendarStats />
-							<InterviewScheduleSection />
-						</>
-					) : activePage === "admin-settings" ? (
-						<AdminSettings />
-					) : activePage === "availability" ? (
-						<Availability />
-					) : null}
+				<main className="flex-1 p-8 overflow-auto bg-gray-50">
+					{renderPage()}
 				</main>
 			</div>
 		</div>

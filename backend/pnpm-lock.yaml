@@ -17,9 +17,6 @@ importers:
 
   .:
     dependencies:
-      '@types/multer':
-        specifier: ^2.1.0
-        version: 2.1.0
       '@types/nodemailer':
         specifier: ^7.0.5
         version: 7.0.5
@@ -75,6 +72,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.6
         version: 9.0.9
+      '@types/multer':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@types/node':
         specifier: ^20.13.0
         version: 20.17.23

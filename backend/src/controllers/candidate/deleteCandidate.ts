@@ -32,15 +32,14 @@ export async function deleteCandidate(req: AuthRequest, res: Response, next: Nex
             return ApiResponseUtil.error(res, 'Access denied: you can only delete candidates in your team', 403);
         }
 
-        // Check if candidate has associated resources (meetings, availability)
+        // Block deletion if candidate has scheduled meetings
         const meetings = await Meeting.find({ candidateId: candidate._id });
-        const availability = await Availability.find({ userId: candidate._id });
-        // Prevent deletion if resources exist
-        if (meetings.length > 0 || availability.length > 0) {
-            return next(new Error("Candidate has associated meetings or availabilities defined - preventing deletion."));
+        if (meetings.length > 0) {
+            return ApiResponseUtil.error(res, 'Cannot remove candidate with scheduled meetings', 409);
         }
 
-        // - Delete candidate from database
+        // Cascade delete availability records, then delete candidate
+        await Availability.deleteMany({ userId: candidate._id });
         await Candidate.findByIdAndDelete(candidate._id);
 
         // - Return success response

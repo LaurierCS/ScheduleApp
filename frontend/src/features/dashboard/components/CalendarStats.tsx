@@ -31,7 +31,8 @@ export default function CalendarStats() {
 
 			try {
 				setIsLoading(true);
-				const response = await authenticatedFetch(`/meetings/user/${user.id}`);
+				const endpoint = `/meetings/user/${user.id}`;
+				const response = await authenticatedFetch(endpoint);
 
 				if (!response.ok) {
 					throw new Error("Failed to fetch meetings");
@@ -125,7 +126,9 @@ export default function CalendarStats() {
 			<h1 className="text-3xl font-bold text-gray-900 mb-4">
 				Welcome back, {user?.name || "User"}!
 			</h1>
-			<h2 className="text-xl font-semibold text-gray-800 mb-4">Your calendar at a glance</h2>
+			<h2 className="text-xl font-semibold text-gray-800 mb-4">
+				Your calendar at a glance
+			</h2>
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 				{stats.map((stat, index) => (
 					<div key={index} className="border border-gray-200 rounded-lg p-4 text-left">

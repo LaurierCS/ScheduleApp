@@ -37,7 +37,8 @@ export default function InterviewScheduleSection() {
 
 			try {
 				setIsLoading(true);
-				const response = await authenticatedFetch(`/meetings/user/${user.id}`);
+				const endpoint = `/meetings/user/${user.id}`;
+				const response = await authenticatedFetch(endpoint);
 
 				if (!response.ok) {
 					throw new Error("Failed to fetch meetings");
@@ -166,7 +167,9 @@ export default function InterviewScheduleSection() {
 
 	return (
 		<section className="bg-white p-6 rounded-lg shadow-md">
-			<h2 className="text-xl font-semibold text-gray-800 mb-4">Interview Schedule</h2>
+			<h2 className="text-xl font-semibold text-gray-800 mb-4">
+				Interview Schedule
+			</h2>
 			{/* Tabs */}
 			<div className="flex border-b border-gray-200 mb-6">
 				{tabs.map((tab) => (

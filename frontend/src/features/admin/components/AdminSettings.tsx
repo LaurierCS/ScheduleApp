@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { X } from "lucide-react";
+import { AuthContext } from "@/features/auth/services/AuthContext";
+import { authenticatedFetch } from "@/features/auth/utils/authClient";
+import { getCurrentUser } from "@/features/auth/services/authApi";
 
 interface Moderator {
 	id: string;
@@ -19,6 +22,9 @@ interface Department {
 }
 
 export default function AdminSettings() {
+	const auth = useContext(AuthContext);
+	const user = auth?.user;
+
 	const [moderators, setModerators] = useState<Moderator[]>([
 		{ id: "1", name: "Jason Van-Humbeek", email: "jason@example.com", isMain: true },
 		{ id: "2", name: "Vincenzo Milano", email: "vincenzo@example.com" },
@@ -37,7 +43,24 @@ export default function AdminSettings() {
 	const [interviewersPerInterviewee, setInterviewersPerInterviewee] = useState<number>(2);
 	const [maxInterviewsPerDay, setMaxInterviewsPerDay] = useState<number>(5);
 
-	// Input visibility states
+	// Load saved roles/departments from API on mount, falling back to defaults
+	useEffect(() => {
+		if (!user?.teamId) {
+			if (!user) return;
+			getCurrentUser().then((fresh) => { if (fresh.teamId) auth?.setUser(fresh); }).catch(() => {});
+			return;
+		}
+		authenticatedFetch(`/teams/${user.teamId}/settings`)
+			.then((res) => res.ok ? res.json() : null)
+			.then((data) => {
+				if (!data) return;
+				const saved = data.data;
+				if (saved?.roles?.length) setRoles(saved.roles.map((name: string, i: number) => ({ id: String(i), name })));
+				if (saved?.departments?.length) setDepartments(saved.departments.map((name: string, i: number) => ({ id: String(i), name })));
+			})
+			.catch(() => {});
+	}, [user?.teamId]);
+
 	const [showRoleInput, setShowRoleInput] = useState(false);
 	const [newRoleName, setNewRoleName] = useState("");
 	const [showDeptInput, setShowDeptInput] = useState(false);
@@ -75,9 +98,6 @@ export default function AdminSettings() {
 
 	const inviteModerator = () => {
 		if (newModeratorEmail.trim()) {
-			// This would typically make an API call to send an invite email
-			console.log("Inviting moderator:", newModeratorEmail);
-			// For demo purposes, add them to the list
 			setModerators([
 				...moderators,
 				{
@@ -92,15 +112,24 @@ export default function AdminSettings() {
 		}
 	};
 
-	const handleSave = () => {
-		// This would typically make an API call to save all settings
-		console.log("Saving settings:", {
-			moderators,
-			roles,
-			departments,
-			interviewersPerInterviewee,
-			maxInterviewsPerDay,
-		});
+	const handleSave = async () => {
+		if (user?.teamId) {
+			try {
+				const payload = {
+					roles: roles.map((r) => r.name),
+					departments: departments.map((d) => d.name),
+				};
+				console.log("[AdminSettings] PUT /teams/settings payload:", payload);
+				const res = await authenticatedFetch(`/teams/${user.teamId}/settings`, {
+					method: "PUT",
+					body: JSON.stringify(payload),
+				});
+				const data = await res.json();
+				console.log("[AdminSettings] PUT /teams/settings response:", res.status, data);
+			} catch (err) {
+				console.error("[AdminSettings] save error:", err);
+			}
+		}
 		alert("Settings saved successfully!");
 	};
 
@@ -129,7 +158,7 @@ export default function AdminSettings() {
 							onChange={(e) => setNewModeratorEmail(e.target.value)}
 							placeholder="Enter moderator email"
 							className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-							onKeyPress={(e) => e.key === "Enter" && inviteModerator()}
+							onKeyDown={(e) => e.key === "Enter" && inviteModerator()}
 						/>
 						<button
 							onClick={inviteModerator}
@@ -238,7 +267,7 @@ export default function AdminSettings() {
 								onChange={(e) => setNewRoleName(e.target.value)}
 								placeholder="Enter role name"
 								className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-								onKeyPress={(e) => e.key === "Enter" && addRole()}
+								onKeyDown={(e) => e.key === "Enter" && addRole()}
 							/>
 							<button
 								onClick={addRole}
@@ -297,7 +326,7 @@ export default function AdminSettings() {
 								onChange={(e) => setNewDeptName(e.target.value)}
 								placeholder="Enter department name"
 								className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-								onKeyPress={(e) => e.key === "Enter" && addDepartment()}
+								onKeyDown={(e) => e.key === "Enter" && addDepartment()}
 							/>
 							<button
 								onClick={addDepartment}
