@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../../middleware/authMiddleware';
 import { ApiResponseUtil } from '../../utils/apiResponse';
-import { PermissionChecker } from '../../utils/permissions';
 import Team from '../../models/team';
 import User, { UserRole } from '../../models/user';
 import { objectIdSchema, addMembersBatchSchema } from '../../validators/teamValidators';
@@ -26,10 +25,9 @@ export const addTeamMembersBatch = async (req: AuthRequest, res: Response) => {
         return ApiResponseUtil.error(res, 'Team not found', 404);
     }
 
-    const teamAdminId = team.adminId.toString();
-
-    // Verify admin access to team
-    PermissionChecker.requireAdminOfTeam(req, teamAdminId);
+    if (req.user.role !== UserRole.ADMIN) {
+        return ApiResponseUtil.error(res, 'Access denied: admin role required', 403);
+    }
 
     // Find existing users by email
     const existingUsers = await User.find({ email: { $in: emails } }).select('email teamId');

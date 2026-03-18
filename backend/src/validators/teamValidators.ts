@@ -124,6 +124,8 @@ export const groupConfigSchema = z.object({
  * Schema for updating team settings
  */
 export const updateTeamSettingsSchema = z.object({
+    roles: z.array(z.string().min(1)).optional(),
+    departments: z.array(z.string().min(1)).optional(),
     defaultAvailability: z.object({
         Monday: defaultAvailabilitySchema.optional(),
         Tuesday: defaultAvailabilitySchema.optional(),

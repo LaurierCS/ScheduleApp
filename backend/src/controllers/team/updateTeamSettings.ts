@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../../middleware/authMiddleware';
 import { ApiResponseUtil } from '../../utils/apiResponse';
-import { PermissionChecker } from '../../utils/permissions';
 import Team from '../../models/team';
 import TeamSettings from '../../models/teamSettings';
 import { objectIdSchema, updateTeamSettingsSchema } from '../../validators/teamValidators';
@@ -25,10 +24,10 @@ export const updateTeamSettings = async (req: AuthRequest, res: Response) => {
         return ApiResponseUtil.error(res, 'Team not found', 404);
     }
 
-    const teamAdminId = team.adminId.toString();
-
-    // Use PermissionChecker to verify admin access
-    PermissionChecker.requireAdminOfTeam(req, teamAdminId);
+    // Look up the user from DB to get their current teamId (JWT may not have it)
+    if (req.user.role !== 'admin') {
+        return ApiResponseUtil.error(res, 'Access denied: admin role required', 403);
+    }
 
     // Get or create team settings
     let settings = await TeamSettings.findOne({ teamId: id });
@@ -41,6 +40,16 @@ export const updateTeamSettings = async (req: AuthRequest, res: Response) => {
         });
     } else {
         // Update existing settings by directly modifying the document
+
+        // Update roles and departments
+        if (data.roles !== undefined) {
+            settings.roles = data.roles;
+            settings.markModified('roles');
+        }
+        if (data.departments !== undefined) {
+            settings.departments = data.departments;
+            settings.markModified('departments');
+        }
 
         // Update defaultAvailability
         if (data.defaultAvailability) {

@@ -55,6 +55,8 @@ export interface IGroupConfig {
  */
 export interface ITeamSettings extends Document {
     teamId: Schema.Types.ObjectId;
+    roles: string[];
+    departments: string[];
     defaultAvailability: {
         Monday: IDefaultAvailability;
         Tuesday: IDefaultAvailability;
@@ -189,6 +191,14 @@ const TeamSettingsSchema: Schema = new Schema(
             ref: 'Team',
             required: [true, "Team ID is required"],
             unique: true, // One settings document per team
+        },
+        roles: {
+            type: [String],
+            default: [],
+        },
+        departments: {
+            type: [String],
+            default: [],
         },
         defaultAvailability: {
             Monday: {
