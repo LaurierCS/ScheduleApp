@@ -1,95 +1,11 @@
-import { useState } from "react";
+import { useAddInterviewers } from "../hooks";
 
 interface AddInterviewersProps {
 	departments?: string[];
 }
 
 export default function AddInterviewers({ departments = ["Engineering", "Design", "Marketing", "Product", "Operations"] }: AddInterviewersProps) {
-	const [activeTab, setActiveTab] = useState<"interviewers" | "candidates">("interviewers");
-	
-	// Interviewer form state
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
-	const [email, setEmail] = useState("");
-	const [department, setDepartment] = useState("");
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [successMessage, setSuccessMessage] = useState("");
-	const [errorMessage, setErrorMessage] = useState("");
-
-	// Candidate form state
-	const [candidateFirstName, setCandidateFirstName] = useState("");
-	const [candidateLastName, setCandidateLastName] = useState("");
-	const [candidateEmail, setCandidateEmail] = useState("");
-	const [candidateDepartment, setCandidateDepartment] = useState("");
-	const [isCandidateSubmitting, setIsCandidateSubmitting] = useState(false);
-	const [candidateSuccessMessage, setCandidateSuccessMessage] = useState("");
-	const [candidateErrorMessage, setCandidateErrorMessage] = useState("");
-
-	const handleSendInvite = async () => {
-		setSuccessMessage("");
-		setErrorMessage("");
-
-		if (!firstName || !lastName || !email || !department) {
-			setErrorMessage("Please fill in all fields.");
-			return;
-		}
-
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(email)) {
-			setErrorMessage("Please enter a valid email address.");
-			return;
-		}
-
-		try {
-			setIsSubmitting(true);
-			// TODO: Replace with actual API call
-			await new Promise((resolve) => setTimeout(resolve, 800));
-
-			setSuccessMessage(`Invite sent to ${email} successfully.`);
-			setFirstName("");
-			setLastName("");
-			setEmail("");
-			setDepartment("");
-		} catch (err) {
-			setErrorMessage("Failed to send invite. Please try again.");
-			console.log(err);
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
-
-	const handleSendCandidateInvite = async () => {
-		setCandidateSuccessMessage("");
-		setCandidateErrorMessage("");
-
-		if (!candidateFirstName || !candidateLastName || !candidateEmail || !candidateDepartment) {
-			setCandidateErrorMessage("Please fill in all fields.");
-			return;
-		}
-
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(candidateEmail)) {
-			setCandidateErrorMessage("Please enter a valid email address.");
-			return;
-		}
-
-		try {
-			setIsCandidateSubmitting(true);
-			// TODO: Replace with actual API call
-			await new Promise((resolve) => setTimeout(resolve, 800));
-
-			setCandidateSuccessMessage(`Invite sent to ${candidateEmail} successfully.`);
-			setCandidateFirstName("");
-			setCandidateLastName("");
-			setCandidateEmail("");
-			setCandidateDepartment("");
-		} catch (err) {
-			setCandidateErrorMessage("Failed to send invite. Please try again.");
-			console.log(err);
-		} finally {
-			setIsCandidateSubmitting(false);
-		}
-	};
+	const { activeTab, setActiveTab, interviewerInvite, candidateInvite } = useAddInterviewers();
 
 	const formUI = (
 		values: { firstName: string; lastName: string; email: string; department: string },
@@ -218,20 +134,40 @@ export default function AddInterviewers({ departments = ["Engineering", "Design"
                 <div key={activeTab} style={{ animation: "fadeIn 0.2s ease-in-out" }}>
                     {activeTab === "interviewers"
                         ? formUI(
-                                { firstName, lastName, email, department },
-                                { setFirstName, setLastName, setEmail, setDepartment },
-                                isSubmitting,
-                                successMessage,
-                                errorMessage,
-                                handleSendInvite
+                                {
+								firstName: interviewerInvite.firstName,
+								lastName: interviewerInvite.lastName,
+								email: interviewerInvite.email,
+								department: interviewerInvite.department,
+							},
+							{
+								setFirstName: interviewerInvite.setFirstName,
+								setLastName: interviewerInvite.setLastName,
+								setEmail: interviewerInvite.setEmail,
+								setDepartment: interviewerInvite.setDepartment,
+							},
+							interviewerInvite.isSubmitting,
+							interviewerInvite.successMessage,
+							interviewerInvite.errorMessage,
+							interviewerInvite.handleSendInvite
                         )
                         : formUI(
-                                { firstName: candidateFirstName, lastName: candidateLastName, email: candidateEmail, department: candidateDepartment },
-                                { setFirstName: setCandidateFirstName, setLastName: setCandidateLastName, setEmail: setCandidateEmail, setDepartment: setCandidateDepartment },
-                                isCandidateSubmitting,
-                                candidateSuccessMessage,
-                                candidateErrorMessage,
-                                handleSendCandidateInvite
+							{
+								firstName: candidateInvite.firstName,
+								lastName: candidateInvite.lastName,
+								email: candidateInvite.email,
+								department: candidateInvite.department,
+							},
+							{
+								setFirstName: candidateInvite.setFirstName,
+								setLastName: candidateInvite.setLastName,
+								setEmail: candidateInvite.setEmail,
+								setDepartment: candidateInvite.setDepartment,
+							},
+							candidateInvite.isSubmitting,
+							candidateInvite.successMessage,
+							candidateInvite.errorMessage,
+							candidateInvite.handleSendInvite
                         )}
                 </div>
             </div>
