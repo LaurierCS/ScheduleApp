@@ -1,104 +1,35 @@
-import { useState } from "react";
 import { X } from "lucide-react";
-
-interface Moderator {
-	id: string;
-	name: string;
-	email: string;
-	isMain?: boolean;
-}
-
-interface Role {
-	id: string;
-	name: string;
-}
-
-interface Department {
-	id: string;
-	name: string;
-}
+import { useAdminSettings } from "../hooks";
 
 export default function AdminSettings() {
-	const [moderators, setModerators] = useState<Moderator[]>([
-		{ id: "1", name: "Jason Van-Humbeek", email: "jason@example.com", isMain: true },
-		{ id: "2", name: "Vincenzo Milano", email: "vincenzo@example.com" },
-	]);
-
-	const [roles, setRoles] = useState<Role[]>([
-		{ id: "1", name: "Software Engineer" },
-		{ id: "2", name: "Academic Coordinator" },
-	]);
-
-	const [departments, setDepartments] = useState<Department[]>([
-		{ id: "1", name: "Eng" },
-		{ id: "2", name: "Academics" },
-	]);
-
-	const [interviewersPerInterviewee, setInterviewersPerInterviewee] = useState<number>(2);
-	const [maxInterviewsPerDay, setMaxInterviewsPerDay] = useState<number>(5);
-
-	const [showRoleInput, setShowRoleInput] = useState(false);
-	const [newRoleName, setNewRoleName] = useState("");
-	const [showDeptInput, setShowDeptInput] = useState(false);
-	const [newDeptName, setNewDeptName] = useState("");
-	const [showModeratorInput, setShowModeratorInput] = useState(false);
-	const [newModeratorEmail, setNewModeratorEmail] = useState("");
-
-	const removeModerator = (id: string) => {
-		setModerators(moderators.filter((mod) => mod.id !== id));
-	};
-
-	const removeRole = (id: string) => {
-		setRoles(roles.filter((role) => role.id !== id));
-	};
-
-	const removeDepartment = (id: string) => {
-		setDepartments(departments.filter((dept) => dept.id !== id));
-	};
-
-	const addRole = () => {
-		if (newRoleName.trim()) {
-			setRoles([...roles, { id: Date.now().toString(), name: newRoleName.trim() }]);
-			setNewRoleName("");
-			setShowRoleInput(false);
-		}
-	};
-
-	const addDepartment = () => {
-		if (newDeptName.trim()) {
-			setDepartments([...departments, { id: Date.now().toString(), name: newDeptName.trim() }]);
-			setNewDeptName("");
-			setShowDeptInput(false);
-		}
-	};
-
-	const inviteModerator = () => {
-		if (newModeratorEmail.trim()) {
-			console.log("Inviting moderator:", newModeratorEmail);
-			setModerators([
-				...moderators,
-				{
-					id: Date.now().toString(),
-					name: "Pending",
-					email: newModeratorEmail.trim(),
-				},
-			]);
-			setNewModeratorEmail("");
-			setShowModeratorInput(false);
-			alert(`Invite sent to ${newModeratorEmail}`);
-		}
-	};
-
-	const handleSave = () => {
-		console.log("Saving settings:", {
-			moderators,
-			roles,
-			departments,
-			interviewersPerInterviewee,
-			maxInterviewsPerDay,
-		});
-		alert("Settings saved successfully!");
-	};
+	const {
+		moderators,
+		roles,
+		departments,
+		interviewersPerInterviewee,
+		maxInterviewsPerDay,
+		showRoleInput,
+		newRoleName,
+		showDeptInput,
+		newDeptName,
+		showModeratorInput,
+		newModeratorEmail,
+		setInterviewersPerInterviewee,
+		setMaxInterviewsPerDay,
+		setShowRoleInput,
+		setNewRoleName,
+		setShowDeptInput,
+		setNewDeptName,
+		setShowModeratorInput,
+		setNewModeratorEmail,
+		removeModerator,
+		removeRole,
+		removeDepartment,
+		addRole,
+		addDepartment,
+		inviteModerator,
+		handleSave,
+	} = useAdminSettings();
 
 	return (
 		<div className="space-y-6 max-w-7xl">
