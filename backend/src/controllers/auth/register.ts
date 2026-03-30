@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import User, { UserRole } from '../../models/user';
 import RefreshToken from '../../models/RefreshToken';
 import Invite from '../../models/invite';
@@ -35,6 +36,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     // Determine role based on invite code
     let role = UserRole.CANDIDATE;
     let invite = null;
+    let invitedTeamId: mongoose.Types.ObjectId | undefined;
 
     if (inviteCode) {
       invite = await Invite.findOne({
@@ -53,6 +55,13 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       }
 
       role = invite.role;
+
+      const inviter = await User.findById(invite.createdBy).select('teamId');
+      const inviterTeamId = inviter?.teamId as mongoose.Types.ObjectId | undefined;
+      if (!inviter || !inviterTeamId) {
+        throw new ValidationError('Invite code is not linked to a team');
+      }
+      invitedTeamId = inviterTeamId;
     }
 
     // Create user with determined role
@@ -62,6 +71,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       email: email.toLowerCase().trim(),
       password,
       role,      // either admin role or candidate role by default
+      teamId: invitedTeamId,
       isActive: true
     });
 
