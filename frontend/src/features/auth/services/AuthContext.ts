@@ -22,7 +22,7 @@ export interface AuthContextType {
 
     // Methods
     login: (email: string, password: string) => Promise<User>;
-    register: (name: string, email: string, password: string) => Promise<User>;
+    register: (name: string, email: string, password: string, inviteCode?: string) => Promise<User>;
     logout: () => Promise<void>;
     clearError: () => void;               // Clear error message
     setUser: (user: User | null) => void; // Manually set user (for post-verification)

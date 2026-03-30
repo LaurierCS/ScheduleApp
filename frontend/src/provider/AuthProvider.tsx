@@ -115,14 +115,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (
     name: string,
     email: string,
-    password: string
+    password: string,
+    inviteCode?: string
   ): Promise<User> => {
     try {
       setIsLoading(true);
       setError(null);
 
       // Call the API
-      const response = await apiRegister({ name, email, password });
+      const response = await apiRegister({ name, email, password, inviteCode });
       
       // Store the response in sessionStorage for after email verification
       // NOTE: We DON'T call setTokens() or setUser() here - user must verify email first
