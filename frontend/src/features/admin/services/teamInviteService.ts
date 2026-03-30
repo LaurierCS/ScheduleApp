@@ -1,6 +1,25 @@
 import { authenticatedFetch } from "@/features/auth/utils/authClient";
 import type { InviteBatchResult, TeamCandidate, TeamInterviewer, TeamSettingsSummary } from "../types/inviteTypes";
 
+type CandidateResponse = {
+    _id?: string;
+    id?: string;
+    name: string;
+    email: string;
+    status?: string;
+    program?: string;
+    year?: number;
+};
+
+type InterviewerResponse = {
+    _id?: string;
+    id?: string;
+    name: string;
+    email: string;
+    status?: string;
+    skills?: string[];
+};
+
 const parseError = async (response: Response, fallback: string) => {
     try {
         const body = await response.json();
@@ -39,7 +58,7 @@ export const fetchTeamSettingsSummary = async (teamId: string): Promise<TeamSett
 
 export const fetchTeamCandidates = async (teamId: string): Promise<TeamCandidate[]> => {
     const response = await authenticatedFetch(`/teams/${teamId}/candidates`);
-    const data = await extractData<any[]>(response, "Failed to load candidates");
+    const data = await extractData<CandidateResponse[]>(response, "Failed to load candidates");
 
     return (data || []).map((candidate) => ({
         id: candidate._id || candidate.id,
@@ -53,7 +72,7 @@ export const fetchTeamCandidates = async (teamId: string): Promise<TeamCandidate
 
 export const fetchTeamInterviewers = async (teamId: string): Promise<TeamInterviewer[]> => {
     const response = await authenticatedFetch(`/teams/${teamId}/interviewers`);
-    const data = await extractData<any[]>(response, "Failed to load interviewers");
+    const data = await extractData<InterviewerResponse[]>(response, "Failed to load interviewers");
 
     return (data || []).map((interviewer) => ({
         id: interviewer._id || interviewer.id,
