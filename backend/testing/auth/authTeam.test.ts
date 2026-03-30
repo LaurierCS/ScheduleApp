@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import app from '../app';
-import User, { UserRole } from '../models/user';
-import Team from '../models/team';
-import Invite from '../models/invite';
-import JWTUtils from '../utils/jwt';
+import app from '../../src/app';
+import User, { UserRole } from '../../src/models/user';
+import Team from '../../src/models/team';
+import Invite from '../../src/models/invite';
+import JWTUtils from '../../src/utils/jwt';
 
 describe('auth team onboarding', () => {
     let mongo: MongoMemoryServer;
