@@ -18,9 +18,9 @@ const RecurrencePatternSchema = z.object({
 });
 
 /**
- * Zod schema for creating availability
+ * Base schema for availability payloads
  */
-export const CreateAvailabilitySchema = z.object({
+const AvailabilityBaseSchema = z.object({
     teamId: z.string().optional(),
     startTime: DateLike,
     endTime: DateLike,
@@ -28,33 +28,55 @@ export const CreateAvailabilitySchema = z.object({
     recurring: z.boolean().optional(),
     recurrencePattern: RecurrencePatternSchema.optional(),
     timezone: z.string().optional(),
-}).refine(
-    (data) => {
-        const start = new Date(data.startTime);
-        const end = new Date(data.endTime);
-        return end > start;
-    },
-    {
+});
+
+const addEndTimeIssue = (ctx: z.RefinementCtx) => {
+    ctx.addIssue({
+        code: z.ZodIssueCode.custom,
         message: "End time must be after start time",
         path: ["endTime"],
-    }
-).refine(
-    (data) => {
-        if (data.recurring && !data.recurrencePattern) {
-            return false;
-        }
-        return true;
-    },
-    {
+    });
+};
+
+const addRecurrenceIssue = (ctx: z.RefinementCtx) => {
+    ctx.addIssue({
+        code: z.ZodIssueCode.custom,
         message: "Recurring availabilities must have a recurrence pattern",
         path: ["recurrencePattern"],
+    });
+};
+
+/**
+ * Zod schema for creating availability
+ */
+export const CreateAvailabilitySchema = AvailabilityBaseSchema.superRefine((data, ctx) => {
+    const start = new Date(data.startTime);
+    const end = new Date(data.endTime);
+    if (end <= start) {
+        addEndTimeIssue(ctx);
     }
-);
+
+    if (data.recurring && !data.recurrencePattern) {
+        addRecurrenceIssue(ctx);
+    }
+});
 
 /**
  * Zod schema for updating availability
  */
-export const UpdateAvailabilitySchema = CreateAvailabilitySchema.partial();
+export const UpdateAvailabilitySchema = AvailabilityBaseSchema.partial().superRefine((data, ctx) => {
+    if (data.startTime && data.endTime) {
+        const start = new Date(data.startTime);
+        const end = new Date(data.endTime);
+        if (end <= start) {
+            addEndTimeIssue(ctx);
+        }
+    }
+
+    if (data.recurring && !data.recurrencePattern) {
+        addRecurrenceIssue(ctx);
+    }
+});
 
 /**
  * Schema for bulk availability submissions (array of single-slot payloads)
