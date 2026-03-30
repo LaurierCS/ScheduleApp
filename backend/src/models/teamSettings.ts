@@ -85,7 +85,7 @@ const DefaultTimeSlotSchema: Schema = new Schema(
             type: String,
             required: [true, "Start time is required"],
             validate: {
-                validator: function(v: string) {
+                validator: function (v: string) {
                     return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(v);
                 },
                 message: "Start time must be in HH:mm format"
@@ -95,7 +95,7 @@ const DefaultTimeSlotSchema: Schema = new Schema(
             type: String,
             required: [true, "End time is required"],
             validate: {
-                validator: function(v: string) {
+                validator: function (v: string) {
                     return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(v);
                 },
                 message: "End time must be in HH:mm format"
@@ -282,9 +282,6 @@ const TeamSettingsSchema: Schema = new Schema(
         timestamps: true,
     }
 );
-
-// Index for efficient queries
-TeamSettingsSchema.index({ teamId: 1 });
 
 const TeamSettings = mongoose.model<ITeamSettings>("TeamSettings", TeamSettingsSchema);
 

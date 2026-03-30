@@ -174,7 +174,6 @@ const UserSchema: Schema = new Schema(
     },
     {
         timestamps: true,            // Automatically adds and updates createdAt and updatedAt
-        discriminatorKey: 'role',
     }
 );
 
