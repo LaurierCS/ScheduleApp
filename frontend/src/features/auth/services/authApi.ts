@@ -45,7 +45,7 @@ export { setTokens, getAccessToken, getRefreshToken, clearTokens, hasValidToken 
 
 /**
  * Register a new user account
- * @param data - User registration data (name, email, password)
+ * @param data - User registration data (name, email, password, optional inviteCode)
  * @returns Promise with auth response including user and tokens
  */
 export const register = async (data: RegisterRequest): Promise<AuthResponse> => {
