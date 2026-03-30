@@ -53,7 +53,7 @@ type EmailTemplateDataMap = {
         inviterName: string,
         role: string,
         message?: string,
-        appUrl: string,
+        inviteCode: string,
     },
 }
 

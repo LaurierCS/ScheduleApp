@@ -1,297 +1,110 @@
-import { useState, useEffect, useContext } from "react";
-import { X, ClipboardList } from "lucide-react";
-import { AuthContext } from "@/features/auth/services/AuthContext";
-import { authenticatedFetch } from "@/features/auth/utils/authClient";
-import { getCurrentUser } from "@/features/auth/services/authApi";
+import { RefreshCw, Trash2 } from "lucide-react";
+import type { TeamCandidate } from "../types";
 
-interface Interviewee {
-	id: string;
-	name: string;
-	email: string;
-	role?: string;
-	status?: string;
-}
-
-const STATUS_COLORS: Record<string, string> = {
-	pending: "bg-yellow-100 text-yellow-700",
-	scheduled: "bg-blue-100 text-blue-700",
-	completed: "bg-green-100 text-green-700",
-	cancelled: "bg-red-100 text-red-700",
+type Props = {
+  items: TeamCandidate[];
+  isLoading: boolean;
+  error: string | null;
+  onRemove: (id: string) => void;
+  onRefresh: () => void;
 };
 
-export default function AddInterviewees() {
-	const auth = useContext(AuthContext);
-	const user = auth?.user;
+const statusTone = (status?: string) => {
+  switch (status) {
+    case "active":
+      return "bg-emerald-100 text-emerald-700";
+    case "completed":
+      return "bg-slate-200 text-slate-700";
+    case "declined":
+      return "bg-rose-100 text-rose-700";
+    case "pending":
+      return "bg-amber-100 text-amber-700";
+    default:
+      return "bg-slate-100 text-slate-600";
+  }
+};
 
-	const [interviewees, setInterviewees] = useState<Interviewee[]>([]);
-	const [roles, setRoles] = useState<string[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [fetchKey, setFetchKey] = useState(0);
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
-	const [email, setEmail] = useState("");
-	const [role, setRole] = useState("");
-	const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+export default function AddInterviewees({
+  items,
+  isLoading,
+  error,
+  onRemove,
+  onRefresh,
+}: Props) {
+  return (
+    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-gray-500">Candidates</p>
+          <h2 className="mt-1 text-lg font-semibold text-gray-900">Interview pipeline</h2>
+        </div>
+        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+          {items.length}
+        </span>
+      </div>
 
-
-	useEffect(() => {
-		if (auth?.isLoading) return;
-		if (!user) { setIsLoading(false); return; }
-		if (!user.teamId) {
-			getCurrentUser()
-				.then((fresh) => { if (fresh.teamId) auth?.setUser(fresh); else setIsLoading(false); })
-				.catch(() => setIsLoading(false));
-			return;
-		}
-		const fetchInterviewees = async () => {
-			try {
-				setIsLoading(true);
-				setError(null);
-				const [candidatesRes, settingsRes] = await Promise.all([
-					authenticatedFetch(`/teams/${user.teamId}/candidates`),
-					authenticatedFetch(`/teams/${user.teamId}/settings`),
-				]);
-				if (!candidatesRes.ok) throw new Error(`Failed to fetch interviewees (${candidatesRes.status})`);
-				const data = await candidatesRes.json();
-				const raw = data.data || [];
-				setInterviewees(
-					raw.map((c: { _id?: string; id?: string; name: string; email: string; role?: string; status?: string }) => ({
-						id: c._id || c.id,
-						name: c.name,
-						email: c.email,
-						role: c.role,
-						status: c.status,
-					}))
-				);
-				if (settingsRes.ok) {
-					const settingsData = await settingsRes.json();
-					console.log("[AddInterviewees] settings response:", settingsData);
-					setRoles(settingsData.data?.roles || []);
-				} else {
-					console.warn("[AddInterviewees] settings fetch failed:", settingsRes.status);
-				}
-			} catch (err) {
-				setError(err instanceof Error ? err.message : "Failed to load interviewees");
-			} finally {
-				setIsLoading(false);
-			}
-		};
-		fetchInterviewees();
-	}, [user?.id, user?.teamId, auth?.isLoading, fetchKey]);
-
-	const sendInvite = async () => {
-		if (!firstName.trim() || !lastName.trim()) {
-			setStatus({ type: "error", message: "First and last name are required." });
-			return;
-		}
-		if (!email.trim()) {
-			setStatus({ type: "error", message: "Email is required." });
-			return;
-		}
-
-		try {
-			const fullName = `${firstName.trim()} ${lastName.trim()}`;
-			const response = await authenticatedFetch("/candidates", {
-				method: "POST",
-				body: JSON.stringify({
-					name: fullName,
-					email: email.trim(),
-					role: role || undefined,
-					teamId: user?.teamId,
-				}),
-			});
-			if (!response.ok) {
-				const data = await response.json().catch(() => ({}));
-				throw new Error(data?.message || "Failed to send invite");
-			}
-			const data = await response.json();
-			const created = data.data;
-			setInterviewees((prev) => [
-				...prev,
-				{
-					id: created._id || created.id,
-					name: created.name,
-					email: created.email,
-					role: created.role,
-					status: created.status,
-				},
-			]);
-			setStatus({ type: "success", message: `Invite sent to ${email.trim()}.` });
-			setFirstName(""); setLastName(""); setEmail(""); setRole("");
-		} catch (err) {
-			setStatus({ type: "error", message: err instanceof Error ? err.message : "Failed to send invite" });
-		}
-	};
-
-	const removeInterviewee = async (id: string) => {
-		try {
-			const response = await authenticatedFetch(`/candidates/${id}`, { method: "DELETE" });
-			if (!response.ok) throw new Error("Failed to remove interviewee");
-			setInterviewees(interviewees.filter((i) => i.id !== id));
-		} catch (err) {
-			setStatus({ type: "error", message: err instanceof Error ? err.message : "Failed to remove interviewee" });
-		}
-	};
-
-	return (
-		<div className="space-y-6">
-			{status && (
-				<div
-					className={`p-3 rounded-md text-sm ${
-						status.type === "success"
-							? "bg-green-50 text-green-700 border border-green-200"
-							: "bg-red-50 text-red-700 border border-red-200"
-					}`}
-				>
-					{status.message}
-					<button className="ml-2 underline text-xs" onClick={() => setStatus(null)}>
-						dismiss
-					</button>
-				</div>
-			)}
-
-			<div className="bg-white p-6 rounded-lg shadow-sm">
-				<div className="flex items-center gap-2 mb-5">
-					<ClipboardList size={20} className="text-gray-600" />
-					<h2 className="text-lg font-semibold text-gray-900">Invite Interviewee</h2>
-				</div>
-
-				<div className="space-y-4">
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-							<input
-								type="text"
-								value={firstName}
-								onChange={(e) => setFirstName(e.target.value)}
-								placeholder="First name"
-								className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-							/>
-						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-							<input
-								type="text"
-								value={lastName}
-								onChange={(e) => setLastName(e.target.value)}
-								placeholder="Last name"
-								className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-							/>
-						</div>
-					</div>
-
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-						<input
-							type="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							placeholder="Email address"
-							className="w-full md:w-96 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-						/>
-					</div>
-
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">Applying for Role</label>
-						<select
-							value={role}
-							onChange={(e) => setRole(e.target.value)}
-							className="w-full md:w-64 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-						>
-							<option value="">Select role (optional)</option>
-							{roles.map((r) => (
-								<option key={r} value={r}>{r}</option>
-							))}
-						</select>
-						{roles.length === 0 && (
-							<p className="text-xs text-gray-400 mt-1">No roles configured. Add them in Admin Settings.</p>
-						)}
-					</div>
-
-					<div>
-						<button
-							onClick={sendInvite}
-							className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-						>
-							Send Invite
-						</button>
-					</div>
-				</div>
-			</div>
-
-			<div className="bg-white p-6 rounded-lg shadow-sm">
-				<div className="flex items-center gap-2 mb-4">
-					<h2 className="text-lg font-semibold text-gray-900">Interviewees</h2>
-					{!isLoading && (
-						<span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-							{interviewees.length}
-						</span>
-					)}
-				</div>
-
-				{isLoading ? (
-					<div className="space-y-3">
-						{[1, 2, 3].map((i) => (
-							<div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-								<div className="h-8 w-8 bg-gray-200 rounded-full" />
-								<div className="flex-1 space-y-1">
-									<div className="h-4 w-32 bg-gray-200 rounded" />
-									<div className="h-3 w-48 bg-gray-200 rounded" />
-								</div>
-							</div>
-						))}
-					</div>
-				) : error ? (
-					<div className="p-3 bg-red-50 border border-red-200 rounded-md flex items-center justify-between">
-						<p className="text-sm text-red-600">{error}</p>
-						<button onClick={() => setFetchKey(k => k + 1)} className="text-xs text-red-500 underline ml-3">Retry</button>
-					</div>
-				) : interviewees.length === 0 ? (
-					<p className="text-sm text-gray-500 text-center py-8">No interviewees yet.</p>
-				) : (
-					<div className="space-y-2">
-						{interviewees.map((interviewee) => (
-							<div
-								key={interviewee.id}
-								className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
-							>
-								<div className="flex items-center gap-3">
-									<div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm font-medium">
-										{interviewee.name.charAt(0).toUpperCase()}
-									</div>
-									<div>
-										<p className="text-sm font-medium text-gray-800">{interviewee.name}</p>
-										<p className="text-xs text-gray-500">{interviewee.email}</p>
-									</div>
-								</div>
-								<div className="flex items-center gap-2">
-									{interviewee.role && (
-										<span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-											{interviewee.role}
-										</span>
-									)}
-									{interviewee.status && (
-										<span
-											className={`text-xs px-2 py-0.5 rounded-full capitalize ${
-												STATUS_COLORS[interviewee.status] || "bg-gray-100 text-gray-600"
-											}`}
-										>
-											{interviewee.status}
-										</span>
-									)}
-									<button
-										onClick={() => removeInterviewee(interviewee.id)}
-										className="text-gray-400 hover:text-red-500 transition-colors"
-									>
-										<X size={15} />
-									</button>
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-			</div>
-		</div>
-	);
+      {isLoading ? (
+        <div className="mt-4 space-y-3">
+          {[1, 2, 3].map((item) => (
+            <div
+              key={item}
+              className="h-12 animate-pulse rounded-lg bg-gray-100"
+            />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-sm text-red-700">{error}</p>
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-red-700"
+          >
+            <RefreshCw size={14} />
+            Refresh
+          </button>
+        </div>
+      ) : items.length === 0 ? (
+        <div className="mt-4 rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center">
+          <p className="text-sm text-gray-500">No candidates yet.</p>
+        </div>
+      ) : (
+        <div className="mt-4 space-y-3">
+          {items.map((candidate) => (
+            <div
+              key={candidate.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+            >
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{candidate.name}</p>
+                <p className="text-xs text-gray-500">{candidate.email}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {candidate.program && (
+                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                    {candidate.program}
+                  </span>
+                )}
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusTone(
+                    candidate.status
+                  )}`}
+                >
+                  {candidate.status || "pending"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onRemove(candidate.id)}
+                  className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:text-red-600"
+                >
+                  <Trash2 size={14} />
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }

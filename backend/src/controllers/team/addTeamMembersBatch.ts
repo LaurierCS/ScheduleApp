@@ -3,8 +3,10 @@ import { AuthRequest } from '../../middleware/authMiddleware';
 import { ApiResponseUtil } from '../../utils/apiResponse';
 import Team from '../../models/team';
 import User, { UserRole } from '../../models/user';
+import Invite from '../../models/invite';
 import { objectIdSchema, addMembersBatchSchema } from '../../validators/teamValidators';
 import EmailService from '../../email/email';
+import CodeGenerator from '../../utils/codeGenerator';
 
 /**
  * Add multiple members to team via email invitations (batch operation)
@@ -18,6 +20,9 @@ export const addTeamMembersBatch = async (req: AuthRequest, res: Response) => {
 
     const id = objectIdSchema.parse(req.params.id);
     const { emails, role, message } = addMembersBatchSchema.parse(req.body);
+    const normalizedEmails = Array.from(
+        new Set(emails.map((email) => email.toLowerCase().trim()))
+    );
 
     const team = await Team.findById(id);
 
@@ -30,7 +35,7 @@ export const addTeamMembersBatch = async (req: AuthRequest, res: Response) => {
     }
 
     // Find existing users by email
-    const existingUsers = await User.find({ email: { $in: emails } }).select('email teamId');
+    const existingUsers = await User.find({ email: { $in: normalizedEmails } }).select('email teamId');
     const existingEmails = new Set(existingUsers.map(user => user.email));
 
     // Check if any existing users are already in a team
@@ -45,7 +50,7 @@ export const addTeamMembersBatch = async (req: AuthRequest, res: Response) => {
     }
 
     // Get emails that need invitations (don't exist as users yet)
-    const emailsToInvite = emails.filter(email => !existingEmails.has(email));
+    const emailsToInvite = normalizedEmails.filter(email => !existingEmails.has(email));
 
     // Update existing users to join the team
     const existingUsersToUpdate = existingUsers.filter(user => !user.teamId);
@@ -60,34 +65,55 @@ export const addTeamMembersBatch = async (req: AuthRequest, res: Response) => {
     }
 
     // Send invitation emails for new users
+    const inviteEntries: Array<{ email: string; inviteCode: string }> = [];
     if (emailsToInvite.length > 0) {
-        try {
-            const emailService = await EmailService.create();
-            const inviterName = req.user.name || req.user.email;
-            const roleDisplay = role || UserRole.INTERVIEWER;
+        const inviterName = req.user.name || req.user.email;
+        const roleDisplay = role || UserRole.INTERVIEWER;
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-            // Send invitations concurrently
-            await Promise.all(
-                emailsToInvite.map(email =>
-                    emailService.sendTeamInvitation(
-                        email,
-                        team.name,
-                        inviterName,
-                        roleDisplay,
-                        message
+        for (const email of emailsToInvite) {
+            try {
+                const inviteCode = CodeGenerator.generate6DigitCode();
+                await new Invite({
+                    code: inviteCode,
+                    email,
+                    role: roleDisplay,
+                    createdBy: req.user._id,
+                    expiresAt,
+                    isActive: true,
+                }).save();
+                inviteEntries.push({ email, inviteCode });
+            } catch (inviteError) {
+                console.error('Invite creation error:', email, inviteError);
+            }
+        }
+
+        if (inviteEntries.length > 0) {
+            try {
+                const emailService = await EmailService.create();
+                await Promise.all(
+                    inviteEntries.map((entry) =>
+                        emailService.sendTeamInvitation(
+                            entry.email,
+                            team.name,
+                            inviterName,
+                            roleDisplay,
+                            entry.inviteCode,
+                            message
+                        )
                     )
-                )
-            );
-        } catch (emailError) {
-            console.error('Email sending error:', emailError);
-            // Don't fail the whole operation if emails fail
+                );
+            } catch (emailError) {
+                console.error('Email sending error:', emailError);
+                // Don't fail the whole operation if emails fail
+            }
         }
     }
 
     const result = {
         addedUsers: existingUsersToUpdate.length,
-        invitationsSent: emailsToInvite.length,
-        invitedEmails: emailsToInvite,
+        invitationsSent: inviteEntries.length,
+        invitedEmails: inviteEntries.map((entry) => entry.email),
     };
 
     return ApiResponseUtil.success(

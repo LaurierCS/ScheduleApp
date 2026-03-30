@@ -119,6 +119,7 @@ class EmailService {
      * @param teamName - Name of the team they're being invited to
      * @param inviterName - Name of the person sending the invitation
      * @param role - Role they'll have in the team
+     * @param inviteCode - Invite code to use during signup
      * @param message - Optional custom message from inviter
      */
     async sendTeamInvitation(
@@ -126,17 +127,16 @@ class EmailService {
         teamName: string,
         inviterName: string,
         role: string,
+        inviteCode: string,
         message?: string
     ): Promise<void> {
-        const appUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-
         const { subject, html, plain } = await this.templateManager.renderTemplate('teamInvitation', {
             recipientEmail,
             teamName,
             inviterName,
             role,
             message,
-            appUrl,
+            inviteCode,
         });
 
         const mailOptions = {
