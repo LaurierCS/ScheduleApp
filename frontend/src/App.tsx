@@ -10,7 +10,6 @@ import {
 	ForgotPassword,
 } from '@/features/auth/components'
 import Dashboard from '@/features/dashboard/Dashboard'
-import JoinATeam from '@/features/candidate/components/JoinATeam'
 import CreateOrJoinTeam from '@/features/auth/CreateOrJoinTeam'
 import Availability from '@/features/dashboard/components/Availability'
 import ProtectedRoute from '@/utils/ProtectedRoute'
@@ -26,7 +25,6 @@ function App() {
 					<Route path="/status" element={<StatusDashboard />} />
 					<Route path="/signup" element={<SignupForm />} />
 					<Route path="/signin" element={<SigninForm />} />
-					<Route path="/joinateam" element={<JoinATeam />} />
 					<Route path="/create-or-join-team" element={<CreateOrJoinTeam />} />
 					<Route path="/new-password-made" element={<NewPasswordMade />} />
 					<Route path="/2fa" element={<TwoFactorAuth />} />
