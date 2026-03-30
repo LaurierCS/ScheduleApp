@@ -14,8 +14,9 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
+    setupFiles: './testing/setup.ts',
     globals: true,
+    include: ['testing/**/*.{test,spec}.ts', 'testing/**/*.{test,spec}.tsx'],
   },
   // get port from .env file or default to 7123
   server: {
