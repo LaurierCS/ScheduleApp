@@ -60,27 +60,55 @@ export const fetchTeamCandidates = async (teamId: string): Promise<TeamCandidate
     const response = await authenticatedFetch(`/teams/${teamId}/candidates`);
     const data = await extractData<CandidateResponse[]>(response, "Failed to load candidates");
 
-    return (data || []).map((candidate) => ({
-        id: candidate._id || candidate.id,
-        name: candidate.name,
-        email: candidate.email,
-        status: candidate.status,
-        program: candidate.program,
-        year: candidate.year,
-    }));
+    return (data || [])
+        .map((candidate) => {
+            const id = candidate._id ?? candidate.id;
+            if (!id) {
+                return null;
+            }
+            const item: TeamCandidate = {
+                id,
+                name: candidate.name,
+                email: candidate.email,
+            };
+            if (candidate.status !== undefined) {
+                item.status = candidate.status;
+            }
+            if (candidate.program !== undefined) {
+                item.program = candidate.program;
+            }
+            if (candidate.year !== undefined) {
+                item.year = candidate.year;
+            }
+            return item;
+        })
+        .filter((candidate): candidate is TeamCandidate => candidate !== null);
 };
 
 export const fetchTeamInterviewers = async (teamId: string): Promise<TeamInterviewer[]> => {
     const response = await authenticatedFetch(`/teams/${teamId}/interviewers`);
     const data = await extractData<InterviewerResponse[]>(response, "Failed to load interviewers");
 
-    return (data || []).map((interviewer) => ({
-        id: interviewer._id || interviewer.id,
-        name: interviewer.name,
-        email: interviewer.email,
-        status: interviewer.status,
-        skills: interviewer.skills,
-    }));
+    return (data || [])
+        .map((interviewer) => {
+            const id = interviewer._id ?? interviewer.id;
+            if (!id) {
+                return null;
+            }
+            const item: TeamInterviewer = {
+                id,
+                name: interviewer.name,
+                email: interviewer.email,
+            };
+            if (interviewer.status !== undefined) {
+                item.status = interviewer.status;
+            }
+            if (interviewer.skills !== undefined) {
+                item.skills = interviewer.skills;
+            }
+            return item;
+        })
+        .filter((interviewer): interviewer is TeamInterviewer => interviewer !== null);
 };
 
 export const sendCandidateInvites = async (
