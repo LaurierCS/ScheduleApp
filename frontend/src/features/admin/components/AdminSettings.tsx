@@ -59,7 +59,7 @@ export default function AdminSettings() {
 				if (saved?.departments?.length) setDepartments(saved.departments.map((name: string, i: number) => ({ id: String(i), name })));
 			})
 			.catch(() => {});
-	}, [user?.teamId]);
+	}, [auth, user]);
 
 	const [showRoleInput, setShowRoleInput] = useState(false);
 	const [newRoleName, setNewRoleName] = useState("");
